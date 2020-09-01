@@ -164,3 +164,6 @@ go run build.go -cc=gcc -skipRpm -skipDeb build-frontend
 header 'build package archive...'
 go run build.go -cc=gcc -skipRpm -skipDeb pkg-archive
 go run build.go -cc=gcc -skipRpm -skipDeb sha-dist
+
+header 'build output:'
+ls -lh dist
