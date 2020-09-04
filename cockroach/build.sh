@@ -202,7 +202,7 @@ function vendor_replace {
 	cp -r "$ROOT/patches/$1/" "$targ/"
 }
 
-stamp="$CACHE/patched.stamp"
+stamp="$ROOT/cache/patched.stamp"
 if [[ ! -f "$stamp" ]]; then
 	for f in $ROOT/patches/*.patch; do
 		if [[ ! -f $f ]]; then
@@ -236,13 +236,46 @@ export PATH="$GOPATH/bin:$GOROOT/bin:$YARNROOT/bin:$WORKAROUND:$PATH"
 
 cd "$GOPATH/src/github.com/cockroachdb/cockroach"
 
-info 'running gmake build...'
-BUILDCHANNEL=source-archive \
-    gmake -j4 build
+#info 'running gmake build...'
+#BUILDCHANNEL=source-archive \
+#    gmake -j4 build
 
-info 'copying final executable...'
+info 'copying final executables and libraries...'
+
+cd "$ROOT"
+
+rm -rf "$WORK/tmp"
+mkdir -p "$WORK/tmp"
+rm -rf "$WORK/cockroach-v$VER"
+mkdir -p "$WORK/cockroach-v$VER/bin"
+mkdir -p "$WORK/cockroach-v$VER/lib"
+
+#
+# Get the set of libraries we need to include from the build system.
+# (this is somewhat less than ideal, but will do until we are packaging
+# correctly...)
+#
+libs=$(ldd "$GOPATH/src/github.com/cockroachdb/cockroach/cockroach" |
+    awk '$3 !~ "^/lib/64" { print $3 }')
+for lib in $libs; do
+	bn=$(basename "$lib")
+	cp "$lib" "$WORK/tmp/$bn"
+	chmod 0755 "$WORK/tmp/$bn"
+	/usr/bin/elfedit -e 'dyn:rpath $ORIGIN/../lib' "$WORK/tmp/$bn"
+	mv "$WORK/tmp/$bn" "$WORK/cockroach-v$VER/lib/$bn"
+done
+
 cp "$GOPATH/src/github.com/cockroachdb/cockroach/cockroach" \
-    "$WORK/cockroach"
+    "$WORK/tmp/cockroach"
+/usr/bin/elfedit -e 'dyn:rpath $ORIGIN/../lib' "$WORK/tmp/cockroach"
+mv "$WORK/tmp/cockroach" "$WORK/cockroach-v$VER/bin"
+
+ldd "$WORK/cockroach-v$VER/bin/cockroach"
+
+/usr/bin/tar cvfz $WORK/cockroach-v$VER.illumos.tar.gz -C $WORK cockroach-v$VER
+
+rm -rf "$WORK/cockroach-v$VER"
+rm -rf "$WORK/tmp"
 
 header 'build output:'
 find "$WORK" -type f -ls
