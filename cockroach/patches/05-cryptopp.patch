@@ -1,0 +1,18 @@
+--- cockroach-v20.1.5-pristine/src/github.com/cockroachdb/cockroach/c-deps/cryptopp/config.h	Mon Aug 24 12:36:14 2020
++++ cockroach-v20.1.5/src/github.com/cockroachdb/cockroach/c-deps/cryptopp/config.h	Thu Sep  3 23:48:29 2020
+@@ -576,14 +576,7 @@
+ #	define CRYPTOPP_CONSTANT(x) static const int x;
+ #endif
+ 
+-// Linux provides X32, which is 32-bit integers, longs and pointers on x86_64 using the full x86_64 register set.
+-// Detect via __ILP32__ (http://wiki.debian.org/X32Port). However, __ILP32__ shows up in more places than
+-// the System V ABI specs calls out, like on just about any 32-bit system with Clang.
+-#if ((__ILP32__ >= 1) || (_ILP32 >= 1)) && defined(__x86_64__)
+-	#define CRYPTOPP_BOOL_X32 1
+-#else
+-	#define CRYPTOPP_BOOL_X32 0
+-#endif
++#define CRYPTOPP_BOOL_X32 0
+ 
+ // see http://predef.sourceforge.net/prearch.html
+ #if (defined(_M_IX86) || defined(__i386__) || defined(__i386) || defined(_X86_) || defined(__I86__) || defined(__INTEL__)) && !CRYPTOPP_BOOL_X32
