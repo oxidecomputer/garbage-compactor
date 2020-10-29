@@ -87,6 +87,9 @@ GOURL="https://illumos.org/downloads/go$GOVER.illumos-amd64.tar.gz"
 YARNVER='1.22.5'
 YARNURL="https://github.com/yarnpkg/yarn/releases/download/v$YARNVER/yarn-v$YARNVER.tar.gz"
 
+GCC_BIN="$(which gcc 2>/dev/null)" || fatal "did not find 'gcc' on PATH"
+GCC_DIR="$(dirname "$GCC_BIN")"
+
 #
 # Download artefacts to use during build:
 #
@@ -137,27 +140,27 @@ exec gmake "$@"
 EOF
 chmod 0755 "$WORKAROUND/make"
 
-cat >"$WORKAROUND/cc" <<'EOF'
+cat >"$WORKAROUND/cc" <<EOF
 #!/usr/bin/bash
-exec /usr/gcc/9/bin/gcc -m64 "$@"
+exec "$GCC_DIR/gcc" -m64 "\$@"
 EOF
 chmod 0755 "$WORKAROUND/cc"
 
-cat >"$WORKAROUND/gcc" <<'EOF'
+cat >"$WORKAROUND/gcc" <<EOF
 #!/usr/bin/bash
-exec /usr/gcc/9/bin/gcc -m64 "$@"
+exec "$GCC_DIR/gcc" -m64 "\$@"
 EOF
 chmod 0755 "$WORKAROUND/gcc"
 
-cat >"$WORKAROUND/g++" <<'EOF'
+cat >"$WORKAROUND/g++" <<EOF
 #!/usr/bin/bash
-exec /usr/gcc/9/bin/g++ -m64 "$@"
+exec "$GCC_DIR/g++" -m64 "\$@"
 EOF
 chmod 0755 "$WORKAROUND/g++"
 
-cat >"$WORKAROUND/c++" <<'EOF'
+cat >"$WORKAROUND/c++" <<EOF
 #!/usr/bin/bash
-exec /usr/gcc/9/bin/g++ -m64 "$@"
+exec "$GCC_DIR/g++" -m64 "\$@"
 EOF
 chmod 0755 "$WORKAROUND/c++"
 
@@ -236,9 +239,9 @@ export PATH="$GOPATH/bin:$GOROOT/bin:$YARNROOT/bin:$WORKAROUND:$PATH"
 
 cd "$GOPATH/src/github.com/cockroachdb/cockroach"
 
-#info 'running gmake build...'
-#BUILDCHANNEL=source-archive \
-#    gmake -j4 build
+info 'running gmake build...'
+BUILDCHANNEL=source-archive \
+    gmake -j2 build
 
 info 'copying final executables and libraries...'
 
