@@ -78,17 +78,23 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='20.1.5'
+VER='20.2.0-rc.4'
 URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
 
-GOVER='1.14.6'
+GOVER='1.15.3'
 GOURL="https://illumos.org/downloads/go$GOVER.illumos-amd64.tar.gz"
 
 YARNVER='1.22.5'
 YARNURL="https://github.com/yarnpkg/yarn/releases/download/v$YARNVER/yarn-v$YARNVER.tar.gz"
-
-GCC_BIN="$(which gcc 2>/dev/null)" || fatal "did not find 'gcc' on PATH"
-GCC_DIR="$(dirname "$GCC_BIN")"
+if [[ -x /usr/gcc/9/bin/gcc ]]; then
+	GCC_DIR=/usr/gcc/9/bin
+elif [[ -x /opt/gcc-9/bin/gcc ]]; then
+	GCC_DIR=/opt/gcc-9/bin
+else
+	fatal "Could not find GCC in any expected location"
+fi
+info "using $GCC_DIR/gcc: $($GCC_DIR/gcc --version | head -1)"
+info "using $GCC_DIR/g++: $($GCC_DIR/g++ --version | head -1)"
 
 #
 # Download artefacts to use during build:
@@ -98,7 +104,7 @@ header 'downloading artefacts'
 yarnfile="$ARTEFACT/yarn-v$YARNVER.tar.gz"
 download_to yarn "$YARNURL" "$yarnfile"
 
-gofile="$ARTEFACT/go1.14.6.illumos-amd64.tar.gz"
+gofile="$ARTEFACT/go$GOVER.illumos-amd64.tar.gz"
 download_to go "$GOURL" "$gofile"
 
 file="$ARTEFACT/cockroach-v$VER.src.tgz"
@@ -182,6 +188,12 @@ exec ginstall "$@"
 EOF
 chmod 0755 "$WORKAROUND/install"
 
+cat >"$WORKAROUND/make" <<'EOF'
+#!/usr/bin/bash
+exec gmake "$@"
+EOF
+chmod 0755 "$WORKAROUND/make"
+
 cat >"$WORKAROUND/ps" <<'EOF'
 #!/usr/bin/bash
 if [[ $1 == '-o' && $2 == 'args=' && $3 && !$4 ]]; then
@@ -248,15 +260,31 @@ header 'building cockroach'
 
 export PATH="$GOPATH/bin:$GOROOT/bin:$YARNROOT/bin:$WORKAROUND:$PATH"
 
-cd "$GOPATH/src/github.com/cockroachdb/cockroach"
+#
+# We want to avoid any CCL-licenced code (enterprise features) because these
+# are proprietary software and require a separate licence agreement with the
+# Cockroach people.
+#
+buildtype=oss
 
-info 'running gmake build...'
+args=()
+if [[ -n $JOBS ]]; then
+	if [[ $JOBS != 1 ]]; then
+		args+=( "-j$JOBS" )
+	fi
+else
+	args+=( "-j2" )
+fi
+
+info "running gmake build$buildtype..."
 BUILDCHANNEL=source-archive \
-    gmake -j2 build
+    gmake \
+    -C "$GOPATH/src/github.com/cockroachdb/cockroach" \
+    "${args[@]}" \
+    "build$buildtype" \
+    BUILDTYPE=release
 
 info 'copying final executables and libraries...'
-
-cd "$ROOT"
 
 rm -rf "$WORK/tmp"
 mkdir -p "$WORK/tmp"
@@ -269,7 +297,7 @@ mkdir -p "$WORK/cockroach-v$VER/lib"
 # (this is somewhat less than ideal, but will do until we are packaging
 # correctly...)
 #
-libs=$(ldd "$GOPATH/src/github.com/cockroachdb/cockroach/cockroach" |
+libs=$(ldd "$GOPATH/src/github.com/cockroachdb/cockroach/cockroach$buildtype" |
     awk '$3 !~ "^/lib/64" { print $3 }')
 for lib in $libs; do
 	bn=$(basename "$lib")
@@ -279,7 +307,7 @@ for lib in $libs; do
 	mv "$WORK/tmp/$bn" "$WORK/cockroach-v$VER/lib/$bn"
 done
 
-cp "$GOPATH/src/github.com/cockroachdb/cockroach/cockroach" \
+cp "$GOPATH/src/github.com/cockroachdb/cockroach/cockroach$buildtype" \
     "$WORK/tmp/cockroach"
 /usr/bin/elfedit -e 'dyn:rpath $ORIGIN/../lib' "$WORK/tmp/cockroach"
 mv "$WORK/tmp/cockroach" "$WORK/cockroach-v$VER/bin"
