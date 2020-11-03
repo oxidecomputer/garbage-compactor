@@ -194,6 +194,17 @@ EOF
 chmod 0755 "$WORKAROUND/ps"
 
 #
+# The build will try to detect information about the git repository, but finds
+# garbage-compactor.git, because the source archive we use to build Cockroach
+# is not, itself, a git repository.
+#
+cat >"$WORKAROUND/git" <<'EOF'
+#!/usr/bin/bash
+exit 1
+EOF
+chmod 0755 "$WORKAROUND/git"
+
+#
 # Build Cockroach:
 #
 header 'patching cockroach source'
