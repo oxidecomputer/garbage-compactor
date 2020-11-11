@@ -78,7 +78,7 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='20.2.0-rc.4'
+VER='20.2.0'
 URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
 
 GOVER='1.15.3'
@@ -275,6 +275,22 @@ if [[ -n $JOBS ]]; then
 else
 	args+=( "-j2" )
 fi
+
+#
+# The source archive for CockroachDB contains a pre-rendered copy of the web
+# assets, ostensibly to avoid requiring the full set of Node-based software
+# that is used to regenerate it.  Because we are patching the UI, we need to
+# force the regeneration of the Go source file that contains the
+# webpack/minified version of the Javascript before trying to build the final
+# binary:
+#
+info "running gmake ui-generate-oss..."
+BUILDCHANNEL=source-archive \
+    gmake \
+    -C "$GOPATH/src/github.com/cockroachdb/cockroach" \
+    "${args[@]}" \
+    "ui-generate-oss" \
+    BUILDTYPE=release
 
 info "running gmake build$buildtype..."
 BUILDCHANNEL=source-archive \

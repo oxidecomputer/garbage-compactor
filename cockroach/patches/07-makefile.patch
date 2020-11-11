@@ -1,7 +1,20 @@
-diff -ur cockroach-v20.2.0-rc.4/src/github.com/cockroachdb/cockroach/Makefile cockroach-v20.2.0-rc.4-patched/src/github.com/cockroachdb/cockroach/Makefile
 --- cockroach-v20.2.0-rc.4/src/github.com/cockroachdb/cockroach/Makefile	Mon Nov  2 07:10:59 2020
-+++ cockroach-v20.2.0-rc.4-patched/src/github.com/cockroachdb/cockroach/Makefile	Tue Nov  3 13:36:15 2020
-@@ -253,7 +253,7 @@
++++ cockroach-v20.2.0-rc.4-patched/src/github.com/cockroachdb/cockroach/Makefile	Wed Nov 11 11:32:05 2020
+@@ -170,13 +170,6 @@
+ # Avoid reusing GOFLAGS as that is overwritten by various release processes.
+ GOMODVENDORFLAGS := -mod=vendor
+ 
+-ifeq "$(findstring -j,$(shell ps -o args= $$PPID))" ""
+-ifdef NCPUS
+-MAKEFLAGS += -j$(NCPUS)
+-$(info Running make with -j$(NCPUS))
+-endif
+-endif
+-
+ help: ## Print help for targets with comments.
+ 	@echo "Usage:"
+ 	@echo "  make [target...] [VAR=foo VAR2=bar...]"
+@@ -253,7 +246,7 @@
  
  # We install our vendored tools to a directory within this repository to avoid
  # overwriting any user-installed binaries of the same name in the default GOBIN.
@@ -10,7 +23,7 @@ diff -ur cockroach-v20.2.0-rc.4/src/github.com/cockroachdb/cockroach/Makefile co
  
  # Prefer tools we've installed with go install and Yarn to those elsewhere on
  # the PATH.
-@@ -796,7 +796,7 @@
+@@ -796,7 +789,7 @@
  	@uptodate $(GEOS_NATIVE_LIB_DIR)/libgeos.$(DYN_EXT) $(GEOS_SRC_DIR) || $(MAKE) --no-print-directory -C $(GEOS_DIR) geos_c
  	mkdir -p $(DYN_LIB_DIR)
  	rm -f $(DYN_LIB_DIR)/lib{geos,geos_c}.$(DYN_EXT)
@@ -19,3 +32,13 @@ diff -ur cockroach-v20.2.0-rc.4/src/github.com/cockroachdb/cockroach/Makefile co
  
  $(LIBPROJ): $(PROJ_DIR)/Makefile bin/uptodate .ALWAYS_REBUILD
  	@uptodate $@ $(PROJ_SRC_DIR) || $(MAKE) --no-print-directory -C $(PROJ_DIR) proj
+@@ -1387,6 +1380,9 @@
+ .PHONY: ui-generate
+ ui-generate: pkg/ui/distccl/bindata.go
+ 
++.PHONY: ui-generate-oss
++ui-generate-oss: pkg/ui/distoss/bindata.go
++
+ .PHONY: ui-fonts
+ ui-fonts:
+ 	pkg/ui/scripts/font-gen
