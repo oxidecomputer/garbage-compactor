@@ -78,16 +78,16 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='2.20.1'
+VER='2.24.1'
 URL="https://github.com/prometheus/prometheus/archive/v$VER.tar.gz"
 
-PROMUVER='0.6.0'
+PROMUVER='0.7.0'
 PROMUURL="https://github.com/prometheus/promu/archive/v$PROMUVER.tar.gz"
 
-GOVER='1.14.6'
+GOVER='1.15.3'
 GOURL="https://illumos.org/downloads/go$GOVER.illumos-amd64.tar.gz"
 
-YARNVER='1.22.5'
+YARNVER='1.22.10'
 YARNURL="https://github.com/yarnpkg/yarn/releases/download/v$YARNVER/yarn-v$YARNVER.tar.gz"
 
 #
@@ -98,7 +98,7 @@ header 'downloading artefacts'
 yarnfile="$ARTEFACT/yarn-v$YARNVER.tar.gz"
 download_to yarn "$YARNURL" "$yarnfile"
 
-gofile="$ARTEFACT/go1.14.6.illumos-amd64.tar.gz"
+gofile="$ARTEFACT/go$GOVER.illumos-amd64.tar.gz"
 download_to go "$GOURL" "$gofile"
 
 promufile="$ARTEFACT/promu-v$VER.tar.gz"
@@ -184,12 +184,6 @@ header 'building prometheus'
 export PATH="$GOPATH/bin:$GOROOT/bin:$YARNROOT/bin:$WORKAROUND:$PATH"
 
 cd "$GOPATH/src/github.com/prometheus/prometheus"
-
-if ! grep -q illumos vendor/github.com/docker/docker/client/client_unix.go; then
-	info 'doctoring source...'
-	sed -i '/+build/s/$/ illumos/' \
-	    vendor/github.com/docker/docker/client/client_unix.go;
-fi
 
 info 'running gmake build...'
 gmake build
