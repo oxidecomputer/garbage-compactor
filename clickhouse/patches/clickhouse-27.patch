@@ -1,0 +1,16 @@
+diff --git a/src/Common/Stopwatch.cpp b/src/Common/Stopwatch.cpp
+index d792e05..7d48065 100644
+--- a/src/Common/Stopwatch.cpp
++++ b/src/Common/Stopwatch.cpp
+@@ -7,7 +7,11 @@ StopwatchRUsage::Timestamp StopwatchRUsage::Timestamp::current()
+ 
+     ::rusage rusage {};
+ #if !defined(__APPLE__)
++#if defined(OS_SUNOS)
++    ::getrusage(RUSAGE_LWP, &rusage);
++#else
+     ::getrusage(RUSAGE_THREAD, &rusage);
++#endif
+ #endif
+     res.user_ns = rusage.ru_utime.tv_sec * 1000000000UL + rusage.ru_utime.tv_usec * 1000UL;
+     res.sys_ns = rusage.ru_stime.tv_sec * 1000000000UL + rusage.ru_stime.tv_usec * 1000UL;

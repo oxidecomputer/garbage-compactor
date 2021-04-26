@@ -1,0 +1,12 @@
+diff --git a/contrib/poco/Net/src/PollSet.cpp b/contrib/poco/Net/src/PollSet.cpp
+index 57d481d23..ee179127c 100644
+--- a/contrib/poco/Net/src/PollSet.cpp
++++ b/contrib/poco/Net/src/PollSet.cpp
+@@ -16,6 +16,7 @@
+ #include "Poco/Net/SocketImpl.h"
+ #include "Poco/Mutex.h"
+ #include <set>
++#include <cstring>
+ 
+ 
+ #if defined(_WIN32) && _WIN32_WINNT >= 0x0600

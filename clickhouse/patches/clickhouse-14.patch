@@ -1,0 +1,19 @@
+diff --git a/contrib/grpc/src/core/ext/filters/client_channel/resolver/dns/c_ares/grpc_ares_ev_driver_posix.cc b/contrib/grpc/src/core/ext/filters/client_channel/resolver/dns/c_ares/grpc_ares_ev_driver_posix.cc
+index 6659dc157b..8db2b8ad69 100644
+--- a/contrib/grpc/src/core/ext/filters/client_channel/resolver/dns/c_ares/grpc_ares_ev_driver_posix.cc
++++ b/contrib/grpc/src/core/ext/filters/client_channel/resolver/dns/c_ares/grpc_ares_ev_driver_posix.cc
+@@ -22,7 +22,12 @@
+ 
+ #include <ares.h>
+ #include <string.h>
+-#include <sys/ioctl.h>
++#if defined(__sun)
++# include <unistd.h>
++# include <sys/filio.h>
++#else
++# include <sys/ioctl.h>
++#endif
+ 
+ #include "absl/strings/str_cat.h"
+ 
+Submodule contrib/librdkafka contains modified content

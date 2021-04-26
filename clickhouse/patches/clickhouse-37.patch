@@ -1,0 +1,13 @@
+diff --git a/contrib/zlib-ng/zutil_p.h b/contrib/zlib-ng/zutil_p.h
+index 7dc2e3d..2a748df 100644
+--- a/contrib/zlib-ng/zutil_p.h
++++ b/contrib/zlib-ng/zutil_p.h
+@@ -10,6 +10,8 @@
+ #elif defined(__FreeBSD__)
+ #  include <stdlib.h>
+ #  include <malloc_np.h>
++#elif defined(__sun)
++#  include <stdlib.h>
+ #else
+ #  include <malloc.h>
+ #endif

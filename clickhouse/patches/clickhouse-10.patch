@@ -1,0 +1,18 @@
+diff --git a/contrib/boringssl-cmake/CMakeLists.txt b/contrib/boringssl-cmake/CMakeLists.txt
+index 017a8a6..7e68e7c 100644
+--- a/contrib/boringssl-cmake/CMakeLists.txt
++++ b/contrib/boringssl-cmake/CMakeLists.txt
+@@ -78,7 +78,11 @@ elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64")
+ elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86")
+   set(ARCH "x86")
+ elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i386")
+-  set(ARCH "x86")
++  if(${CMAKE_SYSTEM_NAME} STREQUAL "SunOS")
++    set(ARCH "x86_64")
++  else()
++    set(ARCH "x86")
++  endif()
+ elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686")
+   set(ARCH "x86")
+ elseif(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "aarch64")
+Submodule contrib/cppkafka contains modified content

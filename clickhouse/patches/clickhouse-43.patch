@@ -1,0 +1,60 @@
+diff --git a/programs/server/config.xml b/programs/server/config.xml
+index d75163ca90..5050361a6f 100644
+--- a/programs/server/config.xml
++++ b/programs/server/config.xml
+@@ -22,8 +22,8 @@
+             [1]: https://github.com/pocoproject/poco/blob/poco-1.9.4-release/Foundation/include/Poco/Logger.h#L105-L114
+         -->
+         <level>trace</level>
+-        <log>/var/log/clickhouse-server/clickhouse-server.log</log>
+-        <errorlog>/var/log/clickhouse-server/clickhouse-server.err.log</errorlog>
++        <log>/opt/clickhouse/21.5/clickhouse-server.log</log>
++        <errorlog>/opt/clickhouse/21.5/clickhouse-server.err.log</errorlog>
+         <!-- Rotation policy
+              See https://github.com/pocoproject/poco/blob/poco-1.9.4-release/Foundation/include/Poco/FileChannel.h#L54-L85
+           -->
+@@ -331,10 +331,10 @@
+ 
+ 
+     <!-- Path to data directory, with trailing slash. -->
+-    <path>/var/lib/clickhouse/</path>
++    <path>/opt/clickhouse/21.5/</path>
+ 
+     <!-- Path to temporary data for processing hard queries. -->
+-    <tmp_path>/var/lib/clickhouse/tmp/</tmp_path>
++    <tmp_path>/opt/clickhouse/21.5/</tmp_path>
+ 
+     <!-- Policy from the <storage_configuration> for the temporary files.
+          If not set <tmp_path> is used, otherwise <tmp_path> is ignored.
+@@ -348,7 +348,7 @@
+     <!-- <tmp_policy>tmp</tmp_policy> -->
+ 
+     <!-- Directory with user provided files that are accessible by 'file' table function. -->
+-    <user_files_path>/var/lib/clickhouse/user_files/</user_files_path>
++    <user_files_path>/opt/clickhouse/21.5/user_files/</user_files_path>
+ 
+     <!-- LDAP server definitions. -->
+     <ldap_servers>
+@@ -419,11 +419,11 @@
+     <user_directories>
+         <users_xml>
+             <!-- Path to configuration file with predefined users. -->
+-            <path>users.xml</path>
++            <path>/opt/clickhouse/21.5/users.xml</path>
+         </users_xml>
+         <local_directory>
+             <!-- Path to folder where users created by SQL commands are stored. -->
+-            <path>/var/lib/clickhouse/access/</path>
++            <path>/opt/clickhouse/21.5/access/</path>
+         </local_directory>
+ 
+         <!-- To add an LDAP server as a remote user directory of users that are not defined locally, define a single 'ldap' section
+@@ -1011,7 +1011,7 @@
+     <!-- Directory in <clickhouse-path> containing schema files for various input formats.
+          The directory will be created if it doesn't exist.
+       -->
+-    <format_schema_path>/var/lib/clickhouse/format_schemas/</format_schema_path>
++    <format_schema_path>/opt/clickhouse/21.5/format_schemas/</format_schema_path>
+ 
+     <!-- Default query masking rules, matching lines would be replaced with something else in the logs
+         (both text logs and system.query_log).

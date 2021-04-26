@@ -1,0 +1,20 @@
+diff --git a/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp b/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp
+index c6f37d2..8d292b2 100644
+--- a/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp
++++ b/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp
+@@ -80,7 +80,14 @@ void VerticalRowOutputFormat::writeRowStartDelimiter()
+     writeIntText(row_number, out);
+     writeCString(":\n", out);
+ 
+-    size_t width = log10(row_number + 1) + 1 + strlen("Row :");
++    size_t width = (
++#if defined(OS_SUNOS)
++        static_cast<size_t>(std::log10(static_cast<double>(row_number + 1)))
++#else
++        log10(row_number + 1)
++#endif
++	+ 1 + strlen("Row :")
++    );
+     for (size_t i = 0; i < width; ++i)
+         writeCString("─", out);
+     writeChar('\n', out);

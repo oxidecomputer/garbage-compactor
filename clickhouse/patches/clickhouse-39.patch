@@ -1,0 +1,22 @@
+diff --git a/src/Common/TerminalSize.cpp b/src/Common/TerminalSize.cpp
+index 714a19b188..a020098aa4 100644
+--- a/src/Common/TerminalSize.cpp
++++ b/src/Common/TerminalSize.cpp
+@@ -1,5 +1,8 @@
+ #include <unistd.h>
+ #include <sys/ioctl.h>
++#if defined(OS_SUNOS)
++#  include <sys/termios.h>
++#endif
+ #include <Common/Exception.h>
+ #include <Common/TerminalSize.h>
+ #include <boost/program_options.hpp>
+@@ -14,7 +17,7 @@ uint16_t getTerminalWidth()
+ {
+     if (isatty(STDIN_FILENO))
+     {
+-        winsize terminal_size {};
++        struct winsize terminal_size {};
+ 
+         if (ioctl(STDIN_FILENO, TIOCGWINSZ, &terminal_size))
+             DB::throwFromErrno("Cannot obtain terminal window size (ioctl TIOCGWINSZ)", DB::ErrorCodes::SYSTEM_ERROR);

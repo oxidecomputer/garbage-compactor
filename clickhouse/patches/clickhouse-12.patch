@@ -1,0 +1,31 @@
+diff --git a/contrib/grpc/include/grpcpp/impl/codegen/rpc_service_method.h b/contrib/grpc/include/grpcpp/impl/codegen/rpc_service_method.h
+index 4fcc211243..b3f3b5d22d 100644
+--- a/contrib/grpc/include/grpcpp/impl/codegen/rpc_service_method.h
++++ b/contrib/grpc/include/grpcpp/impl/codegen/rpc_service_method.h
+@@ -94,7 +94,7 @@ class RpcServiceMethod : public RpcMethod {
+   enum class ApiType {
+     SYNC,
+     ASYNC,
+-    RAW,
++    RAW_, // illumos defines RAW as an alias of O_RAW, in sys/ioctl.h
+     CALL_BACK,  // not CALLBACK because that is reserved in Windows
+     RAW_CALL_BACK,
+   };
+@@ -107,7 +107,7 @@ class RpcServiceMethod : public RpcMethod {
+   void SetHandler(MethodHandler* handler) { handler_.reset(handler); }
+   void SetServerApiType(RpcServiceMethod::ApiType type) {
+     if ((api_type_ == ApiType::SYNC) &&
+-        (type == ApiType::ASYNC || type == ApiType::RAW)) {
++        (type == ApiType::ASYNC || type == ApiType::RAW_)) {
+       // this marks this method as async
+       handler_.reset();
+     } else if (api_type_ != ApiType::SYNC) {
+@@ -135,7 +135,7 @@ class RpcServiceMethod : public RpcMethod {
+         return "sync";
+       case ApiType::ASYNC:
+         return "async";
+-      case ApiType::RAW:
++      case ApiType::RAW_:
+         return "raw";
+       case ApiType::CALL_BACK:
+         return "callback";

@@ -1,0 +1,10 @@
+diff --git a/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake b/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
+index 77d4ace..6972e7e 100644
+--- a/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
++++ b/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
+@@ -72,3 +72,4 @@ elseif(NOT "${CMAKE_CXX_STANDARD}")
+ else()
+   set(ABSL_CXX_STANDARD "${CMAKE_CXX_STANDARD}")
+ endif()
++set(ABSL_CXX_STANDARD 17)
+Submodule contrib/boost contains modified content

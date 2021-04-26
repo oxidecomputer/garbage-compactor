@@ -1,0 +1,24 @@
+diff --git a/base/common/getThreadId.cpp b/base/common/getThreadId.cpp
+index 700c51f..be5f2df 100644
+--- a/base/common/getThreadId.cpp
++++ b/base/common/getThreadId.cpp
+@@ -8,6 +8,8 @@
+     #include <syscall.h>
+ #elif defined(OS_FREEBSD)
+     #include <pthread_np.h>
++#elif defined(OS_SUNOS)
++    #include <pthread.h>
+ #else
+     #include <pthread.h>
+     #include <stdexcept>
+@@ -25,6 +27,10 @@ uint64_t getThreadId()
+         current_tid = syscall(SYS_gettid); /// This call is always successful. - man gettid
+ #elif defined(OS_FREEBSD)
+         current_tid = pthread_getthreadid_np();
++#elif defined(OS_SUNOS)
++	// XXX: Is this required to be globally unique on the system? Or only within a process?
++	// A method to achieve the latter could be to mask together the PID and thread ID.
++	current_tid = static_cast<uint64_t>(pthread_self());
+ #else
+         if (0 != pthread_threadid_np(nullptr, &current_tid))
+             throw std::logic_error("pthread_threadid_np returned error");

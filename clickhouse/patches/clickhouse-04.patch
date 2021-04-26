@@ -1,0 +1,15 @@
+diff --git a/cmake/target.cmake b/cmake/target.cmake
+index 7174ca3..d1a0b8f 100644
+--- a/cmake/target.cmake
++++ b/cmake/target.cmake
+@@ -12,6 +12,9 @@ elseif (CMAKE_SYSTEM_NAME MATCHES "FreeBSD")
+ elseif (CMAKE_SYSTEM_NAME MATCHES "Darwin")
+     set (OS_DARWIN 1)
+     add_definitions(-D OS_DARWIN)
++elseif (CMAKE_SYSTEM_NAME MATCHES "SunOS")
++    set (OS_SUNOS 1)
++    add_definitions(-D OS_SUNOS)
+ endif ()
+ 
+ if (CMAKE_CROSSCOMPILING)
+Submodule contrib/NuRaft contains modified content
