@@ -4,7 +4,7 @@ index 9bc06e5..dd6894f 100644
 +++ b/contrib/poco-cmake/Net/CMakeLists.txt
 @@ -127,6 +127,10 @@ if (USE_INTERNAL_POCO_LIBRARY)
      )
-     target_include_directories (_poco_net SYSTEM PUBLIC ${LIBRARY_DIR}/Net/include)
+     target_include_directories (_poco_net SYSTEM PUBLIC "${LIBRARY_DIR}/Net/include")
      target_link_libraries (_poco_net PUBLIC Poco::Foundation)
 +
 +    if (OS_SUNOS)

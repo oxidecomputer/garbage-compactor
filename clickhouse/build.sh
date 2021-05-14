@@ -24,43 +24,38 @@ ROOT=$(cd "$(dirname "$0")" && pwd)
 PATCH_DIR="$ROOT/patches"
 ARTEFACT="$ROOT/clickhouse"
 WORK="$ARTEFACT/build"
-VER="21.5"
-COMMIT="bd49e696c432ed331e0950c3d977bc01f603f02e"
+VER="21.6"
+COMMIT=""
 
 #
 # Download ClickHouse sources
 #
-REPO="https://github.com/clickhouse/clickhouse"
+REPO="https://github.com/oxidecomputer/clickhouse"
 header "downloading clickhouse sources"
-if [[ ! -d "$ARTEFACT" ]]; then
-    info "cloning clickhouse repo"
-    git clone "$REPO"
-    cd "$ARTEFACT"
-
-    info "initializing clickhouse submodules"
-    git submodule update --init --recursive
+if [[ -d "$ARTEFACT" ]]; then
+    info "clickhouse repo exists, removing and re-cloning"
+    rm -rf "$ARTEFACT"
 fi
+git clone "$REPO"
 cd "$ARTEFACT"
-info "checking out commit $COMMIT"
-git reset --hard "$COMMIT"
-git submodule foreach git reset --hard HEAD
 git submodule update --init --recursive
 
 #
 # Patch ClickHouse:
 #
 header 'patching clickhouse source'
-git apply --verbose $PATCH_DIR/*
+# Patches to the actual sources. Below we apply those to CMake-generated files.
+git apply --verbose $PATCH_DIR/direct/*
 
 #
 # Build ClickHouse
 #
 header 'building clickhouse'
 mkdir -p "$WORK" && cd "$WORK"
-CFLAGS="-D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64 -I$ARTEFACT/contrib/hyperscan-cmake/x86_64/"
+FLAGS="-D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64 -I$ARTEFACT/contrib/hyperscan-cmake/x86_64/"
+CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" \
 cmake \
-    -DCMAKE_C_FLAGS="$CFLAGS" \
-    -DCMAKE_CXX_FLAGS="$CFLAGS" \
+    -DABSL_CXX_STANDARD="17" \
     -DENABLE_LDAP=off \
     -DUSE_INTERNAL_LDAP_LIBRARY=off \
     -DENABLE_HDFS=off \
@@ -85,6 +80,9 @@ cmake \
     -DENABLE_TESTS=off \
     "$ARTEFACT"
 
+header 'patching CMake-generated files'
+cd "$ARTEFACT" && git apply --verbose $PATCH_DIR/cmake/* && cd "$WORK"
+
 # The build is massive. Try to parallelize until we error out, usually due to space constraints while
 # linking. At that point, continue serially
 ninja || (header 'parallel build failed, continuing serially' && ninja -j 1)
@@ -99,4 +97,4 @@ ninja || (header 'parallel build failed, continuing serially' && ninja -j 1)
     -C "$ROOT" manifest.xml
 
 header 'build output:'
-#find "$WORK" -type f -ls
+find "$WORK" -type f -ls
