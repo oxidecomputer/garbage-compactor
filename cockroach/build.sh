@@ -60,6 +60,74 @@ function download_to {
 	return 0
 }
 
+function make_package {
+	local name="$1"
+	local summary="$2"
+	local proto="$3"
+	local mf="$WORK/input.mf"
+	local publisher="helios-dev"
+	local branch='1.0'
+	local repo="$WORK/repo"
+
+	#
+	# Generate the base package manifest:
+	#
+	printf '%% generating base manifest...\n'
+	rm -f "$mf"
+	printf 'set name=pkg.fmri value=pkg://%s/%s@%s-%s\n' \
+	    "$publisher" "$name" "$VER" "$branch" >> "$mf"
+	printf 'set name=pkg.summary value="%s"\n' "$summary" >> "$mf"
+
+	#
+	# Add all files found in the proto area.
+	#
+	# We keep timestamps for any Python files (and their compiled versions)
+	# to prevent their immediate recompilation on the installed system.
+	#
+	printf '%% generating file list...\n'
+	pkgsend generate -T '*.py' -T '*.pyc' "$proto" >> "$mf"
+
+	#
+	# Append pkgmogrify directives to fix up the generated manifest, and
+	# transform the manifest now:
+	#
+	printf '%% transforming manifest...\n'
+	rm -f "$WORK/step1.mf"
+	printf '<transform dir path=opt$ -> drop>\n' >> "$mf"
+	pkgmogrify -v -O "$WORK/step1.mf" "$mf"
+
+	#
+	# Walk through the packaged files and generate a list of dependencies:
+	#
+	printf '%% generating dependency list...\n'
+	rm -f "$WORK/step2.mf"
+	pkgdepend generate -d "$proto" "$WORK/step1.mf" > "$WORK/step2.mf"
+
+	#
+	# Resolve those dependencies to specific packages and versions:
+	#
+	printf '%% resolving dependencies...\n'
+	rm -f "$WORK/step2.mf.res"
+	pkgdepend resolve "$WORK/step2.mf"
+
+	printf -- '===== RESOLVED DEPENDENCIES: =====\n'
+	cat "$WORK/step2.mf.res"
+	printf -- '==================================\n'
+
+	printf '%% creating repository...\n'
+	rm -rf "$repo"
+	pkgrepo create "$repo"
+	pkgrepo add-publisher -s "$repo" "$publisher"
+
+	rm -f "$WORK/final.mf"
+	cat "$WORK/step1.mf" "$WORK/step2.mf.res" > "$WORK/final.mf"
+
+	printf '%% publishing...\n'
+	pkgsend publish -d "$proto" -s "$repo" "$WORK/final.mf"
+
+	printf '%% ok\n'
+}
+
 ROOT=$(cd "$(dirname "$0")" && pwd)
 export GOPATH="$ROOT/cache/gopath"
 export GOCACHE="$ROOT/cache/gocache"
@@ -299,6 +367,44 @@ BUILDCHANNEL=source-archive \
     "${args[@]}" \
     "build$buildtype" \
     BUILDTYPE=release
+
+if [[ -z "$OUTPUT_TYPE" ]]; then
+	OUTPUT_TYPE=tar
+fi
+
+case "$OUTPUT_TYPE" in
+ips)
+	rm -rf "$WORK/proto"
+	mkdir -p "$WORK/proto/opt/oxide/cockroach/$VER/bin"
+	cp "$GOPATH/src/github.com/cockroachdb/cockroach/cockroach$buildtype" \
+	    "$WORK/proto/opt/oxide/cockroach/$VER/bin/cockroach"
+	#
+	# Make a package per release version series; e.g., 21.1.0 and 21.1.1
+	# will be package "cockroachdb-211".
+	#
+	suffix=$(awk -F. '{ print $1$2 }' <<< "$VER")
+	make_package "oxide/cockroachdb-$suffix" \
+	    'CockroachDB is a distributed SQL database management system' \
+	    "$WORK/proto"
+	header 'build output:'
+	pkgrepo -s "$WORK/repo" list
+	exit 0
+	;;
+tar)
+	#
+	# Fall through to original tar processing below...
+	#
+	;;
+none)
+	#
+	# Just leave the build tree as-is without doing any more work.
+	#
+	exit 0
+	;;
+*)
+	fatal "unknown output type: $OUTPUT_TYPE"
+	;;
+esac
 
 info 'copying final executables and libraries...'
 
