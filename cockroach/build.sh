@@ -78,10 +78,10 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='20.2.0'
+VER='20.2.5'
 URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
 
-GOVER='1.15.3'
+GOVER='1.16.2'
 GOURL="https://illumos.org/downloads/go$GOVER.illumos-amd64.tar.gz"
 
 YARNVER='1.22.5'
