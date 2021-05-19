@@ -2,13 +2,11 @@
 // of this source code is governed by a BSD-style license that can be found in
 // the LICENSE file.
 
-// +build darwin linux openbsd dragonfly freebsd
+// +build darwin openbsd dragonfly freebsd
 
 package vfs
 
-import (
-	"golang.org/x/sys/unix"
-)
+import "golang.org/x/sys/unix"
 
 func (defaultFS) GetFreeSpace(path string) (uint64, error) {
 	stat := unix.Statfs_t{}

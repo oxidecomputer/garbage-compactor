@@ -2,15 +2,18 @@
 // of this source code is governed by a BSD-style license that can be found in
 // the LICENSE file.
 
-// +build darwin dragonfly freebsd linux openbsd
+// +build darwin dragonfly freebsd linux openbsd illumos
 
 package vfs
 
 import (
-	"github.com/cockroachdb/errors"
+	"syscall"
 
+	"github.com/cockroachdb/errors"
 	"golang.org/x/sys/unix"
 )
+
+var errNotEmpty = syscall.ENOTEMPTY
 
 // IsNoSpaceError returns true if the given error indicates that the disk is
 // out of space.

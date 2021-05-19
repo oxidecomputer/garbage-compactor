@@ -146,7 +146,7 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='20.2.5'
+VER='21.1.0'
 URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
 
 GOVER='1.16.4'
@@ -313,8 +313,6 @@ if [[ ! -f "$stamp" ]]; then
 	    "$GOPATH/src/github.com/cockroachdb/cockroach/pkg/util/log/"
 
 	vendor_replace "github.com/elastic/gosigar"
-	vendor_replace "github.com/Azure/azure-storage-blob-go"
-	vendor_replace "github.com/google/uuid"
 	vendor_replace "github.com/knz/strtime"
 	vendor_replace "github.com/cockroachdb/pebble/vfs"
 

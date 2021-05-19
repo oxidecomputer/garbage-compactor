@@ -25,9 +25,9 @@ const (
 type diskHealthCheckingFile struct {
 	File
 
-	onSlowDisk         func(time.Duration)
-	diskSlowThreshold  time.Duration
-	tickInterval       time.Duration
+	onSlowDisk        func(time.Duration)
+	diskSlowThreshold time.Duration
+	tickInterval      time.Duration
 
 	stopper        chan struct{}
 	lastWriteNanos int64
@@ -39,10 +39,10 @@ func newDiskHealthCheckingFile(
 	file File, diskSlowThreshold time.Duration, onSlowDisk func(time.Duration),
 ) *diskHealthCheckingFile {
 	return &diskHealthCheckingFile{
-		File:               file,
-		onSlowDisk:         onSlowDisk,
-		diskSlowThreshold:  diskSlowThreshold,
-		tickInterval:       defaultTickInterval,
+		File:              file,
+		onSlowDisk:        onSlowDisk,
+		diskSlowThreshold: diskSlowThreshold,
+		tickInterval:      defaultTickInterval,
 
 		stopper: make(chan struct{}),
 	}
@@ -138,9 +138,9 @@ func WithDiskHealthChecks(
 	fs FS, diskSlowThreshold time.Duration, onSlowDisk func(string, time.Duration),
 ) FS {
 	return diskHealthCheckingFS{
-		FS:                   fs,
-		diskSlowThreshold:    diskSlowThreshold,
-		onSlowDisk:           onSlowDisk,
+		FS:                fs,
+		diskSlowThreshold: diskSlowThreshold,
+		onSlowDisk:        onSlowDisk,
 	}
 }
 
@@ -157,7 +157,7 @@ func (d diskHealthCheckingFS) Create(name string) (File, error) {
 		d.onSlowDisk(name, duration)
 	})
 	checkingFile.startTicker()
-	return checkingFile, nil
+	return WithFd(f, checkingFile), nil
 }
 
 // ReuseForWrite implements the vfs.FS interface.
@@ -173,5 +173,5 @@ func (d diskHealthCheckingFS) ReuseForWrite(oldname, newname string) (File, erro
 		d.onSlowDisk(newname, duration)
 	})
 	checkingFile.startTicker()
-	return checkingFile, nil
+	return WithFd(f, checkingFile), nil
 }
