@@ -149,15 +149,20 @@ mkdir -p "$WORKAROUND"
 VER='20.2.5'
 URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
 
-GOVER='1.16.2'
-GOURL="https://illumos.org/downloads/go$GOVER.illumos-amd64.tar.gz"
+GOVER='1.16.4'
+SYSGOVER=$(pkg info go-116 | awk '/Version:/ { print $NF }')
+if [[ "$SYSGOVER" != "$GOVER" ]]; then
+	fatal 'install or update go-116 package'
+fi
+export GOROOT='/opt/ooce/go-1.16'
+info "using $GOROOT/bin/go: $($GOROOT/bin/go version)"
 
 YARNVER='1.22.5'
 YARNURL="https://github.com/yarnpkg/yarn/releases/download/v$YARNVER/yarn-v$YARNVER.tar.gz"
-if [[ -x /usr/gcc/9/bin/gcc ]]; then
-	GCC_DIR=/usr/gcc/9/bin
-elif [[ -x /opt/gcc-9/bin/gcc ]]; then
-	GCC_DIR=/opt/gcc-9/bin
+if [[ -x /usr/gcc/10/bin/gcc ]]; then
+	GCC_DIR=/usr/gcc/10/bin
+elif [[ -x /opt/gcc-10/bin/gcc ]]; then
+	GCC_DIR=/opt/gcc-10/bin
 else
 	fatal "Could not find GCC in any expected location"
 fi
@@ -172,9 +177,6 @@ header 'downloading artefacts'
 yarnfile="$ARTEFACT/yarn-v$YARNVER.tar.gz"
 download_to yarn "$YARNURL" "$yarnfile"
 
-gofile="$ARTEFACT/go$GOVER.illumos-amd64.tar.gz"
-download_to go "$GOURL" "$gofile"
-
 file="$ARTEFACT/cockroach-v$VER.src.tgz"
 download_to cockroach "$URL" "$file"
 
@@ -184,9 +186,6 @@ download_to cockroach "$URL" "$file"
 header 'extracting artefacts'
 
 extract_to yarn "$yarnfile" "$YARNROOT" --strip-components=1
-
-export GOROOT="$ROOT/cache/go$GOVER"
-extract_to go "$gofile" "$GOROOT"
 
 #
 # The Cockroach DB source archive contains a wrapper Makefile at the top level
