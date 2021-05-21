@@ -8,12 +8,12 @@
   <single_instance />
 
   <exec_method type='method' name='start'
-    exec='ctrun -l child -o noorphan,regent /opt/clickhouse/21.5/clickhouse server --config %{config/config_file} &amp;'
+    exec='ctrun -l child -o noorphan,regent /opt/clickhouse/21.6/clickhouse server --config %{config/config_file} &amp;'
     timeout_seconds='0' />
   <exec_method type='method' name='stop' exec=':kill' timeout_seconds='0' />
 
   <property_group name='config' type='application'>
-    <propval name='config_file' type='astring' value='/opt/clickhouse/21.5/config.xml' />
+    <propval name='config_file' type='astring' value='/opt/clickhouse/21.6/config.xml' />
   </property_group>
 
   <property_group name='startd' type='framework'>
