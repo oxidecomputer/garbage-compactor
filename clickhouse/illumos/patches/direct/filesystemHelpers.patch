@@ -1,0 +1,12 @@
+diff --git a/src/Common/filesystemHelpers.h b/src/Common/filesystemHelpers.h
+index b7525a64fa..67f3b7938a 100644
+--- a/src/Common/filesystemHelpers.h
++++ b/src/Common/filesystemHelpers.h
+@@ -37,6 +37,7 @@ bool pathStartsWith(const String & path, const String & prefix_path);
+ 
+ }
+ 
++#undef FS
+ namespace FS
+ {
+ bool createFile(const std::string & path);

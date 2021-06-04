@@ -21,39 +21,89 @@ function fatal {
 }
 
 ROOT=$(cd "$(dirname "$0")" && pwd)
-PATCH_DIR="$ROOT/patches"
 ARTEFACT="$ROOT/clickhouse"
 WORK="$ARTEFACT/build"
-VER="21.6"
-COMMIT=""
+VER="21.7"
+BRANCH="master"
+REPO="https://github.com/oxidecomputer/clickhouse"
+
+# Get platform specific options/tools/paths
+if [ $# -eq 0 ]; then
+    PLATFORM="$OSTYPE"
+else
+    PLATFORM="$1"
+fi
+case $PLATFORM in
+    linux*)
+        PLATFORM="linux"
+        BUILD_COMMAND="make"
+        CC=gcc-10
+        CXX=g++-10
+        STRIP_ARGS="--strip-debug"
+        NPROC="$(nproc)"
+        ;;
+    darwin*)
+        PLATFORM="macos"
+        BUILD_COMMAND="make"
+        CC=clang
+        CXX=clang
+        STRIP_ARGS="-S"
+        NPROC="$(sysctl -n hw.ncpu)"
+        ;;
+    solaris*|illumos*)
+        PLATFORM="illumos"
+        BUILD_COMMAND="ninja"
+        CC=gcc-10
+        CXX=g++-10
+        STRIP_ARGS="-x"
+        NPROC="$(nproc)"
+        ;;
+    *)
+        failed "Unsupported platform $PLATFORM"
+        exit 1
+        ;;
+esac
+COMMON_PATCH_DIR="$ROOT/common/patches"
+PATCH_DIR="$ROOT/$PLATFORM/patches"
+FILES_DIR="$ROOT/$PLATFORM/files"
+EXTRA_FILES=""
+if [ -d "$FILES_DIR" ]; then
+    EXTRA_FILES="$(ls "$FILES_DIR")"
+fi
+header "Building clickhouse for $PLATFORM"
 
 #
 # Download ClickHouse sources
 #
-REPO="https://github.com/oxidecomputer/clickhouse"
-header "downloading clickhouse sources"
-if [[ -d "$ARTEFACT" ]]; then
-    info "clickhouse repo exists, removing and re-cloning"
-    rm -rf "$ARTEFACT"
+if [ -d "$ARTEFACT" ]; then
+    info "ClickHouse repo exists, resetting to HEAD"
+    cd "$ARTEFACT"
+    git fetch origin
+    git switch "$BRANCH"
+    git reset --hard "origin/$BRANCH"
+    git submodule update --checkout --recursive --force
+else
+    info "Cloning ClickHouse sources"
+    git clone "$REPO"
+    cd "$ARTEFACT"
+    git switch "$BRANCH"
+    git submodule update --init --recursive
 fi
-git clone "$REPO"
-cd "$ARTEFACT"
-git submodule update --init --recursive
 
-#
-# Patch ClickHouse:
-#
-header 'patching clickhouse source'
+# Apply common patches, independent of platform
+header "Applying shared ClickHouse patches"
+git apply --verbose $COMMON_PATCH_DIR/*
+
 # Patches to the actual sources. Below we apply those to CMake-generated files.
-git apply --verbose $PATCH_DIR/direct/*
+if [ -d "$PATCH_DIR/direct" ]; then
+    header "Applying $PLATFORM-specific patches"
+    git apply --verbose $PATCH_DIR/direct/*
+fi
 
-#
-# Build ClickHouse
-#
-header 'building clickhouse'
+header "Building ClickHouse"
 mkdir -p "$WORK" && cd "$WORK"
 FLAGS="-D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64 -I$ARTEFACT/contrib/hyperscan-cmake/x86_64/"
-CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" \
+CC=$CC CXX=$CXX CFLAGS="$FLAGS" CXXFLAGS="$FLAGS" \
 cmake \
     -DABSL_CXX_STANDARD="17" \
     -DENABLE_LDAP=off \
@@ -80,21 +130,33 @@ cmake \
     -DENABLE_TESTS=off \
     "$ARTEFACT"
 
-header 'patching CMake-generated files'
-cd "$ARTEFACT" && git apply --verbose $PATCH_DIR/cmake/* && cd "$WORK"
+header "Patching CMake-generated files"
+cd "$ARTEFACT"
+if [ -d "$PATCH_DIR/cmake" ]; then
+    git apply --verbose $PATCH_DIR/cmake/*
+fi
+cd "$WORK"
 
 # The build is massive. Try to parallelize until we error out, usually due to space constraints while
 # linking. At that point, continue serially
-ninja || (header 'parallel build failed, continuing serially' && ninja -j 1)
+$BUILD_COMMAND -j "$NPROC" || (header "Parallel build failed, continuing serially" && $BUILD_COMMAND -j 1)
 
 # Strip the resulting binary. This part is crucial. ClickHouse's binary is 3+GiB unstripped.
-/usr/bin/strip "$WORK/programs/clickhouse"
-/usr/bin/tar cvfz \
-    $ROOT/clickhouse-v$VER.illumos.tar.gz \
-    -C "$WORK/programs" clickhouse \
-    -C "$ARTEFACT/programs/server" config.xml \
-    -C "$ARTEFACT/programs/server" users.xml \
-    -C "$ROOT" manifest.xml
+strip $STRIP_ARGS "$WORK/programs/clickhouse"
+CONFIG_FILE_DIR="$ARTEFACT/programs/server"
+CONFIG_FILE_NAME="config.xml"
+if [ -z "$EXTRA_FILES" ]; then
+    /usr/bin/tar cvfz \
+        $ROOT/clickhouse-v$VER.$PLATFORM.tar.gz \
+        -C "$WORK/programs" clickhouse \
+        -C "$CONFIG_FILE_DIR" "$CONFIG_FILE_NAME"
+else
+    /usr/bin/tar cvfz \
+        $ROOT/clickhouse-v$VER.$PLATFORM.tar.gz \
+        -C "$WORK/programs" clickhouse \
+        -C "$CONFIG_FILE_DIR" "$CONFIG_FILE_NAME" \
+        -C "$FILES_DIR" "$EXTRA_FILES"
+fi
 
-header 'build output:'
+header "Build output:"
 find "$WORK" -type f -ls

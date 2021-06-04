@@ -1,0 +1,20 @@
+diff --git a/base/bridge/IBridge.cpp b/base/bridge/IBridge.cpp
+index 35a9b95c97..ecdfbeaf65 100644
+--- a/base/bridge/IBridge.cpp
++++ b/base/bridge/IBridge.cpp
+@@ -171,6 +171,7 @@ void IBridge::initialize(Application & self)
+     max_server_connections = config().getUInt("max-server-connections", 1024);
+     keep_alive_timeout = config().getUInt64("keep-alive-timeout", 10);
+ 
++#if !defined(OS_SUNOS)
+     struct rlimit limit;
+     const UInt64 gb = 1024 * 1024 * 1024;
+ 
+@@ -182,6 +183,7 @@ void IBridge::initialize(Application & self)
+ 
+     if (!getrlimit(RLIMIT_RSS, &limit))
+         LOG_INFO(log, "RSS limit: cur={}, max={}", limit.rlim_cur, limit.rlim_max);
++#endif
+ 
+     try
+     {
