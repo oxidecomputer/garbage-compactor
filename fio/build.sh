@@ -3,64 +3,8 @@
 set -o errexit
 set -o pipefail
 
-function info {
-	printf 'INFO: %s\n' "$*"
-}
-
-function header {
-	printf -- '\n'
-	printf -- '----------------------------------------------------------\n'
-	printf -- 'INFO: %s\n' "$*"
-	printf -- '----------------------------------------------------------\n'
-	printf -- '\n'
-}
-
-function fatal {
-	printf 'ERROR: %s\n' "$*" >&2
-	exit 1
-}
-
-function extract_to {
-	local name="$1"
-	local tar="$2"
-	local outdir="$3"
-	local extra="$4"
-
-	stamp="$outdir/.extracted"
-	if [[ ! -f "$stamp" ]]; then
-		rm -rf "$outdir"
-		info "extracting $name..."
-		mkdir -p "$outdir"
-		gtar -C "$outdir" $extra -xzf "$tar"
-		info "extracted $name ok"
-		touch "$stamp"
-	else
-		info "$name extracted already"
-	fi
-
-	return 0
-}
-
-function download_to {
-	local name="$1"
-	local url="$2"
-	local path="$3"
-
-	if [[ ! -f "$path" ]]; then
-		info "downloading $name..."
-		if ! curl -fL -o "$path" "$url"; then
-			fatal "$name download failed"
-			exit 1
-		fi
-		info "ok"
-	else
-		info "downloaded $name already"
-	fi
-
-	return 0
-}
-
 ROOT=$(cd "$(dirname "$0")" && pwd)
+. "$ROOT/../lib/common.sh"
 
 ARTEFACT="$ROOT/artefact"
 mkdir -p "$ARTEFACT"
