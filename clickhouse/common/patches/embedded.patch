@@ -1,0 +1,13 @@
+diff --git a/programs/server/embedded.xml b/programs/server/embedded.xml
+index a66f57d1eb..bfb374091c 100644
+--- a/programs/server/embedded.xml
++++ b/programs/server/embedded.xml
+@@ -10,7 +10,7 @@
+     <tcp_port>9000</tcp_port>
+     <mysql_port>9004</mysql_port>
+ 
+-    <path>./</path>
++    <path>/tmp</path>
+ 
+     <uncompressed_cache_size>8589934592</uncompressed_cache_size>
+     <mark_cache_size>5368709120</mark_cache_size>
