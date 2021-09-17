@@ -149,7 +149,7 @@ mkdir -p "$WORKAROUND"
 VER='21.1.0'
 URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
 
-GOVER='1.16.4'
+GOVER='1.16.5'
 SYSGOVER=$(pkg info go-116 | awk '/Version:/ { print $NF }')
 if [[ "$SYSGOVER" != "$GOVER" ]]; then
 	fatal 'install or update go-116 package'
@@ -313,6 +313,7 @@ if [[ ! -f "$stamp" ]]; then
 	    "$GOPATH/src/github.com/cockroachdb/cockroach/pkg/util/log/"
 
 	vendor_replace "github.com/elastic/gosigar"
+	vendor_replace "github.com/knz/go-libedit"
 	vendor_replace "github.com/knz/strtime"
 	vendor_replace "github.com/cockroachdb/pebble/vfs"
 
