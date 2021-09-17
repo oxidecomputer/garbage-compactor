@@ -1,0 +1,85 @@
+diff --git a/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp b/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp
+index ec8ce56..ad8075f 100644
+--- a/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp
++++ b/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp
+@@ -26,17 +26,17 @@
+ 
+ namespace datasketches {
+ 
+-template<typename EN, typename EK, typename P, typename S, typename CS, typename A>
+-theta_union_base<EN, EK, P, S, CS, A>::theta_union_base(uint8_t lg_cur_size, uint8_t lg_nom_size, resize_factor rf,
++template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
++theta_union_base<EN, EK, P, S, CompactSketch, A>::theta_union_base(uint8_t lg_cur_size, uint8_t lg_nom_size, resize_factor rf,
+     uint64_t theta, uint64_t seed, const P& policy, const A& allocator):
+ policy_(policy),
+ table_(lg_cur_size, lg_nom_size, rf, theta, seed, allocator),
+ union_theta_(table_.theta_)
+ {}
+ 
+-template<typename EN, typename EK, typename P, typename S, typename CS, typename A>
+-template<typename SS>
+-void theta_union_base<EN, EK, P, S, CS, A>::update(SS&& sketch) {
++template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
++template<typename SSketch>
++void theta_union_base<EN, EK, P, S, CompactSketch, A>::update(SSketch&& sketch) {
+   if (sketch.is_empty()) return;
+   if (sketch.get_seed_hash() != compute_seed_hash(table_.seed_)) throw std::invalid_argument("seed hash mismatch");
+   table_.is_empty_ = false;
+@@ -46,9 +46,9 @@ void theta_union_base<EN, EK, P, S, CS, A>::update(SS&& sketch) {
+     if (hash < union_theta_) {
+       auto result = table_.find(hash);
+       if (!result.second) {
+-        table_.insert(result.first, conditional_forward<SS>(entry));
++        table_.insert(result.first, conditional_forward<SSketch>(entry));
+       } else {
+-        policy_(*result.first, conditional_forward<SS>(entry));
++        policy_(*result.first, conditional_forward<SSketch>(entry));
+       }
+     } else {
+       if (sketch.is_ordered()) break; // early stop
+@@ -57,10 +57,10 @@ void theta_union_base<EN, EK, P, S, CS, A>::update(SS&& sketch) {
+   if (table_.theta_ < union_theta_) union_theta_ = table_.theta_;
+ }
+ 
+-template<typename EN, typename EK, typename P, typename S, typename CS, typename A>
+-CS theta_union_base<EN, EK, P, S, CS, A>::get_result(bool ordered) const {
++template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
++CompactSketch theta_union_base<EN, EK, P, S, CompactSketch, A>::get_result(bool ordered) const {
+   std::vector<EN, A> entries(table_.allocator_);
+-  if (table_.is_empty_) return CS(true, true, compute_seed_hash(table_.seed_), union_theta_, std::move(entries));
++  if (table_.is_empty_) return CompactSketch(true, true, compute_seed_hash(table_.seed_), union_theta_, std::move(entries));
+   entries.reserve(table_.num_entries_);
+   uint64_t theta = std::min(union_theta_, table_.theta_);
+   const uint32_t nominal_num = 1 << table_.lg_nom_size_;
+@@ -76,11 +76,11 @@ CS theta_union_base<EN, EK, P, S, CS, A>::get_result(bool ordered) const {
+     }
+   }
+   if (ordered) std::sort(entries.begin(), entries.end(), comparator());
+-  return CS(table_.is_empty_, ordered, compute_seed_hash(table_.seed_), theta, std::move(entries));
++  return CompactSketch(table_.is_empty_, ordered, compute_seed_hash(table_.seed_), theta, std::move(entries));
+ }
+ 
+-template<typename EN, typename EK, typename P, typename S, typename CS, typename A>
+-const P& theta_union_base<EN, EK, P, S, CS, A>::get_policy() const {
++template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
++const P& theta_union_base<EN, EK, P, S, CompactSketch, A>::get_policy() const {
+   return policy_;
+ }
+ 
+diff --git a/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp b/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp
+index 4708d70..918f884 100644
+--- a/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp
++++ b/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp
+@@ -28,9 +28,9 @@ state_(lg_cur_size, lg_nom_size, rf, theta, seed, pass_through_policy(), allocat
+ {}
+ 
+ template<typename A>
+-template<typename SS>
+-void theta_union_alloc<A>::update(SS&& sketch) {
+-  state_.update(std::forward<SS>(sketch));
++template<typename SSketch>
++void theta_union_alloc<A>::update(SSketch&& sketch) {
++  state_.update(std::forward<SSketch>(sketch));
+ }
+ 
+ template<typename A>

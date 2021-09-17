@@ -1,0 +1,16 @@
+diff --git a/contrib/yaml-cpp/include/yaml-cpp/traits.h b/contrib/yaml-cpp/include/yaml-cpp/traits.h
+index 9a62db2..6a7121e 100644
+--- a/contrib/yaml-cpp/include/yaml-cpp/traits.h
++++ b/contrib/yaml-cpp/include/yaml-cpp/traits.h
+@@ -107,9 +107,9 @@ struct disable_if : public disable_if_c<Cond::value, T> {};
+ 
+ template <typename S, typename T>
+ struct is_streamable {
+-  template <typename SS, typename TT>
++  template <typename SStream, typename TT>
+   static auto test(int)
+-      -> decltype(std::declval<SS&>() << std::declval<TT>(), std::true_type());
++      -> decltype(std::declval<SStream&>() << std::declval<TT>(), std::true_type());
+ 
+   template <typename, typename>
+   static auto test(...) -> std::false_type;

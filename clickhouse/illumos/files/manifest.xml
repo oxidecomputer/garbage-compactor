@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
+
+<service_bundle type='manifest' name='clickhouse'>
+
+<service name='system/illumos/clickhouse' type='service' version='1'>
+  <create_default_instance enabled='false' />
+  <single_instance />
+
+  <exec_method type='method' name='start'
+    exec='ctrun -l child -o noorphan,regent /opt/clickhouse/21.7/clickhouse server --config-file %{config/config_file} &amp;'
+    timeout_seconds='0' />
+  <exec_method type='method' name='stop' exec=':kill' timeout_seconds='0' />
+
+  <property_group name='config' type='application'>
+    <propval name='config_file' type='astring' value='/opt/clickhouse/21.7/config.xml' />
+  </property_group>
+
+  <property_group name='startd' type='framework'>
+    <propval name='duration' type='astring' value='contract' />
+  </property_group>
+
+  <stability value='Unstable' />
+
+  <template>
+    <common_name>
+      <loctext xml:lang='C'>ClickHouse</loctext>
+    </common_name>
+    <description>
+      <loctext xml:lang='C'>Oxide metric database</loctext>
+    </description>
+  </template>
+</service>
+
+</service_bundle>
