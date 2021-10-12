@@ -23,7 +23,7 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='21.1.0'
+VER='21.1.10'
 URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
 
 GOVER='1.16.5'
