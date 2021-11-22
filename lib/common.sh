@@ -28,7 +28,7 @@ function extract_to {
 		rm -rf "$outdir"
 		info "extracting $name..."
 		mkdir -p "$outdir"
-		gtar -C "$outdir" $extra -xzf "$tar"
+		gtar -C "$outdir" $extra -xaf "$tar"
 		info "extracted $name ok"
 		touch "$stamp"
 	else
@@ -90,8 +90,7 @@ function make_package {
 	#
 	printf '%% transforming manifest...\n'
 	rm -f "$WORK/step1.mf"
-	printf '<transform dir path=opt$ -> drop>\n' >> "$mf"
-	pkgmogrify -v -O "$WORK/step1.mf" "$mf"
+	pkgmogrify -v -O "$WORK/step1.mf" "$ROOT/../lib/transforms.mog" "$mf"
 
 	#
 	# Walk through the packaged files and generate a list of dependencies:

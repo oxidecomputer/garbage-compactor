@@ -1,0 +1,12 @@
+#
+# Make every directory world-readable by default:
+#
+<transform dir -> default mode 0755>
+
+#
+# Make sure directory permissions align with other packages:
+#
+<transform dir path=^opt$ -> set group sys>
+<transform dir path=^usr$ -> set group sys>
+<transform dir path=^usr/lib/pkgconfig$ -> set group other>
+<transform dir path=^usr/lib/amd64/pkgconfig$ -> set group other>
