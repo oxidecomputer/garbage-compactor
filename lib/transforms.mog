@@ -8,5 +8,7 @@
 #
 <transform dir path=^opt$ -> set group sys>
 <transform dir path=^usr$ -> set group sys>
+<transform dir path=^usr/share$ -> set group sys>
+<transform dir path=^usr/share/doc$ -> set group other>
 <transform dir path=^usr/lib/pkgconfig$ -> set group other>
 <transform dir path=^usr/lib/amd64/pkgconfig$ -> set group other>

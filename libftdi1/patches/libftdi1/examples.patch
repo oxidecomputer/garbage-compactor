@@ -1,0 +1,19 @@
+diff -ur libftd1-pristine/examples/CMakeLists.txt libftd1-patched/examples/CMakeLists.txt
+--- libftd1-pristine/examples/CMakeLists.txt	Tue Jul  7 12:32:55 2020
++++ libftd1-patched/examples/CMakeLists.txt	Sun Nov 21 20:13:25 2021
+@@ -15,7 +15,6 @@
+ add_executable(stream_test stream_test.c)
+ add_executable(eeprom eeprom.c)
+ add_executable(async async.c)
+-add_executable(purge_test purge_test.c)
+ 
+ # Linkage
+ target_link_libraries(simple ftdi1)
+@@ -29,7 +28,6 @@
+ target_link_libraries(stream_test ftdi1)
+ target_link_libraries(eeprom ftdi1)
+ target_link_libraries(async ftdi1)
+-target_link_libraries(purge_test ftdi1)
+ 
+ # libftdi++ examples
+ if( FTDIPP )
