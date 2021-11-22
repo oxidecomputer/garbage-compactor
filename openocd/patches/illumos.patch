@@ -1,0 +1,11 @@
+--- openocd-pristine/src/helper/command.c	Wed Dec  9 11:43:09 2020
++++ openocd-patched/src/helper/command.c	Sun Nov 21 22:49:49 2021
+@@ -1336,6 +1336,8 @@
+ 	HostOs = "netbsd";
+ #elif defined(__OpenBSD__)
+ 	HostOs = "openbsd";
++#elif defined(__illumos__)
++	HostOs = "illumos";
+ #else
+ #warning "Unrecognized host OS..."
+ 	HostOs = "other";

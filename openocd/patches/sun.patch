@@ -1,0 +1,36 @@
+diff -ur openocd-pristine/jimtcl/jim-aio.c openocd-patched/jimtcl/jim-aio.c
+--- openocd-pristine/jimtcl/jim-aio.c	Wed Dec  9 11:44:48 2020
++++ openocd-patched/jimtcl/jim-aio.c	Sun Nov 21 22:43:50 2021
+@@ -125,7 +125,7 @@
+     struct sockaddr_in6 sin6;
+ #endif
+ #if UNIX_SOCKETS
+-    struct sockaddr_un sun;
++    struct sockaddr_un saun;
+ #endif
+ };
+ 
+@@ -480,9 +480,9 @@
+ #if UNIX_SOCKETS
+ static int JimParseDomainAddress(Jim_Interp *interp, const char *path, union sockaddr_any *sa, socklen_t *salen)
+ {
+-    sa->sun.sun_family = PF_UNIX;
+-    snprintf(sa->sun.sun_path, sizeof(sa->sun.sun_path), "%s", path);
+-    *salen = strlen(sa->sun.sun_path) + 1 + sizeof(sa->sun.sun_family);
++    sa->saun.sun_family = PF_UNIX;
++    snprintf(sa->saun.sun_path, sizeof(sa->saun.sun_path), "%s", path);
++    *salen = strlen(sa->saun.sun_path) + 1 + sizeof(sa->saun.sun_family);
+ 
+     return JIM_OK;
+ }
+@@ -517,8 +517,8 @@
+     switch (sa->sa.sa_family) {
+ #if UNIX_SOCKETS
+         case PF_UNIX:
+-            addr = sa->sun.sun_path;
+-            addrlen = salen - 1 - sizeof(sa->sun.sun_family);
++            addr = sa->saun.sun_path;
++            addrlen = salen - 1 - sizeof(sa->saun.sun_family);
+             if (addrlen < 0) {
+                 addrlen = 0;
+             }

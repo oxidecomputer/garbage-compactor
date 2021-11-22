@@ -1,0 +1,20 @@
+--- openocd-pristine/configure	Sun Mar  7 03:02:04 2021
++++ openocd-patched/configure	Sun Nov 21 23:09:33 2021
+@@ -14884,7 +14884,7 @@
+ subdirs="$subdirs jimtcl"
+ 
+ 
+-echo -e '#!/bin/sh\nexec "`dirname "'\$'0"`/configure" --disable-install-jim "'\$'@"' > "$srcdir/jimtcl/configure.gnu"
++(echo '#!/bin/sh'; echo 'exec "`dirname "'\$'0"`/configure" --disable-install-jim "'\$'@"') > "$srcdir/jimtcl/configure.gnu"
+ 
+ 
+ 
+@@ -16703,7 +16703,7 @@
+ subdirs="$subdirs src/jtag/drivers/libjaylink"
+ 
+ 
+-echo -e '#!/bin/sh\nexec "`dirname "'\$'0"`/configure" --enable-subproject-build "'\$'@"' > "$srcdir/src/jtag/drivers/libjaylink/configure.gnu"
++(echo '#!/bin/sh'; echo 'exec "`dirname "'\$'0"`/configure" --enable-subproject-build "'\$'@"') > "$srcdir/src/jtag/drivers/libjaylink/configure.gnu"
+ 
+ 
+ 
