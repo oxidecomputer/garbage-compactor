@@ -1,0 +1,50 @@
+diff --git a/src/AggregateFunctions/QuantileExact.h b/src/AggregateFunctions/QuantileExact.h
+index cca16aac61..607650700b 100644
+--- a/src/AggregateFunctions/QuantileExact.h
++++ b/src/AggregateFunctions/QuantileExact.h
+@@ -271,11 +271,11 @@ struct QuantileExactLow : public QuantileExactBase<Value, QuantileExactLow<Value
+                 auto s = array.size();
+                 if (s % 2 == 1)
+                 {
+-                    return array[static_cast<size_t>(floor(s / 2))];
++                    return array[static_cast<size_t>(static_cast<double>(floor(static_cast<double>(s / 2))))];
+                 }
+                 else
+                 {
+-                    return array[static_cast<size_t>((floor(s / 2)) - 1)];
++                    return array[static_cast<size_t>((static_cast<double>(floor(static_cast<double>(s / 2)))) - 1)];
+                 }
+             }
+             else
+@@ -307,11 +307,11 @@ struct QuantileExactLow : public QuantileExactBase<Value, QuantileExactLow<Value
+                     auto s = array.size();
+                     if (s % 2 == 1)
+                     {
+-                        result[indices[i]] = array[static_cast<size_t>(floor(s / 2))];
++                        result[indices[i]] = array[static_cast<size_t>(static_cast<double>(floor(static_cast<double>(s / 2))))];
+                     }
+                     else
+                     {
+-                        result[indices[i]] = array[static_cast<size_t>(floor((s / 2) - 1))];
++                        result[indices[i]] = array[static_cast<size_t>(static_cast<double>(floor(static_cast<double>(s / 2) - 1)))];
+                     }
+                 }
+                 else
+@@ -351,7 +351,7 @@ struct QuantileExactHigh : public QuantileExactBase<Value, QuantileExactHigh<Val
+             if (level == 0.5)
+             {
+                 auto s = array.size();
+-                return array[static_cast<size_t>(floor(s / 2))];
++                return array[static_cast<size_t>(static_cast<double>(floor(static_cast<double>(s / 2))))];
+             }
+             else
+             {
+@@ -379,7 +379,7 @@ struct QuantileExactHigh : public QuantileExactBase<Value, QuantileExactHigh<Val
+                 if (level == 0.5)
+                 {
+                     auto s = array.size();
+-                    result[indices[i]] = array[static_cast<size_t>(floor(s / 2))];
++                    result[indices[i]] = array[static_cast<size_t>(static_cast<double>(floor(static_cast<double>(s / 2))))];
+                 }
+                 else
+                 {

@@ -1,0 +1,16 @@
+diff --git a/contrib/poco-cmake/Net/CMakeLists.txt b/contrib/poco-cmake/Net/CMakeLists.txt
+index 9bc06e5..dd6894f 100644
+--- a/contrib/poco-cmake/Net/CMakeLists.txt
++++ b/contrib/poco-cmake/Net/CMakeLists.txt
+@@ -127,6 +127,10 @@ if (USE_INTERNAL_POCO_LIBRARY)
+     )
+     target_include_directories (_poco_net SYSTEM PUBLIC "${LIBRARY_DIR}/Net/include")
+     target_link_libraries (_poco_net PUBLIC Poco::Foundation)
++
++    if (OS_SUNOS)
++		target_link_libraries (_poco_net PUBLIC socket nsl)
++    endif()
+ else ()
+     add_library (Poco::Net UNKNOWN IMPORTED GLOBAL)
+ 
+Submodule contrib/rocksdb contains modified content

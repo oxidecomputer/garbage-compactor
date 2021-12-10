@@ -1,0 +1,14 @@
+diff --git a/contrib/miniselect/include/miniselect/floyd_rivest_select.h b/contrib/miniselect/include/miniselect/floyd_rivest_select.h
+index e7d5f80..fb643d6 100644
+--- a/contrib/miniselect/include/miniselect/floyd_rivest_select.h
++++ b/contrib/miniselect/include/miniselect/floyd_rivest_select.h
+@@ -31,7 +31,7 @@ inline void floyd_rivest_select_loop(Iter begin, Diff left, Diff right, Diff k,
+     if (size > 600) {
+       Diff n = right - left + 1;
+       Diff i = k - left + 1;
+-      double z = log(n);
++      double z = log(static_cast<double>(n));
+       double s = 0.5 * exp(2 * z / 3);
+       double sd = 0.5 * sqrt(z * s * (n - s) / n);
+       if (i < n / 2) {
+Submodule contrib/poco contains modified content
