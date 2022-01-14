@@ -123,3 +123,21 @@ function make_package {
 
 	printf '%% ok\n'
 }
+
+function build_deps {
+	local deps_missing=()
+
+	for p in "$@"; do
+		if ! pkg info -q "$p"; then
+			deps_missing+=( "$p" )
+		fi
+	done
+
+	if (( ${#deps_missing[@]} > 0 )); then
+		info "installing package ${deps_missing[@]}"
+		pfexec pkg install -v "${deps_missing[@]}"
+	fi
+
+	info "build dependency versions:"
+	pkg list -v "$@"
+}
