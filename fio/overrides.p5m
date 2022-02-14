@@ -1,0 +1,11 @@
+#
+# These Python scripts come with fio, but we are not looking too closely at
+# them for the moment.  They use the bare "env python3", rather than a specific
+# version of Python, so we cannot currently generate package dependencies for
+# them.
+#
+<transform file path=^usr/bin/fio2gnuplot$ -> set pkg.depend.bypass-generate .*>
+<transform file path=^usr/bin/fio-histo-log-pctiles.py$ -> set pkg.depend.bypass-generate .*>
+<transform file path=^usr/bin/fiologparser_hist.py$ -> set pkg.depend.bypass-generate .*>
+<transform file path=^usr/bin/fiologparser.py$ -> set pkg.depend.bypass-generate .*>
+<transform file path=^usr/bin/fio_jsonplus_clat2csv$ -> set pkg.depend.bypass-generate .*>

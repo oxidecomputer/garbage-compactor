@@ -10,7 +10,9 @@ ARTEFACT="$ROOT/artefact"
 mkdir -p "$ARTEFACT"
 WORK="$ROOT/work"
 mkdir -p "$WORK"
-PROTO="$ROOT/proto"
+SRC64="$WORK/src64"
+mkdir -p "$SRC64"
+PROTO="$WORK/proto"
 mkdir -p "$PROTO"
 
 #
@@ -20,33 +22,38 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='3.25'
-URL="https://github.com/axboe/fio/archive/fio-$VER.tar.gz"
+NAM='fio'
+VER='3.29'
+URL="https://github.com/axboe/fio/archive/$NAM-$VER.tar.gz"
+SHA256='3ad22ee9c545afae914f399886e9637a43d1b3aa5dfcf6966ed83e633759acb7'
 
-if [[ -x /usr/gcc/9/bin/gcc ]]; then
-	GCC_DIR=/usr/gcc/9/bin
-elif [[ -x /opt/gcc-9/bin/gcc ]]; then
-	GCC_DIR=/opt/gcc-9/bin
+if [[ -x /usr/gcc/10/bin/gcc ]]; then
+	GCC_DIR=/usr/gcc/10/bin
+elif [[ -x /opt/gcc-10/bin/gcc ]]; then
+	GCC_DIR=/opt/gcc-10/bin
 else
 	fatal "Could not find GCC in any expected location"
 fi
 info "using $GCC_DIR/gcc: $($GCC_DIR/gcc --version | head -1)"
 info "using $GCC_DIR/g++: $($GCC_DIR/g++ --version | head -1)"
 
+build_deps \
+    '/library/libnbd'
+
 #
 # Download artefacts to use during build:
 #
 header 'downloading artefacts'
 
-file="$ARTEFACT/fio-$VER.src.tgz"
-download_to fio "$URL" "$file"
+file="$ARTEFACT/$NAM-$VER.src.tgz"
+download_to fio "$URL" "$file" "$SHA256"
 
 #
 # Extract artefacts:
 #
 header 'extracting artefacts'
 
-extract_to fio "$file" "$WORK" --strip-components=1
+extract_to fio "$file" "$SRC64" --strip-components=1
 
 #
 # Create workaround wrappers:
@@ -101,11 +108,11 @@ exec gsed "$@"
 EOF
 chmod 0755 "$WORKAROUND/sed"
 
-cat >"$WORKAROUND/install" <<'EOF'
+cat >"$WORKAROUND/ginstall" <<'EOF'
 #!/usr/bin/bash
-exec ginstall "$@"
+exec /usr/gnu/bin/install "$@"
 EOF
-chmod 0755 "$WORKAROUND/install"
+chmod 0755 "$WORKAROUND/ginstall"
 
 cat >"$WORKAROUND/make" <<'EOF'
 #!/usr/bin/bash
@@ -118,28 +125,21 @@ chmod 0755 "$WORKAROUND/make"
 #
 header 'patching fio source'
 
-stamp="$ROOT/cache/patched.stamp"
-if [[ ! -f "$stamp" ]]; then
-	for f in $ROOT/patches/*.patch; do
-		if [[ ! -f $f ]]; then
-			continue;
-		fi
+cd "$SRC64"
 
-		info "apply patch $f"
-		(cd "$WORK" && patch --verbose -p1 < "$f")
-	done
-
-	touch "$stamp"
-else
-	info 'already patched'
-fi
+apply_patches "$ROOT/patches"
 
 header 'building fio'
 
 export PATH="$WORKAROUND:$PATH"
 
+cd "$SRC64"
+
 info 'running configure...'
-(cd "$WORK" && ./configure --prefix=/opt/oxide/fio --disable-http)
+./configure \
+    --prefix=/usr \
+    --disable-http \
+    --enable-libnbd
 
 args=()
 if [[ -n $JOBS ]]; then
@@ -147,38 +147,38 @@ if [[ -n $JOBS ]]; then
 		args+=( "-j$JOBS" )
 	fi
 else
-	args+=( "-j2" )
+	args+=( "-j8" )
 fi
 
-info "running gmake..."
-gmake \
-    -C "$WORK" \
-    "${args[@]}"
+info "make 64bit..."
+gmake mandir=/usr/share/man "${args[@]}"
 
 info "running gmake install..."
-gmake \
-    -C "$WORK" \
-    install \
-    DESTDIR="$PROTO"
+gmake install mandir=/usr/share/man DESTDIR="$PROTO"
 
-#
-# Some distributions do different things with libz.so.1, so, carry the one we
-# were built with along for the ride.  (Sigh.)
-#
-mkdir -p "$PROTO/opt/oxide/fio/lib"
-cp /usr/lib/64/libz.so.1 "$PROTO/opt/oxide/fio/lib"
+if [[ -z "$OUTPUT_TYPE" ]]; then
+	OUTPUT_TYPE=ips
+fi
 
-bins=$(/bin/file "$PROTO/opt/oxide/fio/bin/"* | grep ELF | sed 's/:.*//' |
-    xargs -n 1 basename)
-for bin in $bins; do
-	info "patching rpath in $bin..."
-	/usr/bin/elfedit -e 'dyn:rpath $ORIGIN/../lib' \
-	    "$PROTO/opt/oxide/fio/bin/$bin"
-done
-
-ldd "$PROTO/opt/oxide/fio/bin/fio"
-
-/usr/bin/tar cvfz $WORK/fio-$VER.illumos.tar.gz -C "$PROTO" opt/oxide/fio
-
-header 'build output:'
-ls -lh "$WORK/fio-$VER.illumos.tar.gz"
+case "$OUTPUT_TYPE" in
+ips)
+	make_package "system/test/$NAM" \
+	    'Flexible IO Tester' \
+	    "$PROTO" \
+	    "$ROOT/overrides.p5m"
+	header 'build output:'
+	pkgrepo -s "$WORK/repo" list
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.0"
+	ls -lh "$WORK/$NAM-$VER.p5p"
+	exit 0
+	;;
+none)
+	#
+	# Just leave the build tree as-is without doing any more work.
+	#
+	exit 0
+	;;
+*)
+	fatal "unknown output type: $OUTPUT_TYPE"
+	;;
+esac
