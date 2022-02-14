@@ -1,0 +1,12 @@
+--- a/configure	Thu Feb 10 07:41:03 2022
++++ b/configure	Mon Feb 14 13:12:42 2022
+@@ -22553,6 +22553,9 @@
+   darwin*)
+   VERSION_SCRIPT=
+   ;;
++  solaris*)
++  VERSION_SCRIPT="-Wl,-M,${srcdir}/libnbd.syms"
++  ;;
+   *)
+   VERSION_SCRIPT="-Wl,--version-script=${srcdir}/libnbd.syms"
+   ;;

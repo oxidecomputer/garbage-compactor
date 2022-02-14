@@ -1,0 +1,10 @@
+--- a/Makefile.in	Thu Feb 10 07:41:02 2022
++++ b/Makefile.in	Mon Feb 14 13:36:57 2022
+@@ -446,7 +446,6 @@
+ 	common/utils \
+ 	lib \
+ 	docs \
+-	examples \
+ 	valgrind \
+ 	. \
+ 	tests \
