@@ -70,6 +70,25 @@ function download_to {
 	return 0
 }
 
+function apply_patches {
+	local patchdir=$1
+
+	info "applying patches from $patchdir in $PWD..."
+
+	if [[ ! -d "$patchdir" ]]; then
+		fatal "could not find patch directory $patchdir"
+	fi
+
+	for f in "$patchdir"/*.patch; do
+		if [[ ! -f "$f" ]]; then
+			continue
+		fi
+
+		info "applying patch $f..."
+		patch -p1 --verbose < "$f"
+	done
+}
+
 function make_package {
 	local name="$1"
 	local summary="$2"

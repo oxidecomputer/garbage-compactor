@@ -25,9 +25,10 @@ rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
 NAM='libusb'
-VER='1.0.24'
+VER='1.0.25'
 URL="https://github.com/libusb/libusb/releases/download"
 URL+="/v$VER/libusb-$VER.tar.bz2"
+SHA256='8a28ef197a797ebac2702f095e81975e2b02b2eeff2774fa909c78a74ef50849'
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
 	GCC_DIR=/usr/gcc/10/bin
@@ -49,7 +50,7 @@ build_deps \
 header 'downloading artefacts'
 
 file="$ARTEFACT/libusb-$VER.tar.bz2"
-download_to "$NAM" "$URL" "$file"
+download_to "$NAM" "$URL" "$file" "$SHA256"
 
 #
 # Extract artefacts:
@@ -61,17 +62,28 @@ extract_to "$NAM" "$file" "$SRC64" --strip-components=1
 
 header "building $NAM"
 
+#
+# Common configure arguments for 32- and 64-bit library builds:
+#
+common_args=(
+	'--prefix=/usr'
+	'--enable-shared=yes'
+	'--enable-static=no'
+	'--enable-log'
+	'--disable-system-log'
+)
+
 export PATH="$WORKAROUND:$PATH"
 
 cd "$SRC32"
 
+apply_patches "$ROOT/patches"
+
 info "configure 32bit..."
 CFLAGS='-m32' \
     ./configure \
-    --prefix=/usr \
-    --libdir=/usr/lib \
-    --enable-shared=yes \
-    --enable-static=no
+    "${common_args[@]}" \
+    --libdir=/usr/lib
 
 info "make 32bit..."
 gmake -j8
@@ -81,13 +93,13 @@ gmake install DESTDIR="$PROTO"
 
 cd "$SRC64"
 
+apply_patches "$ROOT/patches"
+
 info "configure 64bit..."
 CFLAGS='-m64' \
     ./configure \
-    --prefix=/usr \
-    --libdir=/usr/lib/amd64 \
-    --enable-shared=yes \
-    --enable-static=no
+    "${common_args[@]}" \
+    --libdir=/usr/lib/amd64
 
 info "make 64bit..."
 gmake -j8
