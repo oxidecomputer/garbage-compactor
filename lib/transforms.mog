@@ -2,6 +2,14 @@
 # Make every directory world-readable by default:
 #
 <transform dir -> default mode 0755>
+<transform dir -> default owner root>
+<transform dir -> default group root>
+
+#
+# Defaults for users we create:
+#
+<transform user -> default ftpuser false>
+<transform user -> default password NP>
 
 #
 # Make sure directory permissions align with other packages:
@@ -10,5 +18,11 @@
 <transform dir path=^usr$ -> set group sys>
 <transform dir path=^usr/share$ -> set group sys>
 <transform dir path=^usr/share/doc$ -> set group other>
+<transform dir path=^usr/share/applications$ -> set group other>
+<transform dir path=^usr/share/locale.* -> set group other>
 <transform dir path=^usr/lib/pkgconfig$ -> set group other>
 <transform dir path=^usr/lib/amd64/pkgconfig$ -> set group other>
+<transform dir path=^var$ -> set group other>
+<transform dir path=^var/lib$ -> set group sys>
+<transform dir path=^var/svc$ -> set group sys>
+<transform dir path=^var/svc/manifest.* -> set group sys>

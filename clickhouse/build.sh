@@ -27,10 +27,11 @@ for pkg in cmake ninja; do
 	fi
 done
 
-VER="21.6.7.57"
+NAM='clickhouse'
+VER="21.10.4.26"
 URL="https://github.com/ClickHouse/ClickHouse/releases/download/v$VER-stable"
 URL+="/ClickHouse_sources_with_submodules.tar.gz"
-SHA256='b060fb3bb10051537093823fe67e17ca198310cc8d76cc5aeeab78827f92ba08'
+SHA256='2d34b5957d1ae3ad853f596aa0bbd21e2bf7d3d71b6b23a5f19868c2f7656e80'
 
 #
 # Download ClickHouse sources
@@ -86,6 +87,8 @@ if (( njobs_mem < njobs )); then
 fi
 info "using $njobs jobs..."
 
+export PATH="/usr/gnu/bin:/opt/ooce/bin:/usr/bin:/usr/sbin:/sbin"
+
 stamp="$STAMPS/cmake.stamp"
 if [[ ! -f "$stamp" ]]; then
 	info "running cmake..."
@@ -102,9 +105,11 @@ if [[ ! -f "$stamp" ]]; then
 	# objects -- sometimes 15-30GB! -- so we constrain PARALLEL_LINK_JOBS
 	# to 1.
 	#
-	CFLAGS="$CFLAGS" CXXFLAGS="$CFLAGS" cmake \
+	CFLAGS="$CFLAGS" CXXFLAGS="$CXXINC $CFLAGS" cmake \
+	    -DCMAKE_C_COMPILER="/opt/gcc-10/bin/gcc" \
+	    -DCMAKE_CXX_COMPILER="/opt/gcc-10/bin/g++" \
 	    -DCMAKE_C_FLAGS="$CFLAGS" \
-	    -DCMAKE_CXX_FLAGS="$CFLAGS" \
+	    -DCMAKE_CXX_FLAGS="$CXXINC $CFLAGS" \
 	    -DABSL_CXX_STANDARD="17" \
 	    -DENABLE_LDAP=off \
 	    -DUSE_INTERNAL_LDAP_LIBRARY=off \
@@ -152,7 +157,8 @@ if [[ ! -f "$stamp" ]]; then
 	jobs=$njobs
 	while :; do
 		info "trying ninja build with $jobs jobs"
-		if ! ninja -C "$SRC/build" -j $jobs; then
+		if ! ninja -k 0 -C "$SRC/build" -j $jobs; then
+			exit 1
 			if (( jobs-- <= 1 )); then
 				fatal 'ninja failed even with only one job'
 			fi
@@ -181,21 +187,49 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	rm -rf "$WORK/proto"
-	mkdir -p "$WORK/proto/opt/oxide/clickhouse/$VER/bin"
-	cp "$CACHE/clickhouse" \
-	    "$WORK/proto/opt/oxide/clickhouse/$VER/bin/clickhouse"
 	#
 	# Make a package per release version series; e.g., 21.6.7.57-stable
-	# will be package "clickhouse-216".
+	# will be package "clickhouse-21.6".
 	#
-	suffix=$(awk -F. '{ print $1$2 }' <<< "$VER")
-	make_package "oxide/clickhouse-$suffix" \
+	SVER=$(awk -F. '{ print $1"."$2 }' <<< "$VER")
+
+	rm -rf "$WORK/proto"
+	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/bin"
+	cp "$CACHE/clickhouse" \
+	    "$WORK/proto/opt/clickhouse/$SVER/bin/clickhouse"
+
+	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/config"
+	for f in config.xml users.xml; do
+		cp "$SRC/programs/server/$f" \
+		    "$WORK/proto/opt/clickhouse/$SVER/config/$f"
+	done
+
+	make_package "database/$NAM-$SVER" \
 	    'columnar OLAP database for real-time analytics in SQL' \
-	    "$WORK/proto"
+	    "$WORK/proto" \
+	    "$ROOT/current.p5m"
+
+	rm -rf "$WORK/proto"
+	mkdir -p "$WORK/proto/var/svc/manifest/database"
+	cp smf.xml "$WORK/proto/var/svc/manifest/database/clickhouse.xml"
+
+	#
+	# The common package will be shared by all release series, so it does
+	# not need a version suffix in the name.  It also does not require a
+	# branch version.
+	#
+	CVER='1.0.1'
+	make_package_simple "database/$NAM-common" \
+	    'ClickHouse common package' \
+	    "$WORK/proto" \
+	    "$ROOT/common.p5m" \
+	    "$CVER"
+
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
+	    "database/$NAM-$SVER@$VER-1.0" \
+	    "database/$NAM-common@$CVER"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

@@ -1,0 +1,10 @@
+<transform dir path=^opt/clickhouse/[^/]*/config$ -> set group clickhouse>
+<transform dir path=^opt/clickhouse/[^/]*/config$ -> set mode 0750>
+<transform file path=^opt/clickhouse/[^/]*/config/.* -> set group clickhouse>
+<transform file path=^opt/clickhouse/[^/]*/config/.* -> set mode 0640>
+<transform file path=^opt/clickhouse/[^/]*/config/.* -> set preserve renamenew>
+link path=opt/clickhouse/bin/clickhouse target=../21.10/bin/clickhouse \
+    mediator=clickhouse mediator-version=21.10
+link path=opt/clickhouse/default target=21.10 mediator=clickhouse \
+    mediator-version=21.10
+depend type=require fmri=database/clickhouse-common@1.0-1.0

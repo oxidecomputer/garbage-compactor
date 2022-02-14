@@ -1,0 +1,8 @@
+dir  path=opt/clickhouse/bin owner=root group=bin
+dir  path=var/lib/clickhouse owner=clickhouse group=clickhouse mode=0750
+dir  path=var/svc/manifest/database
+file path=var/svc/manifest/database/clickhouse.xml owner=root group=sys \
+    mode=0644 restart_fmri=svc:/system/manifest-import:default
+group groupname=clickhouse gid=100004
+user username=clickhouse gcos-field=ClickHouse group=clickhouse \
+    home-dir=/var/lib/clickhouse password=NP uid=100004

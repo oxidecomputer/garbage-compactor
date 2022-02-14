@@ -42,6 +42,7 @@ function download_to {
 	local name="$1"
 	local url="$2"
 	local path="$3"
+	local sha256="$4"
 
 	if [[ ! -f "$path" ]]; then
 		info "downloading $name..."
@@ -54,6 +55,18 @@ function download_to {
 		info "downloaded $name already"
 	fi
 
+	if [[ -n "$sha256" ]]; then
+		info "verifying hash for $name..."
+		if ! actual=$(digest -a sha256 "$path"); then
+			fatal "could not calculate SHA256 of $name, file $path"
+		fi
+
+		if [[ "$actual" != "$sha256" ]]; then
+			fatal "$path hash mismatch $actual != $sha256"
+		fi
+		info "$name hash ok"
+	fi
+
 	return 0
 }
 
@@ -61,6 +74,7 @@ function make_package {
 	local name="$1"
 	local summary="$2"
 	local proto="$3"
+	local inputmf="$4"
 	local mf="$WORK/input.mf"
 	local publisher="helios-dev"
 	local branch='1.0'
@@ -74,6 +88,10 @@ function make_package {
 	printf 'set name=pkg.fmri value=pkg://%s/%s@%s-%s\n' \
 	    "$publisher" "$name" "$VER" "$branch" >> "$mf"
 	printf 'set name=pkg.summary value="%s"\n' "$summary" >> "$mf"
+
+	if [[ -n "$inputmf" ]]; then
+		cat "$inputmf" >> "$mf"
+	fi
 
 	#
 	# Add all files found in the proto area.
@@ -117,6 +135,54 @@ function make_package {
 
 	rm -f "$WORK/final.mf"
 	cat "$WORK/step1.mf" "$WORK/step2.mf.res" > "$WORK/final.mf"
+
+	printf '%% publishing...\n'
+	pkgsend publish -d "$proto" -s "$repo" "$WORK/final.mf"
+
+	printf '%% ok\n'
+}
+
+#
+# Make a package without doing dependency list generation or resolution.  This
+# is useful for a fully specified package such as "clickhouse/common" which
+# just contains container directories and user accounts, but no ELF binaries or
+# scripts with interpreters, etc.
+#
+# Because the contents of this package comes solely from this repository, there
+# is no need for a separate branch version.
+#
+function make_package_simple {
+	local name="$1"
+	local summary="$2"
+	local proto="$3"
+	local inputmf="$4"
+	local version="$5"
+	local mf="$WORK/input.mf"
+	local publisher="helios-dev"
+	local repo="$WORK/repo"
+
+	#
+	# Generate the base package manifest:
+	#
+	printf '%% generating base manifest...\n'
+	rm -f "$mf"
+	printf 'set name=pkg.fmri value=pkg://%s/%s@%s\n' \
+	    "$publisher" "$name" "$version" >> "$mf"
+	printf 'set name=pkg.summary value="%s"\n' "$summary" >> "$mf"
+
+	#
+	# Append pkgmogrify directives to fix up the generated manifest, and
+	# transform the manifest now:
+	#
+	printf '%% transforming manifest...\n'
+	rm -f "$WORK/step1.mf"
+	pkgmogrify -v -O "$WORK/step1.mf" \
+	     "$ROOT/../lib/transforms.mog" \
+	     "$inputmf" \
+	     "$mf"
+
+	rm -f "$WORK/final.mf"
+	cat "$WORK/step1.mf" > "$WORK/final.mf"
 
 	printf '%% publishing...\n'
 	pkgsend publish -d "$proto" -s "$repo" "$WORK/final.mf"

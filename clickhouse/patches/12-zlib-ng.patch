@@ -1,0 +1,21 @@
+--- a/contrib/zlib-ng/zutil_p.h
++++ b/contrib/zlib-ng/zutil_p.h
+@@ -10,6 +10,9 @@
+ #elif defined(__FreeBSD__)
+ #  include <stdlib.h>
+ #  include <malloc_np.h>
++#elif defined(OS_SUNOS)
++#  include <stdlib.h>
++#  include <sys/mman.h>
+ #else
+ #  include <malloc.h>
+ #endif
+@@ -16,7 +19,7 @@
+ 
+ /* Function to allocate 16 or 64-byte aligned memory */
+ static inline void *zng_alloc(size_t size) {
+-#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
++#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(OS_SUNOS)
+     void *ptr;
+     return posix_memalign(&ptr, 64, size) ? NULL : ptr;
+ #elif defined(_WIN32)

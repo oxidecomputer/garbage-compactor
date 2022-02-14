@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
+<service_bundle type="manifest" name="database-clickhouse">
+  <service name="database/clickhouse" type="service" version="1">
+    <create_default_instance enabled="false" />
+
+    <dependency name="dep0" grouping="require_all" restart_on="error" 
+      type="service">
+      <service_fmri value="svc:/milestone/multi-user:default" />
+    </dependency>
+
+    <exec_method type="method" name="start" timeout_seconds="10"
+      exec="/opt/clickhouse/%{config/version}/bin/clickhouse server
+        --config-file %{config/config_file} &amp;">
+      <method_context>
+        <method_credential user="clickhouse" group="clickhouse" />
+      </method_context>
+    </exec_method>
+
+    <exec_method type="method" name="stop" exec=":kill" timeout_seconds="60" />
+
+    <property_group name="config" type="application">
+      <propval name="version" type="astring" value="default" />
+      <propval name="config_file" type="astring" 
+        value="/opt/clickhouse/default/config/config.xml" />
+    </property_group>
+
+    <template>
+      <common_name>
+        <loctext xml:lang="C">Clickhouse</loctext>
+      </common_name>
+    </template>
+  </service>
+</service_bundle>
