@@ -1,5 +1,7 @@
 #!/bin/bash
 
+unset HARDLINK_TARGETS
+
 function info {
 	printf 'INFO: %s\n' "$*"
 }
@@ -98,6 +100,7 @@ function make_package {
 	local publisher="helios-dev"
 	local branch='1.0'
 	local repo="$WORK/repo"
+	local sendargs=()
 
 	#
 	# Generate the base package manifest:
@@ -113,13 +116,23 @@ function make_package {
 	fi
 
 	#
+	# Assemble list of hardlink target arguments.
+	#
+	if [[ -n $HARDLINK_TARGETS ]]; then
+		for hlt in $HARDLINK_TARGETS; do
+			sendargs+=( '--target' )
+			sendargs+=( "$hlt" )
+		done
+	fi
+
+	#
 	# Add all files found in the proto area.
 	#
 	# We keep timestamps for any Python files (and their compiled versions)
 	# to prevent their immediate recompilation on the installed system.
 	#
 	printf '%% generating file list...\n'
-	pkgsend generate -T '*.py' -T '*.pyc' "$proto" >> "$mf"
+	pkgsend generate -T '*.py' -T '*.pyc' "${sendargs[@]}" "$proto" >> "$mf"
 
 	#
 	# Append pkgmogrify directives to fix up the generated manifest, and

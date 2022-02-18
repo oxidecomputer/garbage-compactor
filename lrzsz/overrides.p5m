@@ -1,0 +1,4 @@
+link path=usr/share/man/man1/sb.1 target=sz.1
+link path=usr/share/man/man1/sx.1 target=sz.1
+link path=usr/share/man/man1/rb.1 target=rz.1
+link path=usr/share/man/man1/rx.1 target=rz.1
