@@ -1,0 +1,13 @@
+--- a/src/jtag/drivers/stlink_usb.c
++++ b/src/jtag/drivers/stlink_usb.c
+@@ -62,10 +62,6 @@
+ 
+ #include "libusb_helper.h"
+ 
+-#ifdef HAVE_LIBUSB1
+-#define USE_LIBUSB_ASYNCIO
+-#endif
+-
+ #define STLINK_SERIAL_LEN 24
+ 
+ #define ENDPOINT_IN  0x80

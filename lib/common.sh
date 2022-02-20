@@ -1,6 +1,7 @@
 #!/bin/bash
 
 unset HARDLINK_TARGETS
+unset BRANCH
 
 function info {
 	printf 'INFO: %s\n' "$*"
@@ -98,7 +99,7 @@ function make_package {
 	local inputmf="$4"
 	local mf="$WORK/input.mf"
 	local publisher="helios-dev"
-	local branch='1.0'
+	local branch="${BRANCH:-1.0}"
 	local repo="$WORK/repo"
 	local sendargs=()
 

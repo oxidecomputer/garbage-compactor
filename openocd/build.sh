@@ -44,6 +44,11 @@ fi
 info "using $GCC_DIR/gcc: $($GCC_DIR/gcc --version | head -1)"
 info "using $GCC_DIR/g++: $($GCC_DIR/g++ --version | head -1)"
 
+build_deps \
+    '/library/hidapi' \
+    '/library/libftdi1' \
+    '/library/libusb'
+
 #
 # Download artefacts to use during build:
 #
@@ -106,12 +111,13 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
+	BRANCH=1.0.1
 	make_package "developer/$NAM" \
 	    'the open on-chip debugger' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-$BRANCH"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;
