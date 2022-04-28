@@ -16,7 +16,6 @@ package sysutil
 
 import (
 	"fmt"
-	"math"
 	"syscall"
 
 	"golang.org/x/sys/unix"
@@ -29,30 +28,6 @@ func ProcessIdentity() string {
 		unix.Getuid(), unix.Geteuid(), unix.Getgid(), unix.Getegid())
 }
 
-
-// StatFS returns an FSInfo describing the named filesystem. It is only
-// supported on Unix-like platforms.
-func StatFS(path string) (*FSInfo, error) {
-	var fs unix.Statvfs_t
-	if err := unix.Statvfs(path, &fs); err != nil {
-		return nil, err
-	}
-	// Statvfs_t's fields have different types on different platforms. Our FSInfo
-	// type uses int64s for all fields, so make sure the values returned by the OS
-	// will fit.
-	if uint64(fs.Bfree) > math.MaxInt64 ||
-		uint64(fs.Bavail) > math.MaxInt64 ||
-		uint64(fs.Blocks) > math.MaxInt64 ||
-		uint64(fs.Bsize) > math.MaxInt64 {
-		return nil, fmt.Errorf("statvfs syscall returned unrepresentable value %#v", fs)
-	}
-	return &FSInfo{
-		FreeBlocks:  int64(fs.Bfree),
-		AvailBlocks: int64(fs.Bavail),
-		TotalBlocks: int64(fs.Blocks),
-		BlockSize:   int64(fs.Bsize),
-	}, nil
-}
 
 // IsCrossDeviceLinkErrno checks whether the given error object (as
 // extracted from an *os.LinkError) is a cross-device link/rename
