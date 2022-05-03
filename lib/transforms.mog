@@ -17,6 +17,7 @@
 <transform dir path=^opt$ -> set group sys>
 <transform dir path=^usr$ -> set group sys>
 <transform dir path=^usr/share$ -> set group sys>
+<transform dir path=^usr/share/aclocal$ -> set group other>
 <transform dir path=^usr/share/doc$ -> set group other>
 <transform dir path=^usr/share/applications$ -> set group other>
 <transform dir path=^usr/share/locale.* -> set group other>
