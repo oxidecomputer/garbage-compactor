@@ -23,11 +23,11 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='21.1.10'
+VER='21.2.9'
 URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
 
-GOVER='1.16.5'
-SYSGOVER=$(pkg info go-116 | awk '/Version:/ { print $NF }')
+GOVER='1.16.10'
+SYSGOVER=$( (pkg info go-116 || true) | awk '/Version:/ { print $NF }')
 if [[ "$SYSGOVER" != "$GOVER" ]]; then
 	fatal 'install or update go-116 package'
 fi
@@ -174,14 +174,7 @@ function vendor_replace {
 
 stamp="$ROOT/cache/patched.stamp"
 if [[ ! -f "$stamp" ]]; then
-	for f in $ROOT/patches/*.patch; do
-		if [[ ! -f $f ]]; then
-			continue;
-		fi
-
-		info "apply patch $f"
-		(cd "$GOPATH" && patch --verbose -p1 < "$f")
-	done
+	apply_patches "$ROOT/patches" "$GOPATH"
 
 	info 'copying in extra files...'
 	cp $ROOT/patches/sysutil_illumos.go \
@@ -220,19 +213,18 @@ else
 fi
 
 #
-# The source archive for CockroachDB contains a pre-rendered copy of the web
-# assets, ostensibly to avoid requiring the full set of Node-based software
-# that is used to regenerate it.  Because we are patching the UI, we need to
-# force the regeneration of the Go source file that contains the
-# webpack/minified version of the Javascript before trying to build the final
-# binary:
+# The Makefile appears to contain a Performance Improvement that involves
+# generating another, smaller Makefile that can be included by the first, and
+# which "caches" a slapdash set of values.  Because we patch the Makefile, this
+# trips the cache invalidation logic which the comments suggest will "reboot"
+# make (it does not) so we do it by hand first:
 #
-info "running gmake ui-generate-oss..."
+info "running gmake build/defs.mk..."
 BUILDCHANNEL=source-archive \
     gmake \
     -C "$GOPATH/src/github.com/cockroachdb/cockroach" \
     "${args[@]}" \
-    "ui-generate-oss" \
+    "build/defs.mk" \
     BUILDTYPE=release
 
 info "running gmake build$buildtype..."

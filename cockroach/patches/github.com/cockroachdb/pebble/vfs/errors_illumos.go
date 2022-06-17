@@ -2,7 +2,7 @@
 // of this source code is governed by a BSD-style license that can be found in
 // the LICENSE file.
 
-// +build darwin dragonfly freebsd linux openbsd
+// +build illumos
 
 package vfs
 
@@ -13,7 +13,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-var errNotEmpty = syscall.ENOTEMPTY
+var errNotEmpty = syscall.EEXIST
 
 // IsNoSpaceError returns true if the given error indicates that the disk is
 // out of space.
