@@ -26,12 +26,12 @@ mkdir -p "$WORKAROUND"
 VER='21.2.9'
 URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
 
-GOVER='1.16.10'
-SYSGOVER=$( (pkg info go-116 || true) | awk '/Version:/ { print $NF }')
+GOVER='1.18.3'
+SYSGOVER=$( (pkg info go-118 || true) | awk '/Version:/ { print $NF }')
 if [[ "$SYSGOVER" != "$GOVER" ]]; then
-	fatal 'install or update go-116 package'
+	fatal 'install or update go-118 package'
 fi
-export GOROOT='/opt/ooce/go-1.16'
+export GOROOT='/opt/ooce/go-1.18'
 info "using $GOROOT/bin/go: $($GOROOT/bin/go version)"
 
 YARNVER='1.22.5'
