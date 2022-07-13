@@ -1,0 +1,20 @@
+--- a/src/github.com/cockroachdb/cockroach/Makefile
++++ b/src/github.com/cockroachdb/cockroach/Makefile
+@@ -253,7 +253,7 @@
+ 
+ # We install our vendored tools to a directory within this repository to avoid
+ # overwriting any user-installed binaries of the same name in the default GOBIN.
+-GO_INSTALL := GOBIN='$(abspath bin)' GOFLAGS= $(GO) install $(GOMODVENDORFLAGS)
++GO_INSTALL := GOBIN='$(abspath bin)' GOFLAGS=-buildvcs=false $(GO) install $(GOMODVENDORFLAGS)
+ 
+ # Prefer tools we've installed with go install and Yarn to those elsewhere on
+ # the PATH.
+@@ -970,7 +970,7 @@
+ # normal and race test builds.
+ .PHONY: go-install
+ $(COCKROACH) $(COCKROACHOSS) $(COCKROACHSHORT) $(COCKROACHSQL) go-install:
+-	 $(xgo) $(build-mode) -v $(GOFLAGS) $(GOMODVENDORFLAGS) -tags '$(TAGS)' -ldflags '$(LINKFLAGS)' $(BUILDTARGET)
++	 $(xgo) $(build-mode) -v -buildvcs=false $(GOFLAGS) $(GOMODVENDORFLAGS) -tags '$(TAGS)' -ldflags '$(LINKFLAGS)' $(BUILDTARGET)
+ 
+ # The build targets, in addition to producing a Cockroach binary, silently
+ # regenerate SQL diagram BNFs and some other doc pages. Generating these docs
