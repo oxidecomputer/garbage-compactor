@@ -23,8 +23,8 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='21.2.9'
-URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
+VER='22.1.3'
+URL="https://github.com/cockroachdb/cockroach/archive/refs/tags/v$VER.tar.gz"
 
 GOVER='1.18.3'
 SYSGOVER=$( (pkg info go-118 || true) | awk '/Version:/ { print $NF }')
