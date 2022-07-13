@@ -23,15 +23,15 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='21.2.9'
-URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
+VER='22.1.5'
+URL="https://github.com/cockroachdb/cockroach/archive/refs/tags/v$VER.tar.gz"
 
-GOVER='1.16.10'
-SYSGOVER=$( (pkg info go-116 || true) | awk '/Version:/ { print $NF }')
+GOVER='1.17.11'
+SYSGOVER=$( (pkg info go-117 || true) | awk '/Version:/ { print $NF }')
 if [[ "$SYSGOVER" != "$GOVER" ]]; then
 	fatal 'install or update go-116 package'
 fi
-export GOROOT='/opt/ooce/go-1.16'
+export GOROOT='/opt/ooce/go-1.17'
 info "using $GOROOT/bin/go: $($GOROOT/bin/go version)"
 
 YARNVER='1.22.5'
