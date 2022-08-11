@@ -3,6 +3,12 @@
 unset HARDLINK_TARGETS
 unset BRANCH
 
+CTFCONVERT=${CTFCONVERT:-/opt/onbld/bin/i386/ctfconvert}
+if [[ ! -x $CTFCONVERT ]]; then
+	printf 'ERROR: install pkg:/developer/build/onbld\n' >&2
+	exit 1
+fi
+
 function info {
 	printf 'INFO: %s\n' "$*"
 }

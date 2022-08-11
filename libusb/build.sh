@@ -80,7 +80,7 @@ cd "$SRC32"
 apply_patches "$ROOT/patches"
 
 info "configure 32bit..."
-CFLAGS='-m32' \
+CFLAGS='-m32 -gdwarf-2 ' \
     ./configure \
     "${common_args[@]}" \
     --libdir=/usr/lib
@@ -96,7 +96,7 @@ cd "$SRC64"
 apply_patches "$ROOT/patches"
 
 info "configure 64bit..."
-CFLAGS='-m64' \
+CFLAGS='-m64 -gdwarf-2 -msave-args ' \
     ./configure \
     "${common_args[@]}" \
     --libdir=/usr/lib/amd64
@@ -107,6 +107,11 @@ gmake -j8
 info "make install 64bit..."
 gmake install DESTDIR="$PROTO"
 
+for f in 'libusb-1.0.so.0.3.0'; do
+	"$CTFCONVERT" "$PROTO/usr/lib/amd64/$f"
+	"$CTFCONVERT" "$PROTO/usr/lib/$f"
+done
+
 cd "$WORK"
 
 if [[ -z "$OUTPUT_TYPE" ]]; then
@@ -115,12 +120,12 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	make_package "library/$NAM" \
+	BRANCH=1.1 make_package "library/$NAM" \
 	    'A cross-platform library to access USB devices' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.1"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

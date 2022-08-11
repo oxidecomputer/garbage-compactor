@@ -103,7 +103,7 @@ if [[ ! -f "$CONFUSE32/patched.stamp" ]]; then
 fi
 
 info 'configuring confuse 32bit...'
-CFLAGS='-m32' \
+CFLAGS='-m32 -gdwarf-2' \
     ./configure \
     --prefix=$CONFUSE32/sproto \
     --enable-static=yes \
@@ -126,7 +126,7 @@ if [[ ! -f "$CONFUSE64/patched.stamp" ]]; then
 fi
 
 info 'configuring confuse 64bit...'
-CFLAGS='-m64' \
+CFLAGS='-m64 -gdwarf-2 -msave-args' \
     ./configure \
     --prefix=$CONFUSE64/sproto \
     --enable-static=yes \
@@ -151,7 +151,7 @@ fi
 
 mkdir build
 cd build
-CFLAGS='-m32' \
+CFLAGS='-m32 -gdwarf-2' \
     cmake \
     -Wno-dev \
     -DCONFUSE_LIBRARY="$CONFUSE32/sproto/lib/libconfuse.a" \
@@ -184,7 +184,7 @@ fi
 mkdir build
 cd build
 PKG_CONFIG_PATH='/usr/lib/amd64/pkgconfig' \
-CFLAGS='-m64' \
+CFLAGS='-m64 -gdwarf-2 -msave-args' \
 LDFLAGS='-R/usr/lib/amd64' \
     cmake \
     -Wno-dev \
@@ -202,18 +202,23 @@ gmake -j8
 info "make install..."
 gmake install DESTDIR="$PROTO"
 
+for f in 'libftdi1.so.2.5.0'; do
+	"$CTFCONVERT" "$PROTO/usr/lib/amd64/$f"
+	"$CTFCONVERT" "$PROTO/usr/lib/$f"
+done
+
 if [[ -z "$OUTPUT_TYPE" ]]; then
 	OUTPUT_TYPE=ips
 fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	make_package "library/$NAM" \
+	BRANCH=1.1 make_package "library/$NAM" \
 	    'a library for communicating with USB and Bluetooth HID devices' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.1"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;
