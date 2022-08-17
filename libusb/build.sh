@@ -120,12 +120,12 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	BRANCH=1.1 make_package "library/$NAM" \
+	BRANCH=1.2 make_package "library/$NAM" \
 	    'A cross-platform library to access USB devices' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.1"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.2"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

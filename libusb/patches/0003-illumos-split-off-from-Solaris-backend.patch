@@ -1,7 +1,7 @@
 From 57b0bd0b3624eea8f7a56cb477649f2f35b0bab7 Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Mon, 27 Dec 2021 16:08:38 -0800
-Subject: [PATCH 3/5] illumos: split off from Solaris backend
+Subject: [PATCH 3/7] illumos: split off from Solaris backend
 
 ---
  README                  |    2 +-
@@ -14,7 +14,7 @@ Subject: [PATCH 3/5] illumos: split off from Solaris backend
  create mode 100644 libusb/os/illumos_usb.h
 
 diff --git a/README b/README
-index a47b4bd..adc408c 100644
+index a47b4bd6..adc408c1 100644
 --- a/README
 +++ b/README
 @@ -5,7 +5,7 @@
@@ -27,7 +27,7 @@ index a47b4bd..adc408c 100644
  Lesser General Public License version 2.1 or, at your option, any later
  version (see [COPYING](COPYING)).
 diff --git a/configure.ac b/configure.ac
-index f6cf2f9..fe51f2e 100644
+index f6cf2f9f..fe51f2e8 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -108,9 +108,15 @@ case $host in
@@ -85,7 +85,7 @@ index f6cf2f9..fe51f2e 100644
  AM_CONDITIONAL([PLATFORM_POSIX], [test "x$platform" = xposix])
  AM_CONDITIONAL([PLATFORM_WINDOWS], [test "x$platform" = xwindows])
 diff --git a/libusb/Makefile.am b/libusb/Makefile.am
-index baf7b38..c6ac864 100644
+index baf7b38f..c6ac8645 100644
 --- a/libusb/Makefile.am
 +++ b/libusb/Makefile.am
 @@ -24,6 +24,7 @@ OS_NETBSD_SRC = os/netbsd_usb.c
@@ -109,7 +109,7 @@ index baf7b38..c6ac864 100644
  
 diff --git a/libusb/os/illumos_usb.c b/libusb/os/illumos_usb.c
 new file mode 100644
-index 0000000..db8dcf7
+index 00000000..db8dcf75
 --- /dev/null
 +++ b/libusb/os/illumos_usb.c
 @@ -0,0 +1,1653 @@
@@ -1768,7 +1768,7 @@ index 0000000..db8dcf7
 +};
 diff --git a/libusb/os/illumos_usb.h b/libusb/os/illumos_usb.h
 new file mode 100644
-index 0000000..f24c370
+index 00000000..f24c3707
 --- /dev/null
 +++ b/libusb/os/illumos_usb.h
 @@ -0,0 +1,80 @@
@@ -1853,5 +1853,5 @@ index 0000000..f24c370
 +
 +#endif /* LIBUSB_ILLUMOS_H */
 -- 
-2.31.1
+2.31.2
 

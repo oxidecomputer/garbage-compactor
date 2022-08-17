@@ -1,7 +1,7 @@
 From 4b5f5193848808c0d6c730ce37737538e404c218 Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Mon, 27 Dec 2021 16:08:40 -0800
-Subject: [PATCH 4/5] illumos: correctly return error conditions
+Subject: [PATCH 4/7] illumos: correctly return error conditions
 
 ---
  libusb/os/illumos_usb.c | 98 ++++++++++++++++++++++++++++++++---------
@@ -9,7 +9,7 @@ Subject: [PATCH 4/5] illumos: correctly return error conditions
  2 files changed, 79 insertions(+), 20 deletions(-)
 
 diff --git a/libusb/os/illumos_usb.c b/libusb/os/illumos_usb.c
-index db8dcf7..ec4b272 100644
+index db8dcf75..ec4b2721 100644
 --- a/libusb/os/illumos_usb.c
 +++ b/libusb/os/illumos_usb.c
 @@ -1186,7 +1186,6 @@ illumos_async_callback(union sigval arg)
@@ -145,7 +145,7 @@ index db8dcf7..ec4b272 100644
  
  int
 diff --git a/libusb/os/illumos_usb.h b/libusb/os/illumos_usb.h
-index f24c370..4f3082c 100644
+index f24c3707..4f3082c8 100644
 --- a/libusb/os/illumos_usb.h
 +++ b/libusb/os/illumos_usb.h
 @@ -50,6 +50,7 @@ typedef struct illumos_device_handle_priv {
@@ -157,5 +157,5 @@ index f24c370..4f3082c 100644
  
  struct node_args {
 -- 
-2.31.1
+2.31.2
 
