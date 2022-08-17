@@ -2,7 +2,8 @@
 // of this source code is governed by a BSD-style license that can be found in
 // the LICENSE file.
 
-// +build darwin dragonfly freebsd linux openbsd
+//go:build darwin || dragonfly || freebsd || linux || openbsd || illumos
+// +build darwin dragonfly freebsd linux openbsd illumos
 
 package vfs
 
