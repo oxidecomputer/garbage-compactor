@@ -55,7 +55,7 @@ yarnfile="$ARTEFACT/yarn-v$YARNVER.tar.gz"
 download_to yarn "$YARNURL" "$yarnfile"
 
 file="$ARTEFACT/cockroach-v$VER.src.tgz"
-download_to cockroach "$URL" "$file"
+#download_to cockroach "$URL" "$file"
 
 #
 # Extract artefacts:
@@ -71,7 +71,7 @@ extract_to yarn "$yarnfile" "$YARNROOT" --strip-components=1
 # GOPATH and ignore the rest.
 #
 #rm -rf "$GOPATH" # XXX
-extract_to cockroach "$file" "$GOPATH" --strip-components=1
+#extract_to cockroach "$file" "$GOPATH" --strip-components=1
 
 #
 # Create workaround wrappers:
@@ -154,11 +154,11 @@ chmod 0755 "$WORKAROUND/ps"
 # garbage-compactor.git, because the source archive we use to build Cockroach
 # is not, itself, a git repository.
 #
-cat >"$WORKAROUND/git" <<'EOF'
-#!/usr/bin/bash
-exit 1
-EOF
-chmod 0755 "$WORKAROUND/git"
+#cat >"$WORKAROUND/git" <<'EOF'
+##!/usr/bin/bash
+#exit 1
+#EOF
+#chmod 0755 "$WORKAROUND/git"
 
 #
 # Build Cockroach:
