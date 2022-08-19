@@ -154,21 +154,9 @@ chmod 0755 "$WORKAROUND/ps"
 #
 header 'patching cockroach source'
 
-function vendor_replace {
-	local targ="$GOPATH/src/github.com/cockroachdb/cockroach/vendor/$1"
-	info "vendor replace $1"
-	rm -rf "$targ/"
-	cp -r "$ROOT/patches/$1/" "$targ/"
-}
-
 stamp="$ROOT/cache/patched.stamp"
 if [[ ! -f "$stamp" ]]; then
 	apply_patches "$ROOT/patches" "$GOPATH"
-
-	info 'copying in extra files...'
-
-	vendor_replace "github.com/elastic/gosigar"
-
 	touch "$stamp"
 else
 	info 'already patched'
