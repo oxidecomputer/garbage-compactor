@@ -169,8 +169,6 @@ if [[ ! -f "$stamp" ]]; then
 
 	vendor_replace "github.com/elastic/gosigar"
 	vendor_replace "github.com/knz/go-libedit"
-	vendor_replace "github.com/knz/strtime"
-	vendor_replace "github.com/cockroachdb/pebble/vfs"
 
 	touch "$stamp"
 else
