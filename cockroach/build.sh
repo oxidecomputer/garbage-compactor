@@ -168,7 +168,6 @@ if [[ ! -f "$stamp" ]]; then
 	info 'copying in extra files...'
 
 	vendor_replace "github.com/elastic/gosigar"
-	vendor_replace "github.com/knz/go-libedit"
 
 	touch "$stamp"
 else

@@ -1,1 +1,0 @@
-#include "libedit-vi.c"
