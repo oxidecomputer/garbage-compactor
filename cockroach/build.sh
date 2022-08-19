@@ -23,8 +23,14 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='22.1.5'
-COCKROACHDB_REF="v$VER"
+# We are currently pinned to a commit on the CockroachDB v22.1 release branch.
+# This commit is somewhat after 22.1.5.  It apparently just missed the cutoff
+# for 22.1.6.  We're doing this because we need cockroachdb/cockroach#86425 in
+# order to build.  We should be able to switch directly to v22.1.7 when that is
+# released.
+VER='22.1.5-oxide'
+#COCKROACHDB_REF="v$VER"
+COCKROACHDB_REF="d2f8b61d0af382d86e688b45a09ecfcbb8abb785"
 
 GOVER='1.17.11'
 SYSGOVER=$( (pkg info go-117 || true) | awk '/Version:/ { print $NF }')
