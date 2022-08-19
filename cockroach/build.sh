@@ -24,7 +24,7 @@ rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
 VER='22.1.5'
-URL="https://github.com/cockroachdb/cockroach/archive/refs/tags/v$VER.tar.gz"
+COCKROACHDB_REF="v$VER"
 
 GOVER='1.17.11'
 SYSGOVER=$( (pkg info go-117 || true) | awk '/Version:/ { print $NF }')
@@ -54,8 +54,17 @@ header 'downloading artefacts'
 yarnfile="$ARTEFACT/yarn-v$YARNVER.tar.gz"
 download_to yarn "$YARNURL" "$yarnfile"
 
-file="$ARTEFACT/cockroach-v$VER.src.tgz"
-#download_to cockroach "$URL" "$file"
+stamp="$ROOT/cache/cloned.stamp"
+if [[ ! -f "$stamp" ]]; then
+	repo=https://github.com/cockroachdb/cockroach
+	info "cloning $repo branch $COCKROACHDB_REF ..."
+	mkdir -p "$ROOT/cache/gopath/src/github.com/cockroachdb"
+	git clone --recurse-submodules --branch $COCKROACHDB_REF --depth 1
+	    $repo cache/gopath/src/github.com/cockroachdb/cockroach
+	touch "$stamp"
+else
+	info 'already cloned'
+fi
 
 #
 # Extract artefacts:
@@ -63,15 +72,6 @@ file="$ARTEFACT/cockroach-v$VER.src.tgz"
 header 'extracting artefacts'
 
 extract_to yarn "$yarnfile" "$YARNROOT" --strip-components=1
-
-#
-# The Cockroach DB source archive contains a wrapper Makefile at the top level
-# which merely redirects one into the source that is set up, and sets GOPATH
-# and BUILDCHANNEL='source-archive'.  We'll just extract it into our expected
-# GOPATH and ignore the rest.
-#
-#rm -rf "$GOPATH" # XXX
-#extract_to cockroach "$file" "$GOPATH" --strip-components=1
 
 #
 # Create workaround wrappers:
@@ -148,17 +148,6 @@ printf 'ERROR: unknown usage of ps(1): %s\n' "$*" >&2
 exit 1
 EOF
 chmod 0755 "$WORKAROUND/ps"
-
-#
-# The build will try to detect information about the git repository, but finds
-# garbage-compactor.git, because the source archive we use to build Cockroach
-# is not, itself, a git repository.
-#
-#cat >"$WORKAROUND/git" <<'EOF'
-##!/usr/bin/bash
-#exit 1
-#EOF
-#chmod 0755 "$WORKAROUND/git"
 
 #
 # Build Cockroach:
