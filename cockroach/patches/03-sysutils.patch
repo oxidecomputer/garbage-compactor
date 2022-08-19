@@ -1,17 +1,3 @@
-diff -ur cockroach-{pristine,patched}/src/github.com/cockroachdb/cockroach/pkg/util/sysutil/sysutil_unix.go
---- cockroach-pristine/src/github.com/cockroachdb/cockroach/pkg/util/sysutil/sysutil_unix.go	Wed Aug 17 10:40:01 2022
-+++ cockroach-patched/src/github.com/cockroachdb/cockroach/pkg/util/sysutil/sysutil_unix.go	Wed Aug 17 10:43:58 2022
-@@ -8,8 +8,8 @@
- // by the Apache License, Version 2.0, included in the file
- // licenses/APL.txt.
- 
--//go:build !windows
--// +build !windows
-+//go:build !windows && !illumos
-+// +build !windows,!illumos
- 
- //lint:file-ignore Unconvert (redundant conversions are necessary for cross-platform compatibility)
- 
 diff -ur cockroach-{pristine,patched}/src/github.com/cockroachdb/cockroach/pkg/util/sysutil/sysutil_unix_test.go
 --- cockroach-pristine/src/github.com/cockroachdb/cockroach/pkg/util/sysutil/sysutil_unix_test.go       Wed Aug 17 10:40:01 2022
 +++ cockroach-patched/src/github.com/cockroachdb/cockroach/pkg/util/sysutil/sysutil_unix_test.go        Wed Aug 17 11:01:07 2022

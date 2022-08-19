@@ -166,10 +166,6 @@ if [[ ! -f "$stamp" ]]; then
 	apply_patches "$ROOT/patches" "$GOPATH"
 
 	info 'copying in extra files...'
-	cp $ROOT/patches/sysutil_illumos.go \
-	    "$GOPATH/src/github.com/cockroachdb/cockroach/pkg/util/sysutil/"
-	cp $ROOT/patches/stderr_redirect_illumos.go \
-	    "$GOPATH/src/github.com/cockroachdb/cockroach/pkg/util/log/"
 
 	vendor_replace "github.com/elastic/gosigar"
 	vendor_replace "github.com/knz/go-libedit"
