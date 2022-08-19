@@ -29,8 +29,9 @@ mkdir -p "$WORKAROUND"
 # order to build.  We should be able to switch directly to v22.1.7 when that is
 # released.
 VER='22.1.5-oxide'
-#COCKROACHDB_REF="v$VER"
-COCKROACHDB_REF="d2f8b61d0af382d86e688b45a09ecfcbb8abb785"
+COCKROACHDB_CLONE_REF="release-22.1"
+COCKROACHDB_CHECKOUT_REF="d2f8b61d0af382d86e688b45a09ecfcbb8abb785"
+COCKROACHDB_CHECKOUT_REF="310ef7155cc5fe2a9d68d3c826d645da18c5cad8"
 
 GOVER='1.17.11'
 SYSGOVER=$( (pkg info go-117 || true) | awk '/Version:/ { print $NF }')
@@ -63,10 +64,13 @@ download_to yarn "$YARNURL" "$yarnfile"
 stamp="$ROOT/cache/cloned.stamp"
 if [[ ! -f "$stamp" ]]; then
 	repo=https://github.com/cockroachdb/cockroach
-	info "cloning $repo branch $COCKROACHDB_REF ..."
+	info "cloning $repo branch $COCKROACHDB_CLONE_REF ..."
 	mkdir -p "$ROOT/cache/gopath/src/github.com/cockroachdb"
-	git clone --recurse-submodules --branch $COCKROACHDB_REF --depth 1
-	    $repo cache/gopath/src/github.com/cockroachdb/cockroach
+	git clone --branch $COCKROACHDB_CLONE_REF --single-branch $repo \
+	    cache/gopath/src/github.com/cockroachdb/cockroach
+	(cd cache/gopath/src/github.com/cockroachdb/cockroach &&
+	    git checkout $COCKROACHDB_CHECKOUT_REF &&
+	    git submodule update --init)
 	touch "$stamp"
 else
 	info 'already cloned'
