@@ -18,8 +18,9 @@ TOOLS="$WORK/tools"
 mkdir -p "$TOOLS"
 
 NAM='pivy'
+VER="0.10.0"
 REPO="https://github.com/arekinath/pivy.git"
-COMMIT='5f3178051e76de8bb4c8846cc3ab5fb429142dbd'
+COMMIT='ef6477bf96c5df44653c193a6fbd1e63744141ba'
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
 	GCC_DIR=/usr/gcc/10/bin
@@ -84,15 +85,6 @@ for cmd in "${commands[@]}"; do
 	info "CTF conversion for $cmd..."
 	"$CTFCONVERT" "$PROTO/usr/bin/$cmd"
 done
-
-#
-# For now, we are building master after the 0.9.0 release.  Once 0.10.0 comes
-# out, we will likely switch to that tag.  Make up a version number that is
-# after 0.9.0 and unlikely to conflict with any patch release in that train,
-# but is before 0.10.0:
-#
-commit_count=$(git rev-list --count HEAD)
-VER="0.9.0.999999.$commit_count"
 
 cd "$WORK"
 
