@@ -56,6 +56,21 @@ header "building $NAM"
 
 cd "$SRC64"
 
+#
+# Determine the version embedded in this humility binary.  Not every commit
+# will bump the version number, so we include the repository commit count as an
+# additional component.
+#
+commit_count=$(git rev-list --count HEAD)
+VER=$(cargo metadata --format-version 1 |
+    jq -r '.packages | map(select(.name == "humility")) | .[].version'
+    ).$commit_count
+
+info "version is $VER"
+if pkg info -g https://pkg.oxide.computer/helios-dev "humility@$VER"; then
+	fatal 'package already published'
+fi
+
 info "build $NAM..."
 cargo build --release
 
@@ -63,14 +78,6 @@ header "installing $NAM"
 rm -rf "$PROTO"
 mkdir -p "$PROTO/usr/bin"
 cp target/release/humility "$PROTO/usr/bin/humility"
-
-#
-# Determine the version embedded in this humility binary.  Not every commit
-# will bump the version number, so we include the repository commit count as an
-# additional component.
-#
-commit_count=$(git rev-list --count HEAD)
-VER=$(target/release/humility --version | awk '{ print $2 }').$commit_count
 
 cd "$WORK"
 
