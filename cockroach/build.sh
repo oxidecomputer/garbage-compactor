@@ -23,7 +23,7 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='22.1.5'
+VER='22.1.9'
 COCKROACHDB_CLONE_REF="v$VER"
 
 NODEVER="v16.3.0"
