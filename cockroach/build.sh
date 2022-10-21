@@ -26,10 +26,17 @@ mkdir -p "$WORKAROUND"
 VER='22.1.5'
 COCKROACHDB_CLONE_REF="v$VER"
 
-GOVER='1.17.11'
+NODEVER="v16.3.0"
+SYSNODEVER=$( node -v 2>&1 )
+if [[ "$NODEVER" != "$SYSNODEVER" ]]; then
+	fatal "expected node $NODEVER, but found: $SYSNODEVER " \
+	    "(see node-16 package)"
+fi
+
+GOVER='1.17.13'
 SYSGOVER=$( (pkg info go-117 || true) | awk '/Version:/ { print $NF }')
 if [[ "$SYSGOVER" != "$GOVER" ]]; then
-	fatal 'install or update go-116 package'
+	fatal 'install or update go-117 package'
 fi
 export GOROOT='/opt/ooce/go-1.17'
 info "using $GOROOT/bin/go: $($GOROOT/bin/go version)"
