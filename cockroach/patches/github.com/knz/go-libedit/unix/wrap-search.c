@@ -1,1 +1,0 @@
-#include "libedit-search.c"

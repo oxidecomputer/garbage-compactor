@@ -1,1 +1,0 @@
-#include "libedit-prompt.c"

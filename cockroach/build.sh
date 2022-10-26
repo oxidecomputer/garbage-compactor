@@ -23,15 +23,22 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='21.2.9'
-URL="https://binaries.cockroachdb.com/cockroach-v$VER.src.tgz"
+VER='22.1.5'
+COCKROACHDB_CLONE_REF="v$VER"
 
-GOVER='1.16.10'
-SYSGOVER=$( (pkg info go-116 || true) | awk '/Version:/ { print $NF }')
-if [[ "$SYSGOVER" != "$GOVER" ]]; then
-	fatal 'install or update go-116 package'
+NODEVER="v16.3.0"
+SYSNODEVER=$( node -v 2>&1 )
+if [[ "$NODEVER" != "$SYSNODEVER" ]]; then
+	fatal "expected node $NODEVER, but found: $SYSNODEVER " \
+	    "(see node-16 package)"
 fi
-export GOROOT='/opt/ooce/go-1.16'
+
+GOVER='1.17.13'
+SYSGOVER=$( (pkg info go-117 || true) | awk '/Version:/ { print $NF }')
+if [[ "$SYSGOVER" != "$GOVER" ]]; then
+	fatal 'install or update go-117 package'
+fi
+export GOROOT='/opt/ooce/go-1.17'
 info "using $GOROOT/bin/go: $($GOROOT/bin/go version)"
 
 YARNVER='1.22.5'
@@ -54,8 +61,21 @@ header 'downloading artefacts'
 yarnfile="$ARTEFACT/yarn-v$YARNVER.tar.gz"
 download_to yarn "$YARNURL" "$yarnfile"
 
-file="$ARTEFACT/cockroach-v$VER.src.tgz"
-download_to cockroach "$URL" "$file"
+stamp="$ROOT/cache/cloned.stamp"
+if [[ ! -f "$stamp" ]]; then
+	repo=https://github.com/cockroachdb/cockroach
+	info "cloning $repo branch $COCKROACHDB_CLONE_REF ..."
+	mkdir -p "$ROOT/cache/gopath/src/github.com/cockroachdb"
+	git clone \
+	    --recurse-submodules \
+	    --branch $COCKROACHDB_CLONE_REF \
+	    --depth 1 \
+	    $repo \
+	    cache/gopath/src/github.com/cockroachdb/cockroach
+	touch "$stamp"
+else
+	info 'already cloned'
+fi
 
 #
 # Extract artefacts:
@@ -63,15 +83,6 @@ download_to cockroach "$URL" "$file"
 header 'extracting artefacts'
 
 extract_to yarn "$yarnfile" "$YARNROOT" --strip-components=1
-
-#
-# The Cockroach DB source archive contains a wrapper Makefile at the top level
-# which merely redirects one into the source that is set up, and sets GOPATH
-# and BUILDCHANNEL='source-archive'.  We'll just extract it into our expected
-# GOPATH and ignore the rest.
-#
-#rm -rf "$GOPATH" # XXX
-extract_to cockroach "$file" "$GOPATH" --strip-components=1
 
 #
 # Create workaround wrappers:
@@ -150,43 +161,13 @@ EOF
 chmod 0755 "$WORKAROUND/ps"
 
 #
-# The build will try to detect information about the git repository, but finds
-# garbage-compactor.git, because the source archive we use to build Cockroach
-# is not, itself, a git repository.
-#
-cat >"$WORKAROUND/git" <<'EOF'
-#!/usr/bin/bash
-exit 1
-EOF
-chmod 0755 "$WORKAROUND/git"
-
-#
 # Build Cockroach:
 #
 header 'patching cockroach source'
 
-function vendor_replace {
-	local targ="$GOPATH/src/github.com/cockroachdb/cockroach/vendor/$1"
-	info "vendor replace $1"
-	rm -rf "$targ/"
-	cp -r "$ROOT/patches/$1/" "$targ/"
-}
-
 stamp="$ROOT/cache/patched.stamp"
 if [[ ! -f "$stamp" ]]; then
 	apply_patches "$ROOT/patches" "$GOPATH"
-
-	info 'copying in extra files...'
-	cp $ROOT/patches/sysutil_illumos.go \
-	    "$GOPATH/src/github.com/cockroachdb/cockroach/pkg/util/sysutil/"
-	cp $ROOT/patches/stderr_redirect_illumos.go \
-	    "$GOPATH/src/github.com/cockroachdb/cockroach/pkg/util/log/"
-
-	vendor_replace "github.com/elastic/gosigar"
-	vendor_replace "github.com/knz/go-libedit"
-	vendor_replace "github.com/knz/strtime"
-	vendor_replace "github.com/cockroachdb/pebble/vfs"
-
 	touch "$stamp"
 else
 	info 'already patched'
