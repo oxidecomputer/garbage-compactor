@@ -1,0 +1,149 @@
+commit bc83cd7f728209a87d8cc9adbd20b1d8d5516cc8
+Author: Joshua M. Clulow <jmc@oxide.computer>
+Date:   Tue Nov 22 15:59:43 2022 -0800
+
+    patches for illumos
+
+diff --git a/cmake/pcscd.cmake b/cmake/pcscd.cmake
+index 4222693..8dd1294 100644
+--- a/cmake/pcscd.cmake
++++ b/cmake/pcscd.cmake
+@@ -29,6 +29,7 @@ set(BACKEND_ARG_CHECK "check")
+ set(BACKEND_ARG_PCSC "pcsc")
+ set(BACKEND_ARG_MAC "macscard")
+ set(BACKEND_ARG_WIN "winscard")
++set(BACKEND_ARG_ILLUMOS "illumos")
+ 
+ macro (find_pcscd)
+     if(VERBOSE_CMAKE)
+@@ -42,12 +43,27 @@ macro (find_pcscd)
+         elseif(${CMAKE_SYSTEM_NAME} MATCHES "(W|w)in")
+             message("Detected Windows: selecting ${BACKEND_ARG_WIN} backend")
+             set(BACKEND ${BACKEND_ARG_WIN})
++        elseif(${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
++            message("Detected illumos: selecting ${BACKEND_ARG_ILLUMOS} backend")
++            set(BACKEND ${BACKEND_ARG_ILLUMOS})
+         else()
+             message("Detected neither Mac nor Windows: selecting ${BACKEND_ARG_PCSC} backend")
+             set(BACKEND ${BACKEND_ARG_PCSC})
+         endif()
+     endif(${BACKEND} STREQUAL ${BACKEND_ARG_CHECK})
+ 
++    if(${BACKEND} STREQUAL ${BACKEND_ARG_ILLUMOS})
++        message("Checking for PCSC with illumos linkage")
++        find_file(PCSC_WINSCARD_H_FOUND winscard.h)
++        if(PCSC_WINSCARD_H_FOUND)
++            set(PCSC_LIBRARIES "-lpcsc")
++            message("PCSC_WINSCARD_H_FOUND: ${PCSC_WINSCARD_H_FOUND}")
++            message("HAVE_PCSC_WINSCARD_H: ${HAVE_PCSC_WINSCARD_H}")
++        else(PCSC_WINSCARD_H_FOUND)
++            message(FATAL_ERROR "cannot find illumos PCSC library/headers")
++        endif()
++    endif(${BACKEND} STREQUAL ${BACKEND_ARG_ILLUMOS})
++
+     if(${BACKEND} STREQUAL ${BACKEND_ARG_MAC})
+         message("Checking for PCSC with Mac linkage")
+         find_file(PCSC_WINSCARD_H_FOUND PCSC/winscard.h)
+@@ -112,6 +128,7 @@ macro (find_pcscd)
+     if(${BACKEND} STREQUAL ${BACKEND_ARG_PCSC} OR
+             ${BACKEND} STREQUAL ${BACKEND_ARG_WIN} OR
+             ${BACKEND} STREQUAL ${BACKEND_ARG_MAC}  OR
++            ${BACKEND} STREQUAL ${BACKEND_ARG_ILLUMOS}  OR
+             ${PCSC_LIB} NOT STREQUAL "")
+         set(BACKEND_PCSC ON)
+     else()
+@@ -127,4 +144,4 @@ macro (find_pcscd)
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${PCSC_CFLAGS}")
+     link_directories(${PCSC_LIBRARY_DIRS})
+ 
+-endmacro()
+\ No newline at end of file
++endmacro()
+diff --git a/lib/tests/CMakeLists.txt b/lib/tests/CMakeLists.txt
+index 171d263..9bbe9ce 100644
+--- a/lib/tests/CMakeLists.txt
++++ b/lib/tests/CMakeLists.txt
+@@ -30,7 +30,7 @@ message("lib/tests/CMakeList.txt")
+ if(CMAKE_C_COMPILER_ID MATCHES Clang)
+     set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIE")
+ elseif(NOT MSVC)
+-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIE -pie")
++    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS}")
+ endif()
+ 
+ include(check)
+@@ -73,4 +73,4 @@ if(NOT DEFINED SKIP_TESTS)
+         COMMAND test_parse_key
+         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/lib/tests/
+     )
+-endif(NOT DEFINED SKIP_TESTS)
+\ No newline at end of file
++endif(NOT DEFINED SKIP_TESTS)
+diff --git a/lib/tests/api.c b/lib/tests/api.c
+index 884b8a7..cf1ff45 100644
+--- a/lib/tests/api.c
++++ b/lib/tests/api.c
+@@ -41,7 +41,7 @@
+ 
+ #include <check.h>
+ 
+-#ifdef _WIN32
++#if defined(_WIN32) || defined(__illumos__)
+ #define dprintf(fd, ...) fprintf(stdout, __VA_ARGS__)
+ #endif
+ 
+diff --git a/lib/ykpiv.c b/lib/ykpiv.c
+index d47caa9..dd414ca 100644
+--- a/lib/ykpiv.c
++++ b/lib/ykpiv.c
+@@ -383,7 +383,7 @@ ykpiv_rc _ykpiv_ensure_application_selected(ykpiv_state *state) {
+ #endif
+ }
+ 
+-static ykpiv_rc _ykpiv_connect(ykpiv_state *state, uintptr_t context, uintptr_t card) {
++static ykpiv_rc _ykpiv_connect(ykpiv_state *state, SCARDCONTEXT context, SCARDHANDLE card) {
+   ykpiv_rc res = YKPIV_OK;
+ 
+   if (NULL == state) {
+@@ -438,7 +438,7 @@ static ykpiv_rc _ykpiv_connect(ykpiv_state *state, uintptr_t context, uintptr_t
+   return res;
+ }
+ 
+-ykpiv_rc ykpiv_connect_with_external_card(ykpiv_state *state, uintptr_t context, uintptr_t card) {
++ykpiv_rc ykpiv_connect_with_external_card(ykpiv_state *state, SCARDCONTEXT context, SCARDHANDLE card) {
+   return _ykpiv_connect(state, context, card);
+ }
+ 
+diff --git a/lib/ykpiv.h b/lib/ykpiv.h
+index 94fb4d2..cb857f2 100644
+--- a/lib/ykpiv.h
++++ b/lib/ykpiv.h
+@@ -173,7 +173,7 @@ extern "C"
+    *
+    * @return Error code
+    */
+-  ykpiv_rc ykpiv_connect_with_external_card(ykpiv_state *state, uintptr_t context, uintptr_t card);
++  ykpiv_rc ykpiv_connect_with_external_card(ykpiv_state *state, void *context, void *card);
+ 
+   /**
+    * Variant of ykpiv_done() for external cards connected with ykpiv_connect_with_external_card()
+diff --git a/ykcs11/tests/ykcs11_tests.c b/ykcs11/tests/ykcs11_tests.c
+index 4b75d79..5f6c510 100644
+--- a/ykcs11/tests/ykcs11_tests.c
++++ b/ykcs11/tests/ykcs11_tests.c
+@@ -45,7 +45,7 @@
+ //#pragma clang diagnostic push
+ //#pragma clang diagnostic ignored "-Wpointer-sign"
+ 
+-#ifdef _WIN32
++#if defined(_WIN32) || defined(__illumos__)
+ #define dprintf(fd, ...) fprintf(stdout, __VA_ARGS__)
+ #endif
+ 
+@@ -929,4 +929,4 @@ int main(void) {
+   return EXIT_SUCCESS;
+ }
+ 
+-//#pragma clang diagnostic pop
+\ No newline at end of file
++//#pragma clang diagnostic pop
