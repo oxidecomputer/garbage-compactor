@@ -1,7 +1,7 @@
 From 3b0679ed6f7bdf0d2b2159395887b7ef19d39f03 Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Mon, 27 Dec 2021 16:08:21 -0800
-Subject: [PATCH 1/7] sunos: errno mishandled in sunos_submit_transfer()
+Subject: [PATCH 1/8] sunos: errno mishandled in sunos_submit_transfer()
 
 ---
  libusb/os/sunos_usb.c | 3 +--

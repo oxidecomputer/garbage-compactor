@@ -1,7 +1,7 @@
 From 57b0bd0b3624eea8f7a56cb477649f2f35b0bab7 Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Mon, 27 Dec 2021 16:08:38 -0800
-Subject: [PATCH 3/7] illumos: split off from Solaris backend
+Subject: [PATCH 3/8] illumos: split off from Solaris backend
 
 ---
  README                  |    2 +-
