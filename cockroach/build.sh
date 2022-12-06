@@ -23,23 +23,21 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='22.1.9'
+VER='22.2.0'
 COCKROACHDB_CLONE_REF="v$VER"
 
-NODEVER="v16.3.0"
+export PATH="/opt/ooce/node-14/bin:$PATH"
+NODEVER="v14.17.0"
 SYSNODEVER=$( node -v 2>&1 )
 if [[ "$NODEVER" != "$SYSNODEVER" ]]; then
 	fatal "expected node $NODEVER, but found: $SYSNODEVER " \
-	    "(see node-16 package)"
+	    "(see node-14 package)"
 fi
 
-GOVER='1.17.13'
-SYSGOVER=$( (pkg info go-117 || true) | awk '/Version:/ { print $NF }')
-if [[ "$SYSGOVER" != "$GOVER" ]]; then
-	fatal 'install or update go-117 package'
-fi
-export GOROOT='/opt/ooce/go-1.17'
+GOVER='1.19.1'
+export GOROOT='/home/dap/go-build-for-cockroachdb/go'
 info "using $GOROOT/bin/go: $($GOROOT/bin/go version)"
+export PATH="$GOROOT/bin:$PATH"
 
 YARNVER='1.22.5'
 YARNURL="https://github.com/yarnpkg/yarn/releases/download/v$YARNVER/yarn-v$YARNVER.tar.gz"
