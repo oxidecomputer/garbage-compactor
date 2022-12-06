@@ -1,0 +1,13 @@
+index c93a67e..be5518c 100755
+--- a/src/github.com/cockroachdb/cockroach/pkg/ui/not-yarn-workspace.sh
++++ b/src/github.com/cockroachdb/cockroach/pkg/ui/not-yarn-workspace.sh
+@@ -7,7 +7,7 @@ set -euo pipefail
+   yarn --cwd workspaces/db-console/src/js install
+   yarn --cwd workspaces/cluster-ui install
+   yarn --cwd workspaces/db-console install
+-  yarn --cwd workspaces/e2e-tests install
++  # yarn --cwd workspaces/e2e-tests install
+ )
+ 
+ cat << "EOF"
+
