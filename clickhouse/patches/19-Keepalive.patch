@@ -1,0 +1,30 @@
+--- a/src/Client/Connection.cpp	2021-12-02 11:25:15.000000000 +0000
++++ b/src/Client/Connection.cpp	2023-01-16 04:38:19.347311154 +0000
+@@ -99,13 +99,21 @@
+         if (timeouts.tcp_keep_alive_timeout.totalSeconds())
+         {
+             socket->setKeepAlive(true);
+-            socket->setOption(IPPROTO_TCP,
+-#if defined(TCP_KEEPALIVE)
+-                TCP_KEEPALIVE
+-#else
+-                TCP_KEEPIDLE  // __APPLE__
++#if defined(TCP_KEEPALIVE_THRESHOLD)
++            int thresh = timeouts.tcp_keep_alive_timeout.totalMilliseconds() / 2;
++            if (thresh < 5000)
++                thresh = 5000;
++            int intvl = timeouts.tcp_keep_alive_timeout.totalSeconds() / 6;
++            if (intvl < 2)
++                intvl = 2;
++            socket->setOption(IPPROTO_TCP, TCP_KEEPALIVE_THRESHOLD, thresh);
++            socket->setOption(IPPROTO_TCP, TCP_KEEPINTVL, intvl);
++            socket->setOption(IPPROTO_TCP, TCP_KEEPCNT, 3);
++#elif defined(TCP_KEEPALIVE)
++            socket->setOption(IPPROTO_TCP, TCP_KEEPALIVE, timeouts.tcp_keep_alive_timeout);
++#elif defined(TCP_KEEPIDLE)
++            socket->setOption(IPPROTO_TCP, TCP_KEEPIDLE, timeouts.tcp_keep_alive_timeout);
+ #endif
+-                , timeouts.tcp_keep_alive_timeout);
+         }
+ 
+         in = std::make_shared<ReadBufferFromPocoSocket>(*socket);
