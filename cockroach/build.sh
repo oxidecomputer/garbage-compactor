@@ -23,7 +23,7 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='22.2.0'
+VER='22.1.9'
 COCKROACHDB_CLONE_REF="v$VER"
 
 export PATH="/opt/ooce/node-14/bin:$PATH"
