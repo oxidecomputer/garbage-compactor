@@ -120,7 +120,7 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	CREV=3
+	CREV=4
 	BRANCH="1.$CREV" make_package "library/$NAM" \
 	    'A cross-platform library to access USB devices' \
 	    "$WORK/proto"
