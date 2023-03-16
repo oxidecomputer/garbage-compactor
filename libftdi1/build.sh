@@ -215,7 +215,7 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	CREV=2
+	CREV=3
 	BRANCH=1.$CREV make_package "library/$NAM" \
 	    'a library for communicating with USB and Bluetooth HID devices' \
 	    "$WORK/proto"

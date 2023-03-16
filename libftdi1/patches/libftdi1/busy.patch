@@ -1,0 +1,61 @@
+diff --git a/src/ftdi.c b/src/ftdi.c
+index 0a7fb27..b256bb8 100644
+--- a/src/ftdi.c
++++ b/src/ftdi.c
+@@ -422,7 +422,7 @@ int ftdi_usb_get_strings(struct ftdi_context *ftdi,
+         return -1;
+ 
+     if (ftdi->usb_dev == NULL && libusb_open(dev, &ftdi->usb_dev) < 0)
+-        ftdi_error_return(-4, "libusb_open() failed");
++        ftdi_error_return(-4, "ftdi_usb_get_strings: libusb_open() failed");
+ 
+     // ftdi->usb_dev will not be NULL when entering ftdi_usb_get_strings2(), so
+     // it won't be closed either. This allows us to close it whether we actually
+@@ -480,7 +480,7 @@ int ftdi_usb_get_strings2(struct ftdi_context *ftdi, struct libusb_device *dev,
+ 
+     need_open = (ftdi->usb_dev == NULL);
+     if (need_open && libusb_open(dev, &ftdi->usb_dev) < 0)
+-        ftdi_error_return(-4, "libusb_open() failed");
++        ftdi_error_return(-4, "ftdi_usb_get_strings2: libusb_open() failed");
+ 
+     if (libusb_get_device_descriptor(dev, &desc) < 0)
+         ftdi_error_return(-11, "libusb_get_device_descriptor() failed");
+@@ -608,7 +608,7 @@ int ftdi_usb_open_dev(struct ftdi_context *ftdi, libusb_device *dev)
+         ftdi_error_return(-8, "ftdi context invalid");
+ 
+     if (libusb_open(dev, &ftdi->usb_dev) < 0)
+-        ftdi_error_return(-4, "libusb_open() failed");
++        ftdi_error_return(-4, "ftdi_usb_open_dev(): libusb_open() failed");
+ 
+     if (libusb_get_device_descriptor(dev, &desc) < 0)
+         ftdi_error_return(-9, "libusb_get_device_descriptor() failed");
+@@ -797,8 +797,27 @@ int ftdi_usb_open_desc_index(struct ftdi_context *ftdi, int vendor, int product,
+ 
+         if (desc.idVendor == vendor && desc.idProduct == product)
+         {
+-            if (libusb_open(dev, &ftdi->usb_dev) < 0)
+-                ftdi_error_return_free_device_list(-4, "usb_open() failed", devs);
++            int e;
++
++            if ((e = libusb_open(dev, &ftdi->usb_dev)) < 0) {
++                /*
++                 * XXX illumos code should return LIBUSB_ERROR_BUSY here
++                 * but is returning LIBUSB_ERROR_OTHER instead?!
++                 */
++                if (e == LIBUSB_ERROR_BUSY || e == LIBUSB_ERROR_OTHER) {
++                    /*
++                     * We are trying to open all devices to look for the serial
++                     * number, but we might not be able to do that if another
++                     * program has another FTDI device open exclusively.
++                     *
++                     * Keep looking to see if one of the other devices has the
++                     * serial number we are after.
++                     */
++                    continue;
++                }
++
++                ftdi_error_return_free_device_list(-4, "ftdi_usb_open_desc_index(): usb_open() failed", devs);
++            }
+ 
+             if (description != NULL)
+             {
