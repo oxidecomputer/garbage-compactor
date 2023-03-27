@@ -25,7 +25,7 @@ rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
 NAM='hidapi'
-VER='0.11.0'
+VER='0.13.1'
 URL="https://github.com/libusb/$NAM/archive/refs/tags/$NAM-$VER.tar.gz"
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
