@@ -39,7 +39,7 @@ if [[ -d "$SRC64/.git" ]]; then
 	(cd "$SRC64" &&
 	    git clean -fxd &&
 	    git fetch --all &&
-	    git reset --hard origin/master)
+	    git reset --hard origin/main)
 else
 	rm -rf "$SRC64"
 	git clone "$REPO" "$SRC64"
