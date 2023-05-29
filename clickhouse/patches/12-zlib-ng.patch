@@ -1,6 +1,17 @@
+From 117e664a0a3c9c3db1568e5c6b338da9dcb2ad65 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Mon, 29 May 2023 09:58:59 +1000
+Subject: [PATCH 11/39] 12-zlib-ng.patch
+
+---
+ contrib/zlib-ng/zutil_p.h | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/contrib/zlib-ng/zutil_p.h b/contrib/zlib-ng/zutil_p.h
+index c8122607ea..00feeb23a2 100644
 --- a/contrib/zlib-ng/zutil_p.h
 +++ b/contrib/zlib-ng/zutil_p.h
-@@ -10,6 +10,9 @@
+@@ -10,13 +10,16 @@
  #elif defined(__FreeBSD__)
  #  include <stdlib.h>
  #  include <malloc_np.h>
@@ -10,7 +21,6 @@
  #else
  #  include <malloc.h>
  #endif
-@@ -16,7 +19,7 @@
  
  /* Function to allocate 16 or 64-byte aligned memory */
  static inline void *zng_alloc(size_t size) {
@@ -19,3 +29,6 @@
      void *ptr;
      return posix_memalign(&ptr, 64, size) ? NULL : ptr;
  #elif defined(_WIN32)
+-- 
+2.40.1
+

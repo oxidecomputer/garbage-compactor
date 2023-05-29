@@ -1,7 +1,36 @@
-diff -ru b/contrib/s2geometry/src/s2/s2builder.cc a/contrib/s2geometry/src/s2/s2builder.cc
---- b/contrib/s2geometry/src/s2/s2builder.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2builder.cc	Thu Dec  9 22:41:18 2021
-@@ -271,7 +271,7 @@
+From 7acd03085d49bbfe85e892c96465e2f1df83f3fd Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Mon, 29 May 2023 09:59:00 +1000
+Subject: [PATCH 14/39] 15-s2geometry-maths.patch
+
+---
+ contrib/s2geometry/src/s2/s2builder.cc        |  4 +--
+ .../src/s2/s2builderutil_snap_functions.cc    | 14 ++++----
+ .../src/s2/s2builderutil_snap_functions.h     |  6 ++--
+ contrib/s2geometry/src/s2/s2cap_test.cc       |  2 +-
+ contrib/s2geometry/src/s2/s2edge_crosser.cc   |  4 +--
+ contrib/s2geometry/src/s2/s2edge_crossings.cc |  6 ++--
+ contrib/s2geometry/src/s2/s2edge_distances.cc |  6 ++--
+ .../src/s2/s2edge_distances_test.cc           |  6 ++--
+ .../s2geometry/src/s2/s2edge_tessellator.cc   |  6 ++--
+ .../src/s2/s2edge_tessellator_test.cc         |  2 +-
+ .../src/s2/s2latlng_rect_bounder.cc           | 12 +++----
+ .../src/s2/s2latlng_rect_bounder_test.cc      |  2 +-
+ contrib/s2geometry/src/s2/s2latlng_test.cc    |  2 +-
+ contrib/s2geometry/src/s2/s2measures.cc       |  2 +-
+ contrib/s2geometry/src/s2/s2metrics.cc        | 30 ++++++++--------
+ contrib/s2geometry/src/s2/s2polygon.cc        |  2 +-
+ contrib/s2geometry/src/s2/s2predicates.cc     | 34 +++++++++----------
+ contrib/s2geometry/src/s2/s2predicates.h      |  4 +--
+ contrib/s2geometry/src/s2/s2testing.cc        |  6 ++--
+ contrib/s2geometry/src/s2/s2testing_test.cc   |  2 +-
+ 20 files changed, 76 insertions(+), 76 deletions(-)
+
+diff --git a/contrib/s2geometry/src/s2/s2builder.cc b/contrib/s2geometry/src/s2/s2builder.cc
+index 9ca2ca8579..ef7c78b7ec 100644
+--- a/contrib/s2geometry/src/s2/s2builder.cc
++++ b/contrib/s2geometry/src/s2/s2builder.cc
+@@ -301,7 +301,7 @@ void S2Builder::Init(const Options& options) {
    // error in the calculation to compare this distance against the bound.
    double d = sin(edge_snap_radius);
    edge_snap_radius_sin2_ = d * d;
@@ -10,19 +39,20 @@ diff -ru b/contrib/s2geometry/src/s2/s2builder.cc a/contrib/s2geometry/src/s2/s2
                               9 * DBL_EPSILON) * DBL_EPSILON;
  
    // Initialize the current label set.
-@@ -655,7 +655,7 @@
+@@ -734,7 +734,7 @@ void S2Builder::ChooseInitialSites(S2PointIndex<SiteId>* site_index) {
    // expensive and can produce surprising results.  For example, if you snap
    // the polyline "0:0, 0:0.7" using IntLatLngSnapFunction(0), the result is
    // "0:0, 0:0" rather than the expected "0:0, 0:1", because the snap radius
 -  // is approximately sqrt(2) degrees and therefore it is legal to snap both
 +  // is approximately sqrt(2.0) degrees and therefore it is legal to snap both
    // input points to "0:0".  "Snap first" produces "0:0, 0:1" as expected.
-   for (const InputVertexKey& key : SortInputVertices()) {
-     const S2Point& vertex = input_vertices_[key.second];
-diff -ru b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc
---- b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc	Thu Dec  9 22:41:18 2021
-@@ -262,12 +262,12 @@
+   //
+   // Track the memory used by SortInputVertices() before calling it.
+diff --git a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc
+index 4fd712c59b..70ab414e2b 100644
+--- a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc
++++ b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc
+@@ -262,12 +262,12 @@ S1Angle IntLatLngSnapFunction::MinSnapRadiusForExponent(int exponent) {
    //
    // The maximum error when converting the S2LatLng back to an S2Point is
    //
@@ -38,7 +68,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc a/contrib/s
    double power = 1;
    for (int i = 0; i < exponent; ++i) power *= 10;
    return (S1Angle::Degrees(M_SQRT1_2 / power) +
-@@ -276,7 +276,7 @@
+@@ -276,7 +276,7 @@ S1Angle IntLatLngSnapFunction::MinSnapRadiusForExponent(int exponent) {
  
  int IntLatLngSnapFunction::ExponentForMaxSnapRadius(S1Angle snap_radius) {
    // When choosing an exponent, we need to acount for the error bound of
@@ -47,7 +77,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc a/contrib/s
    snap_radius -= S1Angle::Radians((9 * M_SQRT2 + 1.5) * DBL_EPSILON);
    snap_radius = max(snap_radius, S1Angle::Radians(1e-30));
    double exponent = log10(M_SQRT1_2 / snap_radius.degrees());
-@@ -296,7 +296,7 @@
+@@ -296,7 +296,7 @@ S1Angle IntLatLngSnapFunction::min_vertex_separation() const {
    // We return the maximum of the two bounds.
    //
    // 1. Proportional bound: It can be shown that in the plane, the worst-case
@@ -56,7 +86,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc a/contrib/s
    //    This is verified in the unit test, except that on the sphere the ratio
    //    is slightly smaller (0.471337 vs. 0.471404).  We reduce that value a
    //    bit more below to be conservative.
-@@ -304,8 +304,8 @@
+@@ -304,8 +304,8 @@ S1Angle IntLatLngSnapFunction::min_vertex_separation() const {
    // 2. Best asymptotic bound: This bound bound is derived by observing we
    //    only select a new site when it is at least snap_radius() away from all
    //    existing sites, and snapping a vertex can move it by up to
@@ -67,10 +97,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc a/contrib/s
               snap_radius_ - S1Angle::Degrees(M_SQRT1_2 * to_degrees_));
  }
  
-diff -ru b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h
---- b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h	Thu Dec  9 22:41:04 2021
-@@ -154,8 +154,8 @@
+diff --git a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h
+index 9d42bc01ee..87f750d9f7 100644
+--- a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h
++++ b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h
+@@ -154,8 +154,8 @@ class S2CellIdSnapFunction : public S2Builder::SnapFunction {
  //
  // Each exponent has a corresponding minimum snap radius, which is simply the
  // maximum distance that a vertex can move when snapped.  It is approximately
@@ -81,7 +112,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h a/contrib/s2
  // You can also set the snap radius to any value larger than this; this can
  // result in significant extra simplification (similar to using a larger
  // exponent) but does not move vertices unnecessarily.
-@@ -199,7 +199,7 @@
+@@ -199,7 +199,7 @@ class IntLatLngSnapFunction : public S2Builder::SnapFunction {
    S1Angle snap_radius() const override;
  
    // Returns the minimum allowable snap radius for the given exponent
@@ -90,10 +121,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h a/contrib/s2
    static S1Angle MinSnapRadiusForExponent(int exponent);
  
    // Returns the minimum exponent such that vertices will not move by more
-diff -ru b/contrib/s2geometry/src/s2/s2cap_test.cc a/contrib/s2geometry/src/s2/s2cap_test.cc
---- b/contrib/s2geometry/src/s2/s2cap_test.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2cap_test.cc	Thu Dec  9 22:41:18 2021
-@@ -221,7 +221,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2cap_test.cc b/contrib/s2geometry/src/s2/s2cap_test.cc
+index 8f62b3e526..5bd4a65113 100644
+--- a/contrib/s2geometry/src/s2/s2cap_test.cc
++++ b/contrib/s2geometry/src/s2/s2cap_test.cc
+@@ -227,7 +227,7 @@ TEST(S2Cap, S2CellMethods) {
    // and then check for the expected intersection/containment results.
  
    // The distance from the center of a face to one of its vertices.
@@ -102,10 +134,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2cap_test.cc a/contrib/s2geometry/src/s2/s
  
    for (int face = 0; face < 6; ++face) {
      // The cell consisting of the entire face.
-diff -ru b/contrib/s2geometry/src/s2/s2edge_crosser.cc a/contrib/s2geometry/src/s2/s2edge_crosser.cc
---- b/contrib/s2geometry/src/s2/s2edge_crosser.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2edge_crosser.cc	Thu Dec  9 22:41:18 2021
-@@ -48,11 +48,11 @@
+diff --git a/contrib/s2geometry/src/s2/s2edge_crosser.cc b/contrib/s2geometry/src/s2/s2edge_crosser.cc
+index 491d3d82b5..d8b12e92bb 100644
+--- a/contrib/s2geometry/src/s2/s2edge_crosser.cc
++++ b/contrib/s2geometry/src/s2/s2edge_crosser.cc
+@@ -55,11 +55,11 @@ inline int S2EdgeCrosserBase<PointRep>::CrossingSignInternal2(
    }
    // The error in RobustCrossProd() is insignificant.  The maximum error in
    // the call to CrossProd() (i.e., the maximum norm of the error vector) is
@@ -119,10 +152,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2edge_crosser.cc a/contrib/s2geometry/src/
    if ((c_->DotProd(a_tangent_) > kError && d.DotProd(a_tangent_) > kError) ||
        (c_->DotProd(b_tangent_) > kError && d.DotProd(b_tangent_) > kError)) {
      return -1;
-diff -ru b/contrib/s2geometry/src/s2/s2edge_crossings.cc a/contrib/s2geometry/src/s2/s2edge_crossings.cc
---- b/contrib/s2geometry/src/s2/s2edge_crossings.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2edge_crossings.cc	Thu Dec  9 22:41:18 2021
-@@ -148,7 +148,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2edge_crossings.cc b/contrib/s2geometry/src/s2/s2edge_crossings.cc
+index 32289d78fd..a6ef6de6c7 100644
+--- a/contrib/s2geometry/src/s2/s2edge_crossings.cc
++++ b/contrib/s2geometry/src/s2/s2edge_crossings.cc
+@@ -437,7 +437,7 @@ static bool GetIntersectionSimple(const Vector3<T>& a0, const Vector3<T>& a1,
    // input vectors, which eliminates most of the cancellation error.  However
    // the error in the direction of the cross product can still become large if
    // the two points are extremely close together.  We can show that as long as
@@ -131,7 +165,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2edge_crossings.cc a/contrib/s2geometry/sr
    // (about 6e-15), then the directional error is at most 5 * T_ERR (about
    // 3e-19 when T == "long double").  (DBL_ERR appears in the first formula
    // because the inputs are assumed to be normalized in double precision
-@@ -158,15 +158,15 @@
+@@ -447,7 +447,7 @@ static bool GetIntersectionSimple(const Vector3<T>& a0, const Vector3<T>& a1,
    // error.  Letting "result_len" be the length of the cross product, it can
    // be shown that the error is at most
    //
@@ -140,17 +174,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2edge_crossings.cc a/contrib/s2geometry/sr
    //
    // We want this error to be at most kIntersectionError, which is true as
    // long as "result_len" is at least kMinResultLen defined below.
- 
-   constexpr T T_ERR = s2pred::rounding_epsilon<T>();
--  static const T kMinNormalLength = (16 * sqrt(3) + 24) * DBL_ERR;
-+  static const T kMinNormalLength = (16 * sqrt(3.0) + 24) * DBL_ERR;
-   static const T kMinResultLen =
--      12 / (kIntersectionError.radians() / T_ERR - (2 + 2 * sqrt(3)));
-+      12 / (kIntersectionError.radians() / T_ERR - (2 + 2 * sqrt(3.0)));
- 
-   // On some platforms "long double" is the same as "double", and on these
-   // platforms this method always returns false (e.g. ARM, Win32).  Rather
-@@ -236,11 +236,11 @@
+@@ -526,7 +526,7 @@ static T GetProjection(const Vector3<T>& x,
    // double precision rather than in the given type T.)
    //
    // For reference, the bounds that went into this calculation are:
@@ -158,16 +182,12 @@ diff -ru b/contrib/s2geometry/src/s2/s2edge_crossings.cc a/contrib/s2geometry/sr
 +  // ||N'-N|| <= ((1 + 2 * sqrt(3.0))||N|| + 32 * sqrt(3.0) * DBL_ERR) * T_ERR
    // |(A.B)'-(A.B)| <= (1.5 * (A.B) + 1.5 * ||A|| * ||B||) * T_ERR
    // ||(X-Y)'-(X-Y)|| <= ||X-Y|| * T_ERR
-   constexpr T T_ERR = s2pred::rounding_epsilon<T>();
--  *error = (((3.5 + 2 * sqrt(3)) * a_norm_len + 32 * sqrt(3) * DBL_ERR)
-+  *error = (((3.5 + 2 * sqrt(3.0)) * a_norm_len + 32 * sqrt(3.0) * DBL_ERR)
-             * dist + 1.5 * fabs(result)) * T_ERR;
-   return result;
- }
-diff -ru b/contrib/s2geometry/src/s2/s2edge_distances.cc a/contrib/s2geometry/src/s2/s2edge_distances.cc
---- b/contrib/s2geometry/src/s2/s2edge_distances.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2edge_distances.cc	Thu Dec  9 22:41:18 2021
-@@ -229,9 +229,9 @@
+   constexpr T T_ERR = rounding_epsilon<T>();
+diff --git a/contrib/s2geometry/src/s2/s2edge_distances.cc b/contrib/s2geometry/src/s2/s2edge_distances.cc
+index eeebdbbad5..5f2756ebd2 100644
+--- a/contrib/s2geometry/src/s2/s2edge_distances.cc
++++ b/contrib/s2geometry/src/s2/s2edge_distances.cc
+@@ -264,9 +264,9 @@ static double GetUpdateMinInteriorDistanceMaxError(S1ChordAngle dist) {
    // parallel to the plane containing the edge respectively.
    double b = min(1.0, 0.5 * dist.length2());
    double a = sqrt(b * (2 - b));
@@ -180,22 +200,23 @@ diff -ru b/contrib/s2geometry/src/s2/s2edge_distances.cc a/contrib/s2geometry/sr
  }
  
  double GetUpdateMinDistanceMaxError(S1ChordAngle dist) {
-diff -ru b/contrib/s2geometry/src/s2/s2edge_distances_test.cc a/contrib/s2geometry/src/s2/s2edge_distances_test.cc
---- b/contrib/s2geometry/src/s2/s2edge_distances_test.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2edge_distances_test.cc	Thu Dec  9 22:41:18 2021
-@@ -233,9 +233,9 @@
+diff --git a/contrib/s2geometry/src/s2/s2edge_distances_test.cc b/contrib/s2geometry/src/s2/s2edge_distances_test.cc
+index b4847b7f06..08934d5f15 100644
+--- a/contrib/s2geometry/src/s2/s2edge_distances_test.cc
++++ b/contrib/s2geometry/src/s2/s2edge_distances_test.cc
+@@ -316,9 +316,9 @@ TEST(S2, Interpolate) {
    // Test that interpolation is done using distances on the sphere rather than
    // linear distances.
-   CheckInterpolate(1./3, S2Point(1, 0, 0), S2Point(0, 1, 0),
+   TestInterpolate(S2Point(1, 0, 0), S2Point(0, 1, 0), 1./3,
 -                   S2Point(sqrt(3), 1, 0));
 +                   S2Point(sqrt(3.0), 1, 0));
-   CheckInterpolate(2./3, S2Point(1, 0, 0), S2Point(0, 1, 0),
+   TestInterpolate(S2Point(1, 0, 0), S2Point(0, 1, 0), 2./3,
 -                   S2Point(1, sqrt(3), 0));
 +                   S2Point(1, sqrt(3.0), 0));
  
    // Test that interpolation is accurate on a long edge (but not so long that
    // the definition of the edge itself becomes too unstable).
-@@ -425,7 +425,7 @@
+@@ -508,7 +508,7 @@ TEST(S2, EdgePairMaxDistance) {
    // Standard situation.  Same hemisphere, not degenerate.
    CheckEdgePairMaxDistance(S2Point(1, 0, 0), S2Point(0, 1, 0),
                             S2Point(1, 1, 0), S2Point(1, 1, 1),
@@ -204,10 +225,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2edge_distances_test.cc a/contrib/s2geomet
  
    // One edge is degenerate.
    CheckEdgePairMaxDistance(S2Point(1, 0, 1), S2Point(1, 0, 1),
-diff -ru b/contrib/s2geometry/src/s2/s2edge_tessellator.cc a/contrib/s2geometry/src/s2/s2edge_tessellator.cc
---- b/contrib/s2geometry/src/s2/s2edge_tessellator.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2edge_tessellator.cc	Thu Dec  9 22:41:18 2021
-@@ -84,13 +84,13 @@
+diff --git a/contrib/s2geometry/src/s2/s2edge_tessellator.cc b/contrib/s2geometry/src/s2/s2edge_tessellator.cc
+index a5e490651d..668efa2081 100644
+--- a/contrib/s2geometry/src/s2/s2edge_tessellator.cc
++++ b/contrib/s2geometry/src/s2/s2edge_tessellator.cc
+@@ -84,13 +84,13 @@ using std::vector;
  // error functions must have roots at x = {-1, 1} since the error must be zero
  // at the edge endpoints.  E1 is simply a parabola whose maximum value is 1
  // attained at x = 0, while E2 is a cubic with an additional root at x = 0,
@@ -223,7 +245,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2edge_tessellator.cc a/contrib/s2geometry/
  //
  // Now define x0 to be the point where these two functions intersect, i.e. the
  // point in the range (-1, 1) where E1(x0) = E2(x0).  This value has the very
-@@ -136,7 +136,7 @@
+@@ -136,7 +136,7 @@ using std::vector;
  //   E1(x) =
  //     asin(sqrt(sin(Pi / 8 * (1 - x)) ^ 2 +
  //               sin(Pi / 4 * (1 - x)) ^ 2 * cos(Pi / 4) * sin(Pi / 4 * x))) /
@@ -232,10 +254,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2edge_tessellator.cc a/contrib/s2geometry/
  //
  // Note that this function does not need to be evaluated at runtime, it
  // simply affects the calculation of the value x0 where E1(x0) = E2(x0)
-diff -ru b/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc a/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc
---- b/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc	Thu Dec  9 22:41:18 2021
-@@ -349,7 +349,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc b/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc
+index 09802c110d..50113a0a2b 100644
+--- a/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc
++++ b/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc
+@@ -355,7 +355,7 @@ void TestEdgeError(const S2::Projection& proj, double t) {
    const double dsin2 = dlat * dlat + dlng * dlng * sin(M_PI_4 * x) * M_SQRT1_2;
    const double dsin2_max = 0.5 * (1 - M_SQRT1_2);
    // Note that this is the reciprocal of the value used in the .cc file!
@@ -244,10 +267,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc a/contrib/s2geom
                                    asin(sqrt(dsin2_max)) / asin(sqrt(dsin2)));
  
    // Keep track of the average and maximum geometric and parametric errors.
-diff -ru b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc a/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc
---- b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc	Thu Dec  9 22:41:18 2021
-@@ -64,7 +64,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc
+index 7054f23e88..70c1cd9c2f 100644
+--- a/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc
++++ b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc
+@@ -64,7 +64,7 @@ void S2LatLngRectBounder::AddInternal(const S2Point& b,
      // chosen to limit the maximum error in the normal to 3.84 * DBL_EPSILON.
      // It is possible to show that the error is less than this when
      //
@@ -256,7 +280,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc a/contrib/s2geomet
      //            = 1.91346e-15 (about 8.618 * DBL_EPSILON)
      double n_norm = n.Norm();
      if (n_norm < 1.91346e-15) {
-@@ -114,7 +114,7 @@
+@@ -114,7 +114,7 @@ void S2LatLngRectBounder::AddInternal(const S2Point& b,
        // the error in these calculations.  It is possible to show that the
        // total error is bounded by
        //
@@ -265,7 +289,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc a/contrib/s2geomet
        //    = 6.06638e-16 * n_norm + 6.83174e-31
  
        double m_error = 6.06638e-16 * n_norm + 6.83174e-31;
-@@ -244,11 +244,11 @@
+@@ -253,11 +253,11 @@ S2LatLngRect S2LatLngRectBounder::ExpandForSubregions(
      // length x = 2*min_abs_lat and y ~= lng_gap.  The desired distance is the
      // length of the third edge "z", and we have
      //
@@ -279,7 +303,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc a/contrib/s2geomet
      //                           ~= 1.354e-15
      //
      // Note that because the given bound B is conservative, "min_abs_lat" and
-@@ -264,7 +264,7 @@
+@@ -273,7 +273,7 @@ S2LatLngRect S2LatLngRectBounder::ExpandForSubregions(
      // we have an obtuse triangle XYZ with two edges of length x = lat_gap1
      // and y = lat_gap2, and angle Z >= Pi/2 between them.  We then have
      //
@@ -288,7 +312,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc a/contrib/s2geomet
      //
      // Unlike the case above, "lat_gap1" and "lat_gap2" are not lower bounds
      // (because of the extra addition operation, and because M_PI_2 is not
-@@ -272,7 +272,7 @@
+@@ -281,7 +281,7 @@ S2LatLngRect S2LatLngRectBounder::ExpandForSubregions(
      // 0.75 * DBL_EPSILON.  Putting this all together, the region may
      // contain nearly antipodal points only if
      //
@@ -297,10 +321,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc a/contrib/s2geomet
      //                        ~= 1.687e-15
      if (lat_gap1 + lat_gap2 < 1.687e-15) {
        return S2LatLngRect::Full();
-diff -ru b/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc a/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc
---- b/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc	Thu Dec  9 22:41:18 2021
-@@ -46,7 +46,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc b/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc
+index bd17bbca15..0ec672f9b7 100644
+--- a/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc
++++ b/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc
+@@ -49,7 +49,7 @@ const S2LatLng kRectError = S2LatLngRectBounder::MaxErrorForTests();
  
  TEST(RectBounder, MaxLatitudeSimple) {
    // Check cases where the min/max latitude is attained at a vertex.
@@ -309,10 +334,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc a/contrib/s2g
    EXPECT_TRUE(GetEdgeBound(1,1,1, 1,-1,-1).ApproxEquals(  // NOLINT
        S2LatLngRect(R1Interval(-kCubeLat, kCubeLat),
                     S1Interval(-M_PI_4, M_PI_4)), kRectError));
-diff -ru b/contrib/s2geometry/src/s2/s2latlng_test.cc a/contrib/s2geometry/src/s2/s2latlng_test.cc
---- b/contrib/s2geometry/src/s2/s2latlng_test.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2latlng_test.cc	Thu Dec  9 22:41:18 2021
-@@ -123,7 +123,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2latlng_test.cc b/contrib/s2geometry/src/s2/s2latlng_test.cc
+index 2c6f809330..a656197d3a 100644
+--- a/contrib/s2geometry/src/s2/s2latlng_test.cc
++++ b/contrib/s2geometry/src/s2/s2latlng_test.cc
+@@ -144,7 +144,7 @@ TEST(S2LatLng, TestToString) {
      {0, 0, 0, 0},
      {1.5, 91.7, 1.5, 91.7},
      {9.9, -0.31, 9.9, -0.31},
@@ -321,10 +347,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2latlng_test.cc a/contrib/s2geometry/src/s
      {91.3, 190.4, 90, -169.6},
      {-100, -710, -90, 10},
    };
-diff -ru b/contrib/s2geometry/src/s2/s2measures.cc a/contrib/s2geometry/src/s2/s2measures.cc
---- b/contrib/s2geometry/src/s2/s2measures.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2measures.cc	Thu Dec  9 22:41:18 2021
-@@ -79,7 +79,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2measures.cc b/contrib/s2geometry/src/s2/s2measures.cc
+index 42e36355a8..615955ccd7 100644
+--- a/contrib/s2geometry/src/s2/s2measures.cc
++++ b/contrib/s2geometry/src/s2/s2measures.cc
+@@ -80,7 +80,7 @@ double Area(const S2Point& a, const S2Point& b, const S2Point& c) {
    //
    // Since we don't know E, we would like a conservative upper bound on
    // the triangle area in terms of s and dmin.  It's possible to show that
@@ -333,10 +360,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2measures.cc a/contrib/s2geometry/src/s2/s
    // Using this, it's easy to show that we should always use l'Huilier's
    // method if dmin >= k2 * s^5, where k2 is about 1e-2.  Furthermore,
    // if dmin < k2 * s^5, the triangle area is at most k3 * s^4, where
-diff -ru b/contrib/s2geometry/src/s2/s2metrics.cc a/contrib/s2geometry/src/s2/s2metrics.cc
---- b/contrib/s2geometry/src/s2/s2metrics.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2metrics.cc	Thu Dec  9 22:41:18 2021
-@@ -49,8 +49,8 @@
+diff --git a/contrib/s2geometry/src/s2/s2metrics.cc b/contrib/s2geometry/src/s2/s2metrics.cc
+index 0aacfa93ec..bd83883e45 100644
+--- a/contrib/s2geometry/src/s2/s2metrics.cc
++++ b/contrib/s2geometry/src/s2/s2metrics.cc
+@@ -49,8 +49,8 @@ const LengthMetric kAvgAngleSpan(M_PI / 2);                    // 1.571
  
  const LengthMetric kMinWidth(
      S2_PROJECTION == S2_LINEAR_PROJECTION ? sqrt(2. / 3) :             // 0.816
@@ -347,7 +375,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2metrics.cc a/contrib/s2geometry/src/s2/s2
      0);
  
  const LengthMetric kMaxWidth(kMaxAngleSpan.deriv());
-@@ -63,9 +63,9 @@
+@@ -63,9 +63,9 @@ const LengthMetric kAvgWidth(
      0);
  
  const LengthMetric kMinEdge(
@@ -360,7 +388,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2metrics.cc a/contrib/s2geometry/src/s2/s2
      0);
  
  const LengthMetric kMaxEdge(kMaxAngleSpan.deriv());
-@@ -78,13 +78,13 @@
+@@ -78,13 +78,13 @@ const LengthMetric kAvgEdge(
      0);
  
  const LengthMetric kMinDiag(
@@ -378,7 +406,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2metrics.cc a/contrib/s2geometry/src/s2/s2
      S2_PROJECTION == S2_TAN_PROJECTION ? M_PI * sqrt(2. / 3) :         // 2.565
      S2_PROJECTION == S2_QUADRATIC_PROJECTION ? 2.438654594434021032 :  // 2.439
      0);
-@@ -96,9 +96,9 @@
+@@ -96,9 +96,9 @@ const LengthMetric kAvgDiag(
      0);
  
  const AreaMetric kMinArea(
@@ -391,7 +419,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2metrics.cc a/contrib/s2geometry/src/s2/s2
      0);
  
  const AreaMetric kMaxArea(
-@@ -111,12 +111,12 @@
+@@ -111,12 +111,12 @@ const AreaMetric kAvgArea(4 * M_PI / 6);                       // 2.094
  // This is true for all projections.
  
  const double kMaxEdgeAspect = (
@@ -407,10 +435,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2metrics.cc a/contrib/s2geometry/src/s2/s2
  // This is true for all projections.
  
  }  // namespace S2
-diff -ru b/contrib/s2geometry/src/s2/s2polygon.cc a/contrib/s2geometry/src/s2/s2polygon.cc
---- b/contrib/s2geometry/src/s2/s2polygon.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2polygon.cc	Thu Dec  9 22:41:18 2021
-@@ -1078,7 +1078,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2polygon.cc b/contrib/s2geometry/src/s2/s2polygon.cc
+index a76cd385ed..411bd761f1 100644
+--- a/contrib/s2geometry/src/s2/s2polygon.cc
++++ b/contrib/s2geometry/src/s2/s2polygon.cc
+@@ -1085,7 +1085,7 @@ void S2Polygon::InitToSimplifiedInCell(
    // want the bound in terms of (u = 2 * s - 1) rather than "s" itself.
    // Consulting s2metrics.cc, this value is sqrt(2/3)/2 = sqrt(1/6).
    // Going back to the original problem, this gives:
@@ -419,10 +448,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2polygon.cc a/contrib/s2geometry/src/s2/s2
  
    // The first pass yields a collection of simplified polylines that preserve
    // the original cyclic vertex order.
-diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2/s2predicates.cc
---- b/contrib/s2geometry/src/s2/s2predicates.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2predicates.cc	Thu Dec  9 22:41:18 2021
-@@ -76,7 +76,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2predicates.cc b/contrib/s2geometry/src/s2/s2predicates.cc
+index 6564ddeab2..86fc63a6c3 100644
+--- a/contrib/s2geometry/src/s2/s2predicates.cc
++++ b/contrib/s2geometry/src/s2/s2predicates.cc
+@@ -71,7 +71,7 @@ int StableSign(const S2Point& a, const S2Point& b, const S2Point& c) {
    // compute the maximum error in the determinant.  Using a similar technique
    // to the one used for kMaxDetError, the error is at most
    //
@@ -431,7 +461,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
    //
    // where e = 0.5 * DBL_EPSILON.  If the determinant magnitude is larger than
    // this value then we know its sign with certainty.
-@@ -341,8 +341,8 @@
+@@ -340,8 +340,8 @@ inline double GetSin2Distance(const S2Point& x, const S2Point& y,
    // distances as small as DBL_ERR.
    S2Point n = (x - y).CrossProd(x + y);
    double d2 = 0.25 * n.Norm2();
@@ -442,7 +472,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
              768 * DBL_ERR * DBL_ERR * DBL_ERR * DBL_ERR);
    return d2;
  }
-@@ -353,14 +353,14 @@
+@@ -352,14 +352,14 @@ inline long double GetSin2Distance(const Vector3_ld& x, const Vector3_ld& y,
    // In "long double" precision it is worthwhile to compensate for length
    // errors in "x" and "y", since they are only unit length to within the
    // precision of "double".  Otherwise the "d2" error coefficient below would
@@ -460,7 +490,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
              768 * DBL_ERR * DBL_ERR * LD_ERR * LD_ERR);
    return d2;
  }
-@@ -593,7 +593,7 @@
+@@ -598,7 +598,7 @@ int TriageCompareLineSin2Distance(const Vector3<T>& x, const Vector3<T>& a0,
    T n2sin2_r_error = 6 * T_ERR * n2sin2_r;
    T ax2, xDn = (x - GetClosestVertex(x, a0, a1, &ax2)).DotProd(n);
    T xDn2 = xDn * xDn;
@@ -469,7 +499,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
                  T_ERR * sqrt(ax2));
    T xDn2_error = 4 * T_ERR * xDn2 + (2 * fabs(xDn) + c1) * c1;
  
-@@ -633,7 +633,7 @@
+@@ -638,7 +638,7 @@ int TriageCompareLineCos2Distance(const Vector3<T>& x, const Vector3<T>& a0,
    // The length of M = X.CrossProd(N) is the cosine of the distance.
    T m2 = x.CrossProd(n).Norm2();
    T m1 = sqrt(m2);
@@ -478,7 +508,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
    T m2_error = 3 * T_ERR * m2 + (2 * m1 + m1_error) * m1_error;
  
    // If we are using extended precision, then it is worthwhile to recompute
-@@ -684,7 +684,7 @@
+@@ -689,7 +689,7 @@ int TriageCompareEdgeDistance(const Vector3<T>& x, const Vector3<T>& a0,
    T a1_sign = a1_dir.DotProd(m);
    T n2 = n.Norm2();
    T n1 = sqrt(n2);
@@ -486,8 +516,8 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
 +  T n1_error = ((3.5 + 8 / sqrt(3.0)) * n1 + 32 * sqrt(3.0) * DBL_ERR) * T_ERR;
    T a0_sign_error = n1_error * a0_dir.Norm();
    T a1_sign_error = n1_error * a1_dir.Norm();
-   if (fabs(a0_sign) < a0_sign_error || fabs(a1_sign) < a1_sign_error) {
-@@ -771,8 +771,8 @@
+   if (a0_sign < a0_sign_error && a1_sign > -a1_sign_error) {
+@@ -795,8 +795,8 @@ int TriageCompareEdgeDirections(
    Vector3<T> nb = (b0 - b1).CrossProd(b0 + b1);
    T na_len = na.Norm(), nb_len = nb.Norm();
    T cos_ab = na.DotProd(nb);
@@ -498,7 +528,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
    return (cos_ab > cos_ab_error) ? 1 : (cos_ab < -cos_ab_error) ? -1 : 0;
  }
  
-@@ -836,9 +836,9 @@
+@@ -860,9 +860,9 @@ Vector3<T> GetCircumcenter(const Vector3<T>& a, const Vector3<T>& b,
    T bc_len = bc_diff.Norm();
    Vector3<T> mab = nab.CrossProd(ab_sum);
    Vector3<T> mbc = nbc.CrossProd(bc_sum);
@@ -510,7 +540,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
                 3 * 4096 * DBL_ERR * DBL_ERR * T_ERR * T_ERR);
    return mab.CrossProd(mbc);
  }
-@@ -860,7 +860,7 @@
+@@ -884,7 +884,7 @@ int TriageEdgeCircumcenterSign(const Vector3<T>& x0, const Vector3<T>& x1,
  
    T z_len = z.Norm();
    T nx_len = nx.Norm();
@@ -519,7 +549,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
    T result_error = ((3 * T_ERR * nx_len + nx_error) * z_len + z_error * nx_len);
    return (result > result_error) ? 1 : (result < -result_error) ? -1 : 0;
  }
-@@ -1174,7 +1174,7 @@
+@@ -1199,7 +1199,7 @@ Excluded TriageVoronoiSiteExclusion(const Vector3<T>& a, const Vector3<T>& b,
    T n2 = n.Norm2();
    T n1 = sqrt(n2);
    // This factor is used in the error terms of dot products with "n" below.
@@ -528,7 +558,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
  
    T cos_r = 1 - 0.5 * r2;
    T sin2_r = r2 * (1 - 0.25 * r2);
-@@ -1216,8 +1216,8 @@
+@@ -1243,8 +1243,8 @@ Excluded TriageVoronoiSiteExclusion(const Vector3<T>& a, const Vector3<T>& b,
    Vector3<T> aXb = (a - b).CrossProd(a + b);  // 2 * a.CrossProd(b)
    T aXb1 = aXb.Norm();
    T sin_d = 0.5 * aXb.DotProd(n);
@@ -539,10 +569,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.cc a/contrib/s2geometry/src/s2
  
    // If LHS(3) is definitely less than RHS(3), neither site excludes the other.
    T result = abs_lhs3 - sin_d;
-diff -ru b/contrib/s2geometry/src/s2/s2predicates.h a/contrib/s2geometry/src/s2/s2predicates.h
---- b/contrib/s2geometry/src/s2/s2predicates.h	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2predicates.h	Thu Dec  9 22:41:04 2021
-@@ -246,7 +246,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2predicates.h b/contrib/s2geometry/src/s2/s2predicates.h
+index 89f68a8d48..7312074ab5 100644
+--- a/contrib/s2geometry/src/s2/s2predicates.h
++++ b/contrib/s2geometry/src/s2/s2predicates.h
+@@ -271,7 +271,7 @@ inline int TriageSign(const S2Point& a, const S2Point& b,
    // kMaxDetError is the maximum error in computing (AxB).C where all vectors
    // are unit length.  Using standard inequalities, it can be shown that
    //
@@ -551,7 +582,7 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.h a/contrib/s2geometry/src/s2/
    //
    // where "fl()" denotes a calculation done in floating-point arithmetic,
    // |x| denotes either absolute value or the L2-norm as appropriate, and
-@@ -257,7 +257,7 @@
+@@ -282,7 +282,7 @@ inline int TriageSign(const S2Point& a, const S2Point& b,
    // Applying these bounds to the unit-length vectors A,B,C and neglecting
    // relative error (which does not affect the sign of the result), we get
    //
@@ -560,10 +591,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2predicates.h a/contrib/s2geometry/src/s2/
    //
    // which is about 3.6548 * e, or 1.8274 * DBL_EPSILON.
    const double kMaxDetError = 1.8274 * DBL_EPSILON;
-diff -ru b/contrib/s2geometry/src/s2/s2testing.cc a/contrib/s2geometry/src/s2/s2testing.cc
---- b/contrib/s2geometry/src/s2/s2testing.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2testing.cc	Thu Dec  9 22:41:18 2021
-@@ -411,7 +411,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2testing.cc b/contrib/s2geometry/src/s2/s2testing.cc
+index 0820f8efc0..ad9dece44e 100644
+--- a/contrib/s2geometry/src/s2/s2testing.cc
++++ b/contrib/s2geometry/src/s2/s2testing.cc
+@@ -432,15 +432,15 @@ double S2Testing::Fractal::min_radius_factor() const {
  double S2Testing::Fractal::max_radius_factor() const {
    // The maximum radius is always attained at either an original triangle
    // vertex or at a middle vertex from the first subdivision step.
@@ -572,7 +604,6 @@ diff -ru b/contrib/s2geometry/src/s2/s2testing.cc a/contrib/s2geometry/src/s2/s2
  }
  
  void S2Testing::Fractal::GetR2Vertices(vector<R2Point>* vertices) const {
-@@ -418,8 +418,8 @@
    // The Koch "snowflake" consists of three Koch curves whose initial edges
    // form an equilateral triangle.
    R2Point v0(1.0, 0.0);
@@ -583,10 +614,11 @@ diff -ru b/contrib/s2geometry/src/s2/s2testing.cc a/contrib/s2geometry/src/s2/s2
    GetR2VerticesHelper(v0, v1, 0, vertices);
    GetR2VerticesHelper(v1, v2, 0, vertices);
    GetR2VerticesHelper(v2, v0, 0, vertices);
-diff -ru b/contrib/s2geometry/src/s2/s2testing_test.cc a/contrib/s2geometry/src/s2/s2testing_test.cc
---- b/contrib/s2geometry/src/s2/s2testing_test.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2testing_test.cc	Thu Dec  9 22:41:18 2021
-@@ -85,7 +85,7 @@
+diff --git a/contrib/s2geometry/src/s2/s2testing_test.cc b/contrib/s2geometry/src/s2/s2testing_test.cc
+index 402a190535..824e3e2289 100644
+--- a/contrib/s2geometry/src/s2/s2testing_test.cc
++++ b/contrib/s2geometry/src/s2/s2testing_test.cc
+@@ -85,7 +85,7 @@ void TestFractal(int min_level, int max_level, double dimension) {
  
    // "triangle_perim" is the perimeter of the original equilateral triangle
    // before any subdivision occurs.
@@ -595,17 +627,6 @@ diff -ru b/contrib/s2geometry/src/s2/s2testing_test.cc a/contrib/s2geometry/src/
    double min_length_sum = triangle_perim * pow(expansion_factor, min_level);
    for (int level = min_level; level <= max_level; ++level) {
      expected_num_vertices += NumVerticesAtLevel(level);
-diff -ru b/contrib/s2geometry/src/s2/s2edge_clipping.cc a/contrib/s2geometry/src/s2/s2edge_clipping.cc
---- b/contrib/s2geometry/src/s2/s2edge_clipping.cc	Thu Dec  9 22:38:41 2021
-+++ a/contrib/s2geometry/src/s2/s2edge_clipping.cc	Thu Dec  9 22:44:47 2021
-@@ -356,8 +356,8 @@
-   // TODO(ericv): This is a temporary hack until I rewrite S2::RobustCrossProd;
-   // it avoids loss of precision in Normalize() when the vector is so small
-   // that it underflows.
--  if (max(fabs(n[0]), max(fabs(n[1]), fabs(n[2]))) < ldexp(1, -511)) {
--    n *= ldexp(1, 563);
-+  if (max(fabs(n[0]), max(fabs(n[1]), fabs(n[2]))) < ldexp(1.0, -511.0)) {
-+    n *= ldexp(1.0, 563.0);
-   }  // END OF HACK
-   n = n.Normalize();
-   S2PointUVW a_tangent = n.CrossProd(a);
+-- 
+2.40.1
+

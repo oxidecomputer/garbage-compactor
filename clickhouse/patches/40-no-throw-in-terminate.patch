@@ -1,0 +1,104 @@
+From 579f43e307875b71e6b995b5145241a9ccab29a9 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Tue, 6 Jun 2023 13:47:14 +1000
+Subject: [PATCH 38/39] 40-no-throw-in-terminate.patch
+
+---
+ src/Common/Exception.cpp | 42 +++++++++++++++++++++-------------------
+ 1 file changed, 22 insertions(+), 20 deletions(-)
+
+diff --git a/src/Common/Exception.cpp b/src/Common/Exception.cpp
+index 1f5ff35ab4..49e5ec90fe 100644
+--- a/src/Common/Exception.cpp
++++ b/src/Common/Exception.cpp
+@@ -317,47 +317,48 @@ std::string getExtraExceptionInfo(const std::exception & e)
+ std::string getCurrentExceptionMessage(bool with_stacktrace, bool check_embedded_stacktrace /*= false*/, bool with_extra_info /*= true*/)
+ {
+     WriteBufferFromOwnString stream;
++    void *ex = abi::__cxa_current_primary_exception();
++    std::exception *se = reinterpret_cast<std::exception *>(ex);
+ 
+-    try
+-    {
+-        throw;
+-    }
+-    catch (const Exception & e)
++    const Exception *e = dynamic_cast<Exception *>(se);
++    const Poco::Exception *pe = dynamic_cast<Poco::Exception *>(se);
++
++    if (e != nullptr)
+     {
+-        stream << getExceptionMessage(e, with_stacktrace, check_embedded_stacktrace)
+-               << (with_extra_info ? getExtraExceptionInfo(e) : "")
++        stream << getExceptionMessage(*e, with_stacktrace, check_embedded_stacktrace)
++               << (with_extra_info ? getExtraExceptionInfo(*e) : "")
+                << " (version " << VERSION_STRING << VERSION_OFFICIAL << ")";
+     }
+-    catch (const Poco::Exception & e)
++    else if (pe != nullptr)
+     {
+         try
+         {
+-            stream << "Poco::Exception. Code: " << ErrorCodes::POCO_EXCEPTION << ", e.code() = " << e.code()
+-                << ", " << e.displayText()
+-                << (with_stacktrace ? ", Stack trace (when copying this message, always include the lines below):\n\n" + getExceptionStackTraceString(e) : "")
+-                << (with_extra_info ? getExtraExceptionInfo(e) : "")
++            stream << "Poco::Exception. Code: " << ErrorCodes::POCO_EXCEPTION << ", e.code() = " << pe->code()
++                << ", " << pe->displayText()
++                << (with_stacktrace ? ", Stack trace (when copying this message, always include the lines below):\n\n" + getExceptionStackTraceString(*pe) : "")
++                << (with_extra_info ? getExtraExceptionInfo(*pe) : "")
+                 << " (version " << VERSION_STRING << VERSION_OFFICIAL << ")";
+         }
+         catch (...) {}
+     }
+-    catch (const std::exception & e)
++    else if (se != nullptr)
+     {
+         try
+         {
+             int status = 0;
+-            auto name = demangle(typeid(e).name(), status);
++            auto name = demangle(typeid(*se).name(), status);
+ 
+             if (status)
+                 name += " (demangling status: " + toString(status) + ")";
+ 
+-            stream << "std::exception. Code: " << ErrorCodes::STD_EXCEPTION << ", type: " << name << ", e.what() = " << e.what()
+-                << (with_stacktrace ? ", Stack trace (when copying this message, always include the lines below):\n\n" + getExceptionStackTraceString(e) : "")
+-                << (with_extra_info ? getExtraExceptionInfo(e) : "")
++            stream << "std::exception. Code: " << ErrorCodes::STD_EXCEPTION << ", type: " << name << ", e.what() = " << se->what()
++                << (with_stacktrace ? ", Stack trace (when copying this message, always include the lines below):\n\n" + getExceptionStackTraceString(*se) : "")
++                << (with_extra_info ? getExtraExceptionInfo(*se) : "")
+                 << " (version " << VERSION_STRING << VERSION_OFFICIAL << ")";
+         }
+         catch (...) {}
+     }
+-    catch (...)
++    /*catch (...)
+     {
+         try
+         {
+@@ -370,7 +371,7 @@ std::string getCurrentExceptionMessage(bool with_stacktrace, bool check_embedded
+             stream << "Unknown exception. Code: " << ErrorCodes::UNKNOWN_EXCEPTION << ", type: " << name << " (version " << VERSION_STRING << VERSION_OFFICIAL << ")";
+         }
+         catch (...) {}
+-    }
++    }*/
+ 
+     return stream.str();
+ }
+@@ -378,9 +379,10 @@ std::string getCurrentExceptionMessage(bool with_stacktrace, bool check_embedded
+ 
+ int getCurrentExceptionCode()
+ {
++    std::exception_ptr ex = std::current_exception();
+     try
+     {
+-        throw;
++        std::rethrow_exception(ex);
+     }
+     catch (const Exception & e)
+     {
+-- 
+2.40.1
+

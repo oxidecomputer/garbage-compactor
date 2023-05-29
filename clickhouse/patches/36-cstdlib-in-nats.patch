@@ -1,0 +1,23 @@
+From 21920f173253a0a6e817db6fbdc98c561eab1486 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Mon, 5 Jun 2023 13:26:37 +1000
+Subject: [PATCH 34/39] 36-cstdlib-in-nats.patch
+
+---
+ src/Storages/NATS/NATSHandler.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/Storages/NATS/NATSHandler.h b/src/Storages/NATS/NATSHandler.h
+index e3894c888a..8e08c900ed 100644
+--- a/src/Storages/NATS/NATSHandler.h
++++ b/src/Storages/NATS/NATSHandler.h
+@@ -1,5 +1,6 @@
+ #pragma once
+ 
++#include <cstdlib>
+ #include <uv.h>
+ #include <memory>
+ #include <mutex>
+-- 
+2.40.1
+

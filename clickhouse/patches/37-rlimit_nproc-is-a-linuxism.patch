@@ -1,0 +1,32 @@
+From 04a1262d18fab793a8769942ed8baa50850ee01a Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Mon, 5 Jun 2023 13:27:20 +1000
+Subject: [PATCH 35/39] 37-rlimit_nproc-is-a-linuxism.patch
+
+---
+ programs/server/Server.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/programs/server/Server.cpp b/programs/server/Server.cpp
+index db00859880..ccf9199e11 100644
+--- a/programs/server/Server.cpp
++++ b/programs/server/Server.cpp
+@@ -915,6 +915,7 @@ int Server::main(const std::vector<std::string> & /*args*/)
+         }
+     }
+ 
++#if defined(RLIMIT_NPROC)
+     /// Try to increase limit on number of threads.
+     {
+         rlimit rlim;
+@@ -946,6 +947,7 @@ int Server::main(const std::vector<std::string> & /*args*/)
+             global_context->addWarningMessage("Maximum number of threads is lower than 30000. There could be problems with handling a lot of simultaneous queries.");
+         }
+     }
++#endif
+ 
+     static ServerErrorHandler error_handler;
+     Poco::ErrorHandler::set(&error_handler);
+-- 
+2.40.1
+

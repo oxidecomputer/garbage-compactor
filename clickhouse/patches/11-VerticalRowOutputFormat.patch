@@ -1,5 +1,14 @@
+From 3d166ff44ac763a5422683753a7582bd1aa138f3 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Mon, 29 May 2023 09:58:58 +1000
+Subject: [PATCH 10/39] 11-VerticalRowOutputFormat.patch
+
+---
+ src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
 diff --git a/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp b/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp
-index c6f37d2..8d292b2 100644
+index 468770e251..0a1cafcfbf 100644
 --- a/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp
 +++ b/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp
 @@ -80,7 +80,14 @@ void VerticalRowOutputFormat::writeRowStartDelimiter()
@@ -18,3 +27,6 @@ index c6f37d2..8d292b2 100644
      for (size_t i = 0; i < width; ++i)
          writeCString("─", out);
      writeChar('\n', out);
+-- 
+2.40.1
+

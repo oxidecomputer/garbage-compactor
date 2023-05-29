@@ -1,0 +1,24 @@
+From 81cd48fcf702751bfe38c5a6b2a932d39ab5de37 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Mon, 5 Jun 2023 13:20:52 +1000
+Subject: [PATCH 30/39] 32-cares-need-pollh.patch
+
+---
+ src/Common/CaresPTRResolver.cpp | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/Common/CaresPTRResolver.cpp b/src/Common/CaresPTRResolver.cpp
+index c6fe70a09f..354fb91758 100644
+--- a/src/Common/CaresPTRResolver.cpp
++++ b/src/Common/CaresPTRResolver.cpp
+@@ -1,6 +1,7 @@
+ #include "CaresPTRResolver.h"
+ #include <arpa/inet.h>
+ #include <sys/select.h>
++#include <sys/poll.h>
+ #include <Common/Exception.h>
+ #include <Common/logger_useful.h>
+ #include "ares.h"
+-- 
+2.40.1
+

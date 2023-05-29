@@ -1,0 +1,22 @@
+From e90bbc8cb0595d6b3596b1cb8d1779bc90358372 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Tue, 30 May 2023 11:13:30 +1000
+Subject: [PATCH 19/39] 21-arch-detect.patch
+
+---
+ cmake/arch.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/arch.cmake b/cmake/arch.cmake
+index 8cc311dc48..955424b3ab 100644
+--- a/cmake/arch.cmake
++++ b/cmake/arch.cmake
+@@ -1,4 +1,4 @@
+-if (CMAKE_SYSTEM_PROCESSOR MATCHES "amd64|x86_64")
++if (CMAKE_SYSTEM_PROCESSOR MATCHES "amd64|x86_64|i386")
+     if (CMAKE_LIBRARY_ARCHITECTURE MATCHES "i386")
+         message (FATAL_ERROR "32bit platforms are not supported")
+     endif ()
+-- 
+2.40.1
+
