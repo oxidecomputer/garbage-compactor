@@ -23,7 +23,7 @@ mkdir -p "$SRC"
 #
 for pkg in cmake ninja; do
 	if ! pkg info -q $pkg; then
-		fatal "need $pkg"
+		echo "need $pkg"
 	fi
 done
 
@@ -87,7 +87,7 @@ if (( njobs_mem < njobs )); then
 fi
 info "using $njobs jobs..."
 
-export PATH="/usr/gnu/bin:/opt/ooce/bin:/usr/bin:/usr/sbin:/sbin"
+export PATH="/opt/local/gcc10/bin:/opt/local/bin:/usr/gnu/bin:/opt/ooce/bin:/usr/bin:/usr/sbin:/sbin"
 
 stamp="$STAMPS/cmake.stamp"
 if [[ ! -f "$stamp" ]]; then
@@ -106,8 +106,10 @@ if [[ ! -f "$stamp" ]]; then
 	# to 1.
 	#
 	CFLAGS="$CFLAGS" CXXFLAGS="$CXXINC $CFLAGS" cmake \
-	    -DCMAKE_C_COMPILER="/opt/gcc-10/bin/gcc" \
-	    -DCMAKE_CXX_COMPILER="/opt/gcc-10/bin/g++" \
+	    -DCMAKE_BUILD_TYPE=Release \
+	    -DCMAKE_INSTALL_PREFIX="/opt/local" \
+	    -DCMAKE_C_COMPILER="/opt/local/gcc10/bin/gcc" \
+	    -DCMAKE_CXX_COMPILER="/opt/local/gcc10/bin/g++" \
 	    -DCMAKE_C_FLAGS="$CFLAGS" \
 	    -DCMAKE_CXX_FLAGS="$CXXINC $CFLAGS" \
 	    -DABSL_CXX_STANDARD="17" \
@@ -133,6 +135,7 @@ if [[ ! -f "$stamp" ]]; then
 	    -DENABLE_CLICKHOUSE_ODBC_BRIDGE=off \
 	    -DENABLE_CLICKHOUSE_BENCHMARK=off \
 	    -DENABLE_TESTS=off \
+	    -DCMAKE_BUILD_WITH_INSTALL_RPATH=on \
 	    \
 	    -DPARALLEL_COMPILE_JOBS="$njobs" \
 	    -DPARALLEL_LINK_JOBS="1" \
@@ -181,6 +184,9 @@ rm -f "$CACHE/clickhouse"
 cp "$SRC/build/programs/clickhouse" "$CACHE/clickhouse"
 /usr/bin/strip -x "$CACHE/clickhouse"
 
+cp -P $SRC/build/programs/clickhouse-* "$CACHE/"
+/usr/bin/strip -x "$CACHE/clickhouse-library-bridge"
+
 if [[ -z "$OUTPUT_TYPE" ]]; then
 	OUTPUT_TYPE=tar
 fi
@@ -195,8 +201,8 @@ ips)
 
 	rm -rf "$WORK/proto"
 	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/bin"
-	cp "$CACHE/clickhouse" \
-	    "$WORK/proto/opt/clickhouse/$SVER/bin/clickhouse"
+	cp -P $CACHE/* \
+	    "$WORK/proto/opt/clickhouse/$SVER/bin/"
 
 	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/config"
 	for f in config.xml users.xml; do
@@ -240,12 +246,30 @@ none)
 	exit 0
 	;;
 tar)
+	#
+	# Make a package per release version series; e.g., 21.6.7.57-stable
+	# will be package "clickhouse-21.6".
+	#
+	SVER=$(awk -F. '{ print $1"."$2 }' <<< "$VER")
+
+	rm -rf "$WORK/proto"
+	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/bin"
+	cp -P $CACHE/* \
+	    "$WORK/proto/opt/clickhouse/$SVER/bin/"
+
+	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/config"
+	for f in config.xml users.xml; do
+		cp "$SRC/programs/server/$f" \
+		    "$WORK/proto/opt/clickhouse/$SVER/config/$f"
+	done
+
+	mkdir -p "$WORK/proto/var/svc/manifest/database"
+	cp smf.xml "$WORK/proto/var/svc/manifest/database/clickhouse.xml"
+
 	/usr/bin/tar cvfz \
 	    $WORK/clickhouse-v$VER.illumos.tar.gz \
-	    -C "$CACHE" clickhouse \
-	    -C "$SRC/programs/server" config.xml \
-	    -C "$SRC/programs/server" users.xml \
-	    -C "$ROOT" manifest.xml
+	    -C "$WORK/proto" opt \
+ 	    -C "$WORK/proto" var
 	header 'build output:'
 	ls -lh $WORK/*.tar.gz
 	exit 0
