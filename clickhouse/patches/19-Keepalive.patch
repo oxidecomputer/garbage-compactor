@@ -1,6 +1,17 @@
---- a/src/Client/Connection.cpp	2021-12-02 11:25:15.000000000 +0000
-+++ b/src/Client/Connection.cpp	2023-01-16 04:38:19.347311154 +0000
-@@ -99,13 +99,21 @@
+From 4563253b81f57e4ff43bb87307ac6e64b0b29e06 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Mon, 29 May 2023 09:59:01 +1000
+Subject: [PATCH 17/42] 19-Keepalive.patch
+
+---
+ src/Client/Connection.cpp | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+diff --git a/src/Client/Connection.cpp b/src/Client/Connection.cpp
+index 5047f958a1..15a69f6894 100644
+--- a/src/Client/Connection.cpp
++++ b/src/Client/Connection.cpp
+@@ -150,13 +150,21 @@ void Connection::connect(const ConnectionTimeouts & timeouts)
          if (timeouts.tcp_keep_alive_timeout.totalSeconds())
          {
              socket->setKeepAlive(true);
@@ -28,3 +39,6 @@
          }
  
          in = std::make_shared<ReadBufferFromPocoSocket>(*socket);
+-- 
+2.40.1
+

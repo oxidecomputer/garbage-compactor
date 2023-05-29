@@ -1,5 +1,14 @@
+From 82bdf7d4b2f6869161eca90774b9b8e6c66aedf9 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Mon, 29 May 2023 09:58:57 +1000
+Subject: [PATCH 06/42] 07-floyd_rivest_select.patch
+
+---
+ contrib/miniselect/include/miniselect/floyd_rivest_select.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 diff --git a/contrib/miniselect/include/miniselect/floyd_rivest_select.h b/contrib/miniselect/include/miniselect/floyd_rivest_select.h
-index e7d5f80..fb643d6 100644
+index e7d5f80f57..fb643d600f 100644
 --- a/contrib/miniselect/include/miniselect/floyd_rivest_select.h
 +++ b/contrib/miniselect/include/miniselect/floyd_rivest_select.h
 @@ -31,7 +31,7 @@ inline void floyd_rivest_select_loop(Iter begin, Diff left, Diff right, Diff k,
@@ -11,4 +20,6 @@ index e7d5f80..fb643d6 100644
        double s = 0.5 * exp(2 * z / 3);
        double sd = 0.5 * sqrt(z * s * (n - s) / n);
        if (i < n / 2) {
-Submodule contrib/poco contains modified content
+-- 
+2.40.1
+

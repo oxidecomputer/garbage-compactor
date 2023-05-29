@@ -1,0 +1,25 @@
+From 6cf7c5f0207e801215ac352a463928dc4d89a6a4 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Tue, 30 May 2023 11:26:57 +1000
+Subject: [PATCH 20/42] 22-abseil-cpu-detect.patch
+
+---
+ contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake b/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
+index d4afa5e09d..8b057959bf 100644
+--- a/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
++++ b/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
+@@ -12,7 +12,7 @@ else()
+   set(ABSL_BUILD_DLL FALSE)
+ endif()
+ 
+-if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
++if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64|i386")
+   if (MSVC)
+     set(ABSL_RANDOM_RANDEN_COPTS "${ABSL_RANDOM_HWAES_MSVC_X64_FLAGS}")
+   else()
+-- 
+2.40.1
+

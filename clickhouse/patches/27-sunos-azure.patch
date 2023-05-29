@@ -1,0 +1,67 @@
+From bab2a9d683c5eae342864977f5b7cb121bfc9c2a Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Tue, 30 May 2023 15:55:46 +1000
+Subject: [PATCH 25/42] 27-sunos-azure.patch
+
+---
+ .../azure/sdk/core/azure-core/src/http/retry_policy.cpp   | 8 +-------
+ .../sdk/core/azure-core/src/http/telemetry_policy.cpp     | 2 +-
+ contrib/cassandra-cmake/CMakeLists.txt                    | 4 ++--
+ 3 files changed, 4 insertions(+), 10 deletions(-)
+
+diff --git a/contrib/azure/sdk/core/azure-core/src/http/retry_policy.cpp b/contrib/azure/sdk/core/azure-core/src/http/retry_policy.cpp
+index 044e0baf1d..1f9fea6a25 100644
+--- a/contrib/azure/sdk/core/azure-core/src/http/retry_policy.cpp
++++ b/contrib/azure/sdk/core/azure-core/src/http/retry_policy.cpp
+@@ -61,13 +61,7 @@ std::chrono::milliseconds CalculateExponentialDelay(
+ {
+   if (jitterFactor < 0.8 || jitterFactor > 1.3)
+   {
+-    double rand;
+-    static drand48_data buf;
+-    srand48_r(time(NULL), &buf);
+-    drand48_r(&buf, &rand);
+-
+-    // jitterFactor is a random double number in the range [0.8 .. 1.3]
+-    jitterFactor = 0.8 + rand * 0.5;
++    jitterFactor = 0.8 + (static_cast<double>(arc4random_uniform(5000)) / 10000.0);
+   }
+ 
+   constexpr auto beforeLastBit
+diff --git a/contrib/azure/sdk/core/azure-core/src/http/telemetry_policy.cpp b/contrib/azure/sdk/core/azure-core/src/http/telemetry_policy.cpp
+index 0a012d5efd..143e9f570e 100644
+--- a/contrib/azure/sdk/core/azure-core/src/http/telemetry_policy.cpp
++++ b/contrib/azure/sdk/core/azure-core/src/http/telemetry_policy.cpp
+@@ -110,7 +110,7 @@ std::string GetOSVersion()
+ #endif
+ #elif defined(AZ_PLATFORM_POSIX)
+   {
+-    utsname sysInfo{};
++    struct utsname sysInfo{};
+     if (uname(&sysInfo) == 0)
+     {
+       osVersionInfo << sysInfo.sysname << " " << sysInfo.release << " " << sysInfo.machine << " "
+diff --git a/contrib/cassandra-cmake/CMakeLists.txt b/contrib/cassandra-cmake/CMakeLists.txt
+index 59ff908b63..5b91dbfa10 100644
+--- a/contrib/cassandra-cmake/CMakeLists.txt
++++ b/contrib/cassandra-cmake/CMakeLists.txt
+@@ -90,14 +90,14 @@ configure_file("${CASS_SRC_DIR}/third_party/sparsehash/config.h.cmake" "${CMAKE_
+ # Determine random availability
+ if (OS_LINUX)
+   #set (HAVE_GETRANDOM 1) - not on every Linux kernel
+-elseif (OS_FREEBSD OR OS_DARWIN)
++elseif (OS_FREEBSD OR OS_DARWIN OR OS_SUNOS)
+   set (HAVE_ARC4RANDOM 1)
+ endif ()
+ 
+ # Determine if sigpipe is available
+ if (OS_LINUX)
+     set (HAVE_SIGTIMEDWAIT 1)
+-else (OS_FREEBSD OR OS_DARWIN)
++elseif (OS_FREEBSD OR OS_DARWIN)
+     set (HAVE_NOSIGPIPE 1)
+ endif()
+ 
+-- 
+2.40.1
+
