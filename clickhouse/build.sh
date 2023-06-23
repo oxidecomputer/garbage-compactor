@@ -28,10 +28,9 @@ for pkg in cmake ninja; do
 done
 
 NAM='clickhouse'
-VER="21.10.4.26"
-URL="https://github.com/ClickHouse/ClickHouse/releases/download/v$VER-stable"
-URL+="/ClickHouse_sources_with_submodules.tar.gz"
-SHA256='2d34b5957d1ae3ad853f596aa0bbd21e2bf7d3d71b6b23a5f19868c2f7656e80'
+VER="23.5.3.24"
+URL="https://github.com/ClickHouse/ClickHouse/archive/refs/tags/v$VER-stable.tar.gz"
+SHA256='8a87a72facaa4e01bba01f80c7c879151f38240cf8e7c83372de69bb21d769a4'
 
 #
 # Download ClickHouse sources
