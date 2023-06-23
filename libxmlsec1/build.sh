@@ -26,7 +26,7 @@ mkdir -p "$WORKAROUND"
 
 #
 # The build will try to detect information about the git repository, but finds
-# garbage-compactor.git, because the source archive we use to build Cockroach
+# garbage-compactor.git, because the source archive we use to build xmlsec
 # is not, itself, a git repository.
 #
 cat >"$WORKAROUND/git" <<'EOF'
@@ -37,7 +37,7 @@ chmod 0755 "$WORKAROUND/git"
 
 NAM='libxmlsec1'
 VER='1.2.33'
-URL="http://www.aleksey.com/xmlsec/download/xmlsec1-$VER.tar.gz"
+URL="https://www.aleksey.com/xmlsec/download/xmlsec1-$VER.tar.gz"
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
 	GCC_DIR=/usr/gcc/10/bin
@@ -80,7 +80,9 @@ CFLAGS='-m32' \
     ./configure \
     --prefix=/usr \
     --libdir=/usr/lib \
-    --enable-static=no
+    --enable-static=no \
+    --disable-crypto-dl \
+    --disable-apps-crypto-dl
 
 info "make..."
 gmake -j8
@@ -96,7 +98,9 @@ LDFLAGS='-R/usr/lib/amd64' \
     ./configure \
     --prefix=/usr \
     --libdir=/usr/lib/amd64 \
-    --enable-static=no
+    --enable-static=no \
+    --disable-crypto-dl \
+    --disable-apps-crypto-dl
 
 info "make..."
 gmake -j8
