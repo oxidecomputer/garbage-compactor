@@ -30,7 +30,7 @@ done
 NAM='clickhouse'
 VER="23.5.3.24"
 URL="https://github.com/ClickHouse/ClickHouse/archive/refs/tags/v$VER-stable.tar.gz"
-SHA256='8a87a72facaa4e01bba01f80c7c879151f38240cf8e7c83372de69bb21d769a4'
+SHA256='be205c2117a35591c20e58aa9cbe0b546258ef005b2825372f5046454c6ca3df'
 
 #
 # Download ClickHouse sources
