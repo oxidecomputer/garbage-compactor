@@ -94,19 +94,19 @@ index 884b8a7..cf1ff45 100644
  
 diff --git a/lib/ykpiv.c b/lib/ykpiv.c
 index d47caa9..dd414ca 100644
---- a/lib/ykpiv.c
-+++ b/lib/ykpiv.c
-@@ -383,7 +383,7 @@ ykpiv_rc _ykpiv_ensure_application_selected(ykpiv_state *state) {
+--- a/lib/ykpiv.c.orig	2023-02-01 12:34:28.000000000 +0000
++++ b/lib/ykpiv.c	2023-06-24 18:06:48.861219297 +0000
+@@ -428,7 +428,7 @@
  #endif
  }
  
 -static ykpiv_rc _ykpiv_connect(ykpiv_state *state, uintptr_t context, uintptr_t card) {
 +static ykpiv_rc _ykpiv_connect(ykpiv_state *state, SCARDCONTEXT context, SCARDHANDLE card) {
-   ykpiv_rc res = YKPIV_OK;
- 
    if (NULL == state) {
-@@ -438,7 +438,7 @@ static ykpiv_rc _ykpiv_connect(ykpiv_state *state, uintptr_t context, uintptr_t
-   return res;
+     return YKPIV_ARGUMENT_ERROR;
+   }
+@@ -483,7 +483,7 @@
+   return YKPIV_OK;
  }
  
 -ykpiv_rc ykpiv_connect_with_external_card(ykpiv_state *state, uintptr_t context, uintptr_t card) {
