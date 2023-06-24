@@ -111,7 +111,7 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	BRANCH=1.0.1
+	BRANCH=2.0.0
 	make_package "developer/$NAM" \
 	    'the open on-chip debugger' \
 	    "$WORK/proto"
