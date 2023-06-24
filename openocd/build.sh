@@ -44,6 +44,8 @@ fi
 info "using $GCC_DIR/gcc: $($GCC_DIR/gcc --version | head -1)"
 info "using $GCC_DIR/g++: $($GCC_DIR/g++ --version | head -1)"
 
+PATH=$GCC_DIR:$PATH
+
 build_deps \
     '/library/hidapi' \
     '/library/libftdi1' \
@@ -111,7 +113,7 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	BRANCH=1.0.1
+	BRANCH=2.0.0
 	make_package "developer/$NAM" \
 	    'the open on-chip debugger' \
 	    "$WORK/proto"

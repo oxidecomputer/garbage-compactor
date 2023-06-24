@@ -32,7 +32,7 @@ NAM="yubihsm-connector"
 VER='3.0.4'
 URL="https://developers.yubico.com/$NAM/Releases/$NAM-$VER.tar.gz"
 
-GOVER='1.19.5'
+GOVER='1.19.9'
 SYSGOVER=$( (pkg info go-119 || true) | awk '/Version:/ { print $NF }')
 if [[ "$SYSGOVER" != "$GOVER" ]]; then
 	fatal 'install or update go-119 package'
@@ -106,12 +106,12 @@ fi
 case "$OUTPUT_TYPE" in
 ips)
 	CREV=0
-	BRANCH="1.$CREV" make_package "security/$NAM" \
+	BRANCH="2.$CREV" make_package "security/$NAM" \
 	    'YubiHSM Connector daemon' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.$CREV"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

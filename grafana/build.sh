@@ -81,12 +81,14 @@ exec gcc "$@"
 EOF
 chmod 0755 "$WORKAROUND/cc"
 
+NODEPATH=/opt/ooce/node-12
+
 #
 # Build Grafana:
 #
 header 'building grafana'
 
-export PATH="$GOPATH/bin:$GOROOT/bin:$YARNROOT/bin:$WORKAROUND:$PATH"
+export PATH="$GOPATH/bin:$GOROOT/bin:$YARNROOT/bin:$WORKAROUND:$NODEPATH/bin:$PATH"
 
 cd "$WORK"
 

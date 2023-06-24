@@ -110,7 +110,7 @@ function make_package {
 	local inputmf="$4"
 	local mf="$WORK/input.mf"
 	local publisher="helios-dev"
-	local branch="${BRANCH:-1.0}"
+	local branch="${BRANCH:-2.0}"
 	local repo="$WORK/repo"
 	local sendargs=()
 

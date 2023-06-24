@@ -30,6 +30,12 @@
 <transform dir path=^var/svc/manifest.* -> set group sys>
 
 #
+# Drop the duplicate GNU info 'dir' files that multiple packages attempt to
+# deliver.
+#
+<transform file link path=usr(|/.+)/share/info/dir$ -> drop>
+
+#
 # Import SMF service bundles automatically:
 #
 <transform file path=^(var|lib)/svc/manifest/.*\.xml$ -> \

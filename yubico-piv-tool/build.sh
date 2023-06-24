@@ -25,9 +25,9 @@ rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
 NAM='yubico-piv-tool'
-VER='2.3.0'
-URL="https://developers.yubico.com/$NAM/Releases/$NAM-2.3.0.tar.gz"
-SHA256='a02a12d9545d1ef7a1b998606d89b7b655a5f5a1437736cf51db083f876f55a9'
+VER='2.3.1'
+URL="https://developers.yubico.com/$NAM/Releases/$NAM-2.3.1.tar.gz"
+SHA256='da89dafd8b6185aa635346753f9ddb29af29bc4abd92dd81f37d9d6560b5d64e'
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
 	GCC_DIR=/usr/gcc/10/bin
@@ -105,12 +105,12 @@ fi
 case "$OUTPUT_TYPE" in
 ips)
 	CREV=0
-	BRANCH="1.$CREV" make_package "security/$NAM" \
+	BRANCH="2.$CREV" make_package "security/$NAM" \
 	    'tools and PKCS#11 modules for YubiKey devices' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.$CREV"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

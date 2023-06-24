@@ -215,13 +215,13 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	CREV=3
-	BRANCH=1.$CREV make_package "library/$NAM" \
+	CREV=0
+	BRANCH=2.$CREV make_package "library/$NAM" \
 	    'a library for communicating with USB and Bluetooth HID devices' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.$CREV"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

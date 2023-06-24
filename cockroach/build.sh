@@ -26,7 +26,7 @@ mkdir -p "$WORKAROUND"
 VER='22.1.9'
 COCKROACHDB_CLONE_REF="v$VER"
 
-NODEVER="v16.3.0"
+NODEVER="v16.20.0"
 SYSNODEVER=$( node -v 2>&1 )
 if [[ "$NODEVER" != "$SYSNODEVER" ]]; then
 	fatal "expected node $NODEVER, but found: $SYSNODEVER " \
