@@ -36,7 +36,7 @@ EOF
 chmod 0755 "$WORKAROUND/git"
 
 NAM='libxmlsec1'
-VER='1.2.33'
+VER='1.2.35'
 URL="http://www.aleksey.com/xmlsec/download/xmlsec1-$VER.tar.gz"
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
@@ -76,6 +76,7 @@ export PATH="$WORKAROUND:$PATH"
 
 cd "$SRC32"
 
+PKG_CONFIG_PATH='/usr/lib/pkgconfig' \
 CFLAGS='-m32' \
     ./configure \
     --prefix=/usr \
