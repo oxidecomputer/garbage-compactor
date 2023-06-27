@@ -44,6 +44,8 @@ fi
 info "using $GCC_DIR/gcc: $($GCC_DIR/gcc --version | head -1)"
 info "using $GCC_DIR/g++: $($GCC_DIR/g++ --version | head -1)"
 
+PATH=$GCC_DIR:$PATH
+
 build_deps \
     '/library/hidapi' \
     '/library/libftdi1' \
