@@ -16,7 +16,7 @@ index 423a44c97d..efd18dc6a5 100644
  #include <sys/mman.h>
  
 +extern "C" {
-+char __dso_handle;
++extern char __dso_handle;
 +}
 +
  

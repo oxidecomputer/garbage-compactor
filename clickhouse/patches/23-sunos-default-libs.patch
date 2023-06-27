@@ -27,27 +27,23 @@ new file mode 100644
 index 0000000000..c8d0be4c0e
 --- /dev/null
 +++ b/cmake/sunos/default_libs.cmake
-@@ -0,0 +1,34 @@
+@@ -0,0 +1,30 @@
 +set (DEFAULT_LIBS "-nodefaultlibs")
 +
 +if (NOT COMPILER_CLANG)
 +    message (FATAL_ERROR "illumos build is supported only for Clang")
 +endif ()
 +
-+if (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i386")
-+    execute_process (COMMAND ${CMAKE_CXX_COMPILER} --print-file-name=libclang_rt.builtins-x86_64.a OUTPUT_VARIABLE BUILTINS_LIBRARY OUTPUT_STRIP_TRAILING_WHITESPACE)
-+else ()
-+    execute_process (COMMAND ${CMAKE_CXX_COMPILER} --print-file-name=libclang_rt.builtins-${CMAKE_SYSTEM_PROCESSOR}.a OUTPUT_VARIABLE BUILTINS_LIBRARY OUTPUT_STRIP_TRAILING_WHITESPACE)
-+endif ()
++set (BUILTINS_LIBRARY "-lgcc_s")
 +
-+set (DEFAULT_LIBS "${DEFAULT_LIBS} ${BUILTINS_LIBRARY} ${COVERAGE_OPTION} -lc -lm -lrt -pthread -lpthread -lsocket -lnsl -lsendfile -lproc")
++set (DEFAULT_LIBS "${DEFAULT_LIBS} ${BUILTINS_LIBRARY} ${COVERAGE_OPTION} -lc -lm -lsocket -lnsl -lsendfile -lproc")
 +
 +message(STATUS "Default libraries: ${DEFAULT_LIBS}")
 +
 +set(CMAKE_CXX_STANDARD_LIBRARIES ${DEFAULT_LIBS})
 +set(CMAKE_C_STANDARD_LIBRARIES ${DEFAULT_LIBS})
 +
-+set(THREADS_PREFER_PTHREAD_FLAG ON)
++set(CMAKE_HAVE_LIBC_PTHREAD ON)
 +find_package(Threads REQUIRED)
 +
 +include (cmake/unwind.cmake)

@@ -31,6 +31,7 @@ NAM='clickhouse'
 VER="22.8.9.24"
 URL="https://stluc.manta.uqcloud.net/itig/public/ClickHouse-v$VER-lts.tar.gz"
 SHA256='860d5ebf5b3d598bca92d3f11b212ade0b1b916947ac3fd28aa4882b3931e621'
+CLANGVER=16
 
 #
 # Download ClickHouse sources
@@ -93,6 +94,7 @@ if [[ ! -f "$stamp" ]]; then
 	info "running cmake..."
 
 	CFLAGS='-D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64'
+	CFLAGS+=' -DHAVE_STRERROR_R -DSTRERROR_R_INT'
 	CFLAGS+=" -I$SRC/contrib/hyperscan-cmake/x86_64/ "
 	CFLAGS+=" -fno-use-cxa-atexit "
 
@@ -110,9 +112,9 @@ if [[ ! -f "$stamp" ]]; then
 	#
 	CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" cmake \
 	    -DCMAKE_BUILD_TYPE=Release \
-	    -DCMAKE_INSTALL_PREFIX="/opt/local" \
-	    -DCMAKE_C_COMPILER="/opt/local/bin/clang" \
-	    -DCMAKE_CXX_COMPILER="/opt/local/bin/clang++" \
+	    -DCMAKE_INSTALL_PREFIX="/opt/oxide/clickhouse" \
+	    -DCMAKE_C_COMPILER="/opt/ooce/bin/clang-$CLANGVER" \
+	    -DCMAKE_CXX_COMPILER="/opt/ooce/bin/clang-$CLANGVER" \
 	    -DCMAKE_C_FLAGS="$CFLAGS" \
 	    -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
 	    -DABSL_CXX_STANDARD="20" \
@@ -156,7 +158,7 @@ fi
 
 stamp="$STAMPS/ninja.stamp"
 if [[ ! -f "$stamp" ]]; then
-	info "running build with ninja..."
+	info "running build with ninja (jobs $njobs)..."
 
 	#
 	# The build is massive.  Try to parallelize until we error out, usually
@@ -252,30 +254,11 @@ none)
 	exit 0
 	;;
 tar)
-	#
-	# Make a package per release version series; e.g., 21.6.7.57-stable
-	# will be package "clickhouse-21.6".
-	#
-	SVER=$(awk -F. '{ print $1"."$2 }' <<< "$VER")
-
-	rm -rf "$WORK/proto"
-	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/bin"
-	cp -P $CACHE/* \
-	    "$WORK/proto/opt/clickhouse/$SVER/bin/"
-
-	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/config"
-	for f in config.xml users.xml; do
-		cp "$SRC/programs/server/$f" \
-		    "$WORK/proto/opt/clickhouse/$SVER/config/$f"
-	done
-
-	mkdir -p "$WORK/proto/var/svc/manifest/database"
-	cp smf.xml "$WORK/proto/var/svc/manifest/database/clickhouse.xml"
-
 	/usr/bin/tar cvfz \
 	    $WORK/clickhouse-v$VER.illumos.tar.gz \
-	    -C "$WORK/proto" opt \
- 	    -C "$WORK/proto" var
+	    -C "$CACHE" clickhouse \
+	    -C "$SRC/programs/server" config.xml \
+	    -C "$SRC/programs/server" users.xml
 	header 'build output:'
 	ls -lh $WORK/*.tar.gz
 	exit 0
