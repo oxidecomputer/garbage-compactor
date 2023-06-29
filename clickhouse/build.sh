@@ -29,7 +29,9 @@ done
 
 NAM='clickhouse'
 VER="22.8.9.24"
-URL="https://stluc.manta.uqcloud.net/itig/public/ClickHouse-v$VER-lts.tar.gz"
+FILE="clickhouse-src-bundle-v$VER-lts.tar.gz"
+S3="https://oxide-clickhouse-build.s3.us-west-2.amazonaws.com"
+URL="$S3/$FILE"
 SHA256='860d5ebf5b3d598bca92d3f11b212ade0b1b916947ac3fd28aa4882b3931e621'
 CLANGVER=16
 
@@ -38,7 +40,7 @@ CLANGVER=16
 #
 header 'downloading artefacts'
 
-file="$ARTEFACT/clickhouse-$VER-stable.tar.gz"
+file="$ARTEFACT/$FILE"
 download_to clickhouse "$URL" "$file" "$SHA256"
 
 #
