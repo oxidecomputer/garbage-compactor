@@ -1,0 +1,27 @@
+From bfeb1841953ff4a522a63e83def890d974610328 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Mon, 5 Jun 2023 13:35:06 +1000
+Subject: [PATCH 36/42] 38-horrifying-dso-thread_local-hack.patch
+
+---
+ src/Common/ThreadStatus.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/Common/ThreadStatus.cpp b/src/Common/ThreadStatus.cpp
+index 423a44c97d..efd18dc6a5 100644
+--- a/src/Common/ThreadStatus.cpp
++++ b/src/Common/ThreadStatus.cpp
+@@ -14,6 +14,10 @@
+ #include <mutex>
+ #include <sys/mman.h>
+ 
++extern "C" {
++extern char __dso_handle;
++}
++
+ 
+ namespace DB
+ {
+-- 
+2.40.1
+

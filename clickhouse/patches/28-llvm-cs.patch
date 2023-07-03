@@ -1,0 +1,28 @@
+From d6953b11076b7a787abeec168afe55e4f3e4bdcf Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Tue, 30 May 2023 17:18:50 +1000
+Subject: [PATCH 26/42] 28-llvm-cs.patch
+
+---
+ contrib/llvm/llvm/include/llvm/ADT/SmallVector.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/contrib/llvm/llvm/include/llvm/ADT/SmallVector.h b/contrib/llvm/llvm/include/llvm/ADT/SmallVector.h
+index e960b272db..b034508516 100644
+--- a/contrib/llvm/llvm/include/llvm/ADT/SmallVector.h
++++ b/contrib/llvm/llvm/include/llvm/ADT/SmallVector.h
+@@ -716,9 +716,9 @@ public:
+     return(N);
+   }
+ 
+-  iterator erase(const_iterator CS, const_iterator CE) {
++  iterator erase(const_iterator CCS, const_iterator CE) {
+     // Just cast away constness because this is a non-const member function.
+-    iterator S = const_cast<iterator>(CS);
++    iterator S = const_cast<iterator>(CCS);
+     iterator E = const_cast<iterator>(CE);
+ 
+     assert(this->isRangeInStorage(S, E) && "Range to erase is out of bounds.");
+-- 
+2.40.1
+

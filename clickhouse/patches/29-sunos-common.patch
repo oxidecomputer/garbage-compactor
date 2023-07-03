@@ -1,0 +1,68 @@
+From 0a73c81a5e9d240e7310f10d7cc32805ad42f46f Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Tue, 30 May 2023 17:19:04 +1000
+Subject: [PATCH 27/42] 29-sunos-common.patch
+
+---
+ src/Common/QueryProfiler.cpp |  4 +++-
+ src/Common/waitForPid.cpp    | 22 ++++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 1 deletion(-)
+
+diff --git a/src/Common/QueryProfiler.cpp b/src/Common/QueryProfiler.cpp
+index 741ae5b574..bee2d73000 100644
+--- a/src/Common/QueryProfiler.cpp
++++ b/src/Common/QueryProfiler.cpp
+@@ -104,7 +104,7 @@ QueryProfilerBase<ProfilerImpl>::QueryProfilerBase(UInt64 thread_id, int clock_t
+     UNUSED(pause_signal);
+ 
+     throw Exception("QueryProfiler cannot work with stock libunwind", ErrorCodes::NOT_IMPLEMENTED);
+-#else
++#elif defined(SIGEV_THREAD_ID)
+     /// Sanity check.
+     if (!hasPHDRCache())
+         throw Exception("QueryProfiler cannot be used without PHDR cache, that is not available for TSan build", ErrorCodes::NOT_IMPLEMENTED);
+@@ -172,6 +172,8 @@ QueryProfilerBase<ProfilerImpl>::QueryProfilerBase(UInt64 thread_id, int clock_t
+         tryCleanup();
+         throw;
+     }
++#else
++    throw Exception("OS does not support QueryProfiler", ErrorCodes::CANNOT_CREATE_TIMER);
+ #endif
+ }
+ 
+diff --git a/src/Common/waitForPid.cpp b/src/Common/waitForPid.cpp
+index dd431e1506..d18dd38ebe 100644
+--- a/src/Common/waitForPid.cpp
++++ b/src/Common/waitForPid.cpp
+@@ -147,6 +147,28 @@ static PollPidResult pollPid(pid_t pid, int timeout_in_ms)
+ 
+     return result;
+ }
++#elif defined(__sun)
++#include <libproc.h>
++
++namespace DB
++{
++
++static PollPidResult pollPid(pid_t pid, int timeout_in_ms)
++{
++    PollPidResult result = PollPidResult::FAILED;
++    int rc, perr;
++    struct ps_prochandle *hdl;
++    hdl = Pgrab(pid, PGRAB_RETAIN | PGRAB_FORCE | PGRAB_NOSTOP, &perr);
++    if (hdl == NULL)
++        return PollPidResult::FAILED;
++    rc = Pstopstatus(hdl, PCWSTOP, timeout_in_ms);
++    if (rc < 0 && errno == ENOENT)
++        result = PollPidResult::RESTART;
++    if (rc == 0 && Pstate(hdl) != PS_RUN)
++        result = PollPidResult::RESTART;
++    Pfree(hdl);
++    return result;
++}
+ #else
+     #error "Unsupported OS type"
+ #endif
+-- 
+2.40.1
+

@@ -1,0 +1,25 @@
+From f80602360eef12e2df0fb1a2a7c7e69bc0994443 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Tue, 30 May 2023 11:50:25 +1000
+Subject: [PATCH 23/42] 25-sunos-no-vdso.patch
+
+---
+ contrib/abseil-cpp/absl/debugging/internal/vdso_support.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h b/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h
+index 6562c6c235..bc0d7fddc6 100644
+--- a/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h
++++ b/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h
+@@ -48,7 +48,7 @@
+ 
+ #ifdef ABSL_HAVE_VDSO_SUPPORT
+ #error ABSL_HAVE_VDSO_SUPPORT cannot be directly set
+-#else
++#elif defined(__linux__) || defined(__FreeBSD__)
+ #define ABSL_HAVE_VDSO_SUPPORT 1
+ #endif
+ 
+-- 
+2.40.1
+

@@ -1,6 +1,32 @@
+From 6cdc53f383b15ae1fbfdf04b9fb8380d1935298d Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Mon, 29 May 2023 09:58:59 +1000
+Subject: [PATCH 13/42] 14-rocksdb.patch
+
+---
+ contrib/rocksdb/env/fs_posix.cc            | 2 ++
+ contrib/rocksdb/monitoring/perf_context.cc | 4 ----
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/contrib/rocksdb/env/fs_posix.cc b/contrib/rocksdb/env/fs_posix.cc
+index a3e360806b..c57b8dbdbd 100644
+--- a/contrib/rocksdb/env/fs_posix.cc
++++ b/contrib/rocksdb/env/fs_posix.cc
+@@ -635,7 +635,9 @@ class PosixFileSystem : public FileSystem {
+       // filter out '.' and '..' directory entries
+       // which appear only on some platforms
+       const bool ignore =
++#ifndef OS_SUNOS
+           entry->d_type == DT_DIR &&
++#endif
+           (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0);
+       if (!ignore) {
+         result->push_back(entry->d_name);
+diff --git a/contrib/rocksdb/monitoring/perf_context.cc b/contrib/rocksdb/monitoring/perf_context.cc
+index a274288158..5a30ce2dd4 100644
 --- a/contrib/rocksdb/monitoring/perf_context.cc
 +++ b/contrib/rocksdb/monitoring/perf_context.cc
-@@ -14,11 +14,7 @@
+@@ -14,11 +14,7 @@ namespace ROCKSDB_NAMESPACE {
  // Put here just to make get_perf_context() simple without ifdef.
  PerfContext perf_context;
  #elif defined(ROCKSDB_SUPPORT_THREAD_LOCAL)
@@ -12,15 +38,6 @@
  #else
  #error "No thread-local support. Disable perf context with -DNPERF_CONTEXT."
  #endif
---- a/contrib/rocksdb/env/fs_posix.cc
-+++ b/contrib/rocksdb/env/fs_posix.cc
-@@ -635,7 +635,9 @@
-       // filter out '.' and '..' directory entries
-       // which appear only on some platforms
-       const bool ignore =
-+#ifndef OS_SUNOS
-           entry->d_type == DT_DIR &&
-+#endif
-           (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0);
-       if (!ignore) {
-         result->push_back(entry->d_name);
+-- 
+2.40.1
+

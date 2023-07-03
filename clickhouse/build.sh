@@ -28,17 +28,19 @@ for pkg in cmake ninja; do
 done
 
 NAM='clickhouse'
-VER="21.10.4.26"
-URL="https://github.com/ClickHouse/ClickHouse/releases/download/v$VER-stable"
-URL+="/ClickHouse_sources_with_submodules.tar.gz"
-SHA256='2d34b5957d1ae3ad853f596aa0bbd21e2bf7d3d71b6b23a5f19868c2f7656e80'
+VER="22.8.9.24"
+FILE="clickhouse-src-bundle-v$VER-lts.tar.gz"
+S3="https://oxide-clickhouse-build.s3.us-west-2.amazonaws.com"
+URL="$S3/$FILE"
+SHA256='860d5ebf5b3d598bca92d3f11b212ade0b1b916947ac3fd28aa4882b3931e621'
+CLANGVER=16
 
 #
 # Download ClickHouse sources
 #
 header 'downloading artefacts'
 
-file="$ARTEFACT/clickhouse-$VER-stable.tar.gz"
+file="$ARTEFACT/$FILE"
 download_to clickhouse "$URL" "$file" "$SHA256"
 
 #
@@ -94,7 +96,12 @@ if [[ ! -f "$stamp" ]]; then
 	info "running cmake..."
 
 	CFLAGS='-D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64'
+	CFLAGS+=' -DHAVE_STRERROR_R -DSTRERROR_R_INT'
 	CFLAGS+=" -I$SRC/contrib/hyperscan-cmake/x86_64/ "
+	CFLAGS+=" -fno-use-cxa-atexit "
+
+	CXXFLAGS="$CXXINC $CFLAGS"
+	CXXFLAGS+=" -fcxx-exceptions -fexceptions -frtti "
 
 	#
 	# We must set PARALLEL_COMPILE_JOBS, or else the cmake files will make
@@ -105,12 +112,16 @@ if [[ ! -f "$stamp" ]]; then
 	# objects -- sometimes 15-30GB! -- so we constrain PARALLEL_LINK_JOBS
 	# to 1.
 	#
-	CFLAGS="$CFLAGS" CXXFLAGS="$CXXINC $CFLAGS" cmake \
-	    -DCMAKE_C_COMPILER="/opt/gcc-10/bin/gcc" \
-	    -DCMAKE_CXX_COMPILER="/opt/gcc-10/bin/g++" \
+	CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" cmake \
+	    -DCMAKE_BUILD_TYPE=Release \
+	    -DCMAKE_INSTALL_PREFIX="/opt/oxide/clickhouse" \
+	    -DCMAKE_C_COMPILER="/opt/ooce/bin/clang-$CLANGVER" \
+	    -DCMAKE_CXX_COMPILER="/opt/ooce/bin/clang-$CLANGVER" \
 	    -DCMAKE_C_FLAGS="$CFLAGS" \
-	    -DCMAKE_CXX_FLAGS="$CXXINC $CFLAGS" \
-	    -DABSL_CXX_STANDARD="17" \
+	    -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+	    -DABSL_CXX_STANDARD="20" \
+	    -DENABLE_CCACHE=0 \
+	    -DENABLE_CURL_BUILD=off \
 	    -DENABLE_LDAP=off \
 	    -DUSE_INTERNAL_LDAP_LIBRARY=off \
 	    -DENABLE_HDFS=off \
@@ -130,9 +141,11 @@ if [[ ! -f "$stamp" ]]; then
 	    -DENABLE_ORC=off \
 	    -DUSE_INTERNAL_ORC_LIBRARY=off \
 	    -DUSE_SENTRY=off \
+	    -DENABLE_SENTRY=off \
 	    -DENABLE_CLICKHOUSE_ODBC_BRIDGE=off \
 	    -DENABLE_CLICKHOUSE_BENCHMARK=off \
 	    -DENABLE_TESTS=off \
+	    -DCMAKE_BUILD_WITH_INSTALL_RPATH=on \
 	    \
 	    -DPARALLEL_COMPILE_JOBS="$njobs" \
 	    -DPARALLEL_LINK_JOBS="1" \
@@ -147,7 +160,7 @@ fi
 
 stamp="$STAMPS/ninja.stamp"
 if [[ ! -f "$stamp" ]]; then
-	info "running build with ninja..."
+	info "running build with ninja (jobs $njobs)..."
 
 	#
 	# The build is massive.  Try to parallelize until we error out, usually
@@ -181,6 +194,9 @@ rm -f "$CACHE/clickhouse"
 cp "$SRC/build/programs/clickhouse" "$CACHE/clickhouse"
 /usr/bin/strip -x "$CACHE/clickhouse"
 
+cp -P $SRC/build/programs/clickhouse-* "$CACHE/"
+/usr/bin/strip -x "$CACHE/clickhouse-library-bridge"
+
 if [[ -z "$OUTPUT_TYPE" ]]; then
 	OUTPUT_TYPE=tar
 fi
@@ -195,8 +211,8 @@ ips)
 
 	rm -rf "$WORK/proto"
 	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/bin"
-	cp "$CACHE/clickhouse" \
-	    "$WORK/proto/opt/clickhouse/$SVER/bin/clickhouse"
+	cp -P $CACHE/* \
+	    "$WORK/proto/opt/clickhouse/$SVER/bin/"
 
 	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/config"
 	for f in config.xml users.xml; do
@@ -244,8 +260,7 @@ tar)
 	    $WORK/clickhouse-v$VER.illumos.tar.gz \
 	    -C "$CACHE" clickhouse \
 	    -C "$SRC/programs/server" config.xml \
-	    -C "$SRC/programs/server" users.xml \
-	    -C "$ROOT" manifest.xml
+	    -C "$SRC/programs/server" users.xml
 	header 'build output:'
 	ls -lh $WORK/*.tar.gz
 	exit 0

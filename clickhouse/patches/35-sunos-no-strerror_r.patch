@@ -1,0 +1,146 @@
+diff --git a/contrib/libpq/contrib/libpq/fe-auth.c b/contrib/libpq/fe-auth.c
+index e806264..f29b86f 100644
+--- a/contrib/libpq/fe-auth.c
++++ b/contrib/libpq/fe-auth.c
+@@ -732,7 +732,7 @@ pg_local_sendauth(PGconn *conn)
+ 
+ 		appendPQExpBuffer(&conn->errorMessage,
+ 						  "pg_local_sendauth: sendmsg: %s\n",
+-						  strerror_r(errno, sebuf, sizeof(sebuf)));
++						  pg_strerror_r(errno, sebuf, sizeof(sebuf)));
+ 		return STATUS_ERROR;
+ 	}
+ 	return STATUS_OK;
+@@ -1116,7 +1116,7 @@ pg_fe_getauthname(PQExpBuffer errorMessage)
+ 			appendPQExpBuffer(errorMessage,
+ 							  libpq_gettext("could not look up local user ID %d: %s\n"),
+ 							  (int) user_id,
+-							  strerror_r(pwerr, pwdbuf, sizeof(pwdbuf)));
++							  pg_strerror_r(pwerr, pwdbuf, sizeof(pwdbuf)));
+ 		else
+ 			appendPQExpBuffer(errorMessage,
+ 							  libpq_gettext("local user with ID %d does not exist\n"),
+diff --git a/contrib/libpq/contrib/libpq/fe-connect.c b/contrib/libpq/fe-connect.c
+index fc65e49..a5807d8 100644
+--- a/contrib/libpq/fe-connect.c
++++ b/contrib/libpq/fe-connect.c
+@@ -2838,7 +2838,7 @@ keep_going:						/* We will come back to here until there is
+ 						else
+ 							appendPQExpBuffer(&conn->errorMessage,
+ 											  libpq_gettext("could not get peer credentials: %s\n"),
+-											  strerror_r(errno, sebuf, sizeof(sebuf)));
++											  pg_strerror_r(errno, sebuf, sizeof(sebuf)));
+ 						goto error_return;
+ 					}
+ 
+@@ -2850,7 +2850,7 @@ keep_going:						/* We will come back to here until there is
+ 							appendPQExpBuffer(&conn->errorMessage,
+ 											  libpq_gettext("could not look up local user ID %d: %s\n"),
+ 											  (int) uid,
+-											  strerror_r(passerr, sebuf, sizeof(sebuf)));
++											  pg_strerror_r(passerr, sebuf, sizeof(sebuf)));
+ 						else
+ 							appendPQExpBuffer(&conn->errorMessage,
+ 											  libpq_gettext("local user with ID %d does not exist\n"),
+diff --git a/contrib/libpq/contrib/libpq/fe-lobj.c b/contrib/libpq/fe-lobj.c
+index ffd9926..9c3a618 100644
+--- a/contrib/libpq/fe-lobj.c
++++ b/contrib/libpq/fe-lobj.c
+@@ -676,7 +676,7 @@ lo_import_internal(PGconn *conn, const char *filename, Oid oid)
+ 	{							/* error */
+ 		appendPQExpBuffer(&conn->errorMessage,
+ 						  libpq_gettext("could not open file \"%s\": %s\n"),
+-						  filename, strerror_r(errno, sebuf, sizeof(sebuf)));
++						  filename, pg_strerror_r(errno, sebuf, sizeof(sebuf)));
+ 		return InvalidOid;
+ 	}
+ 
+@@ -733,7 +733,7 @@ lo_import_internal(PGconn *conn, const char *filename, Oid oid)
+ 		printfPQExpBuffer(&conn->errorMessage,
+ 						  libpq_gettext("could not read from file \"%s\": %s\n"),
+ 						  filename,
+-						  strerror_r(save_errno, sebuf, sizeof(sebuf)));
++						  pg_strerror_r(save_errno, sebuf, sizeof(sebuf)));
+ 		return InvalidOid;
+ 	}
+ 
+@@ -788,7 +788,7 @@ lo_export(PGconn *conn, Oid lobjId, const char *filename)
+ 		printfPQExpBuffer(&conn->errorMessage,
+ 						  libpq_gettext("could not open file \"%s\": %s\n"),
+ 						  filename,
+-						  strerror_r(save_errno, sebuf, sizeof(sebuf)));
++						  pg_strerror_r(save_errno, sebuf, sizeof(sebuf)));
+ 		return -1;
+ 	}
+ 
+@@ -809,7 +809,7 @@ lo_export(PGconn *conn, Oid lobjId, const char *filename)
+ 			printfPQExpBuffer(&conn->errorMessage,
+ 							  libpq_gettext("could not write to file \"%s\": %s\n"),
+ 							  filename,
+-							  strerror_r(save_errno, sebuf, sizeof(sebuf)));
++							  pg_strerror_r(save_errno, sebuf, sizeof(sebuf)));
+ 			return -1;
+ 		}
+ 	}
+@@ -832,7 +832,7 @@ lo_export(PGconn *conn, Oid lobjId, const char *filename)
+ 	{
+ 		appendPQExpBuffer(&conn->errorMessage,
+ 						  libpq_gettext("could not write to file \"%s\": %s\n"),
+-						  filename, strerror_r(errno, sebuf, sizeof(sebuf)));
++						  filename, pg_strerror_r(errno, sebuf, sizeof(sebuf)));
+ 		result = -1;
+ 	}
+ 
+diff --git a/contrib/libpq/contrib/libpq/fe-secure-openssl.c b/contrib/libpq/fe-secure-openssl.c
+index 497777b..fbbb22a 100644
+--- a/contrib/libpq/fe-secure-openssl.c
++++ b/contrib/libpq/fe-secure-openssl.c
+@@ -1029,7 +1029,7 @@ initialize_SSL(PGconn *conn)
+ 		{
+ 			appendPQExpBuffer(&conn->errorMessage,
+ 							  libpq_gettext("could not open certificate file \"%s\": %s\n"),
+-							  fnbuf, strerror_r(errno, sebuf, sizeof(sebuf)));
++							  fnbuf, pg_strerror_r(errno, sebuf, sizeof(sebuf)));
+ 			SSL_CTX_free(SSL_context);
+ 			return -1;
+ 		}
+diff --git a/contrib/libpq/contrib/libpq/include/port.h b/contrib/libpq/include/port.h
+index f0d4e70..cf789d5 100644
+--- a/contrib/libpq/include/port.h
++++ b/contrib/libpq/include/port.h
+@@ -233,7 +233,9 @@ extern char *pg_strerror(int errnum);
+ 
+ /* Likewise for strerror_r(); note we prefer the GNU API for that */
+ extern char *pg_strerror_r(int errnum, char *buf, size_t buflen);
++#ifndef __illumos__
+ #define strerror_r pg_strerror_r
++#endif
+ #define PG_STRERROR_R_BUFLEN 256	/* Recommended buffer size for strerror_r */
+ 
+ /* Wrap strsignal(), or provide our own version if necessary */
+diff --git a/contrib/libpq/contrib/libpq/libpq-int.h b/contrib/libpq/libpq-int.h
+index 6b7fd2c..aa848b5 100644
+--- a/contrib/libpq/libpq-int.h
++++ b/contrib/libpq/libpq-int.h
+@@ -850,7 +850,7 @@ extern char *libpq_ngettext(const char *msgid, const char *msgid_plural, unsigne
+ #define SOCK_ERRNO_SET(e) WSASetLastError(e)
+ #else
+ #define SOCK_ERRNO errno
+-#define SOCK_STRERROR strerror_r
++#define SOCK_STRERROR pg_strerror_r
+ #define SOCK_ERRNO_SET(e) (errno = (e))
+ #endif
+ 
+diff --git a/contrib/libpq/contrib/libpq/port/snprintf.c b/contrib/libpq/port/snprintf.c
+index c0a452d..95eddd1 100644
+--- a/contrib/libpq/port/snprintf.c
++++ b/contrib/libpq/port/snprintf.c
+@@ -707,7 +707,7 @@ nextch2:
+ 			case 'm':
+ 				{
+ 					char		errbuf[PG_STRERROR_R_BUFLEN];
+-					const char *errm = strerror_r(save_errno,
++					const char *errm = pg_strerror_r(save_errno,
+ 												  errbuf, sizeof(errbuf));
+ 
+ 					dostr(errm, strlen(errm), target);

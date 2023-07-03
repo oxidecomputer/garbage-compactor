@@ -1,0 +1,25 @@
+From a7156156f4233a0196fece849a485f3815c1d110 Mon Sep 17 00:00:00 2001
+From: Alex Wilson <alex@cooperi.net>
+Date: Tue, 30 May 2023 11:41:40 +1000
+Subject: [PATCH 22/42] 24-sunos-locale-bits.patch
+
+---
+ contrib/libcxx/include/__locale | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/libcxx/include/__locale b/contrib/libcxx/include/__locale
+index 51f35eece7..348c2823a5 100644
+--- a/contrib/libcxx/include/__locale
++++ b/contrib/libcxx/include/__locale
+@@ -547,7 +547,7 @@ public:
+     _LIBCPP_INLINE_VISIBILITY ctype_base() {}
+ 
+ // TODO: Remove the ifndef when the assert no longer fails on AIX.
+-#ifndef _AIX
++#if !defined(_AIX) && !defined(__sun)
+     static_assert((__regex_word & ~(space | print | cntrl | upper | lower | alpha | digit | punct | xdigit | blank)) == __regex_word,
+                   "__regex_word can't overlap other bits");
+ #endif
+-- 
+2.40.1
+
