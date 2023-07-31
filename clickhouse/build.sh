@@ -33,7 +33,7 @@ FILE="clickhouse-src-bundle-v$VER-lts.tar.gz"
 S3="https://oxide-clickhouse-build.s3.us-west-2.amazonaws.com"
 URL="$S3/$FILE"
 SHA256='860d5ebf5b3d598bca92d3f11b212ade0b1b916947ac3fd28aa4882b3931e621'
-CLANGVER=16
+CLANGVER=15
 
 #
 # Download ClickHouse sources
