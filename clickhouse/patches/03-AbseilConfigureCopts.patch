@@ -3,14 +3,9 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 29 May 2023 09:58:56 +1000
 Subject: [PATCH 02/42] 03-AbseilConfigureCopts.patch
 
----
- contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake b/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
-index 942ce90a4d..d4afa5e09d 100644
---- a/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
-+++ b/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake a/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
+--- a~/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake	1970-01-01 00:00:00
++++ a/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake	1970-01-01 00:00:00
 @@ -62,4 +62,5 @@ else()
    set(ABSL_TEST_COPTS "")
  endif()
@@ -18,6 +13,3 @@ index 942ce90a4d..d4afa5e09d 100644
 -set(ABSL_CXX_STANDARD "${CMAKE_CXX_STANDARD}")
 +# Absl cannot work with C++20, which removed some typedefs for std::allocator
 +set(ABSL_CXX_STANDARD 17)
--- 
-2.40.1
-

@@ -3,17 +3,11 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 5 Jun 2023 13:25:55 +1000
 Subject: [PATCH 32/42] 34-sentinel-define.patch
 
----
- contrib/libcxx/include/__ranges/iota_view.h | 3 +++
- contrib/libcxx/include/__ranges/join_view.h | 3 +++
- 2 files changed, 6 insertions(+)
-
-diff --git a/contrib/libcxx/include/__ranges/iota_view.h b/contrib/libcxx/include/__ranges/iota_view.h
-index b74f57d7cd..dcfc424c94 100644
---- a/contrib/libcxx/include/__ranges/iota_view.h
-+++ b/contrib/libcxx/include/__ranges/iota_view.h
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project/libcxx/include/__ranges/iota_view.h a/contrib/llvm-project/libcxx/include/__ranges/iota_view.h
+--- a~/contrib/llvm-project/libcxx/include/__ranges/iota_view.h	1970-01-01 00:00:00
++++ a/contrib/llvm-project/libcxx/include/__ranges/iota_view.h	1970-01-01 00:00:00
 @@ -37,6 +37,9 @@
- #pragma GCC system_header
+ #  pragma GCC system_header
  #endif
  
 +#undef __sentinel
@@ -21,13 +15,12 @@ index b74f57d7cd..dcfc424c94 100644
 +
  _LIBCPP_BEGIN_NAMESPACE_STD
  
- #if !defined(_LIBCPP_HAS_NO_CONCEPTS) && !defined(_LIBCPP_HAS_NO_INCOMPLETE_RANGES)
-diff --git a/contrib/libcxx/include/__ranges/join_view.h b/contrib/libcxx/include/__ranges/join_view.h
-index 26674b30f6..e923b79e97 100644
---- a/contrib/libcxx/include/__ranges/join_view.h
-+++ b/contrib/libcxx/include/__ranges/join_view.h
-@@ -28,6 +28,9 @@
- #pragma GCC system_header
+ #if _LIBCPP_STD_VER > 17 && !defined(_LIBCPP_HAS_NO_INCOMPLETE_RANGES)
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project/libcxx/include/__ranges/join_view.h a/contrib/llvm-project/libcxx/include/__ranges/join_view.h
+--- a~/contrib/llvm-project/libcxx/include/__ranges/join_view.h	1970-01-01 00:00:00
++++ a/contrib/llvm-project/libcxx/include/__ranges/join_view.h	1970-01-01 00:00:00
+@@ -33,6 +33,9 @@
+ #  pragma GCC system_header
  #endif
  
 +#undef __sentinel
@@ -35,7 +28,4 @@ index 26674b30f6..e923b79e97 100644
 +
  _LIBCPP_BEGIN_NAMESPACE_STD
  
- #if !defined(_LIBCPP_HAS_NO_CONCEPTS) && !defined(_LIBCPP_HAS_NO_INCOMPLETE_RANGES)
--- 
-2.40.1
-
+ #if _LIBCPP_STD_VER > 17 && !defined(_LIBCPP_HAS_NO_INCOMPLETE_RANGES)

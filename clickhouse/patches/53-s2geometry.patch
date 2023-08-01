@@ -1,0 +1,16 @@
+From 581e435542d94d2a0c56ea5174eac883d5e9cba9 Mon Sep 17 00:00:00 2001
+From: Andy Fiddaman <illumos@fiddaman.net>
+Date: Thu, 3 Aug 2023 15:30:38 +0000
+Subject: [PATCH 07/13] s2geometry
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/s2geometry/src/s2/s2edge_crossings.cc a/contrib/s2geometry/src/s2/s2edge_crossings.cc
+--- a~/contrib/s2geometry/src/s2/s2edge_crossings.cc	1970-01-01 00:00:00
++++ a/contrib/s2geometry/src/s2/s2edge_crossings.cc	1970-01-01 00:00:00
+@@ -43,6 +43,7 @@ using s2pred::rounding_epsilon;
+ using std::fabs;
+ using std::max;
+ using std::sqrt;
++using std::ldexp;
+ 
+ using Vector3_ld = s2pred::Vector3_ld;
+ using Vector3_xf = s2pred::Vector3_xf;

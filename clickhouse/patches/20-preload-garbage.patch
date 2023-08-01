@@ -3,17 +3,12 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Tue, 30 May 2023 10:59:27 +1000
 Subject: [PATCH 18/42] 20-preload-garbage.patch
 
----
- PreLoad.cmake | 11 -----------
- 1 file changed, 11 deletions(-)
-
-diff --git a/PreLoad.cmake b/PreLoad.cmake
-index 95f65b85f7..98a5d19831 100644
---- a/PreLoad.cmake
-+++ b/PreLoad.cmake
-@@ -42,17 +42,6 @@ if (NOT "$ENV{CFLAGS}" STREQUAL ""
+diff -wpruN --no-dereference '--exclude=*.orig' a~/PreLoad.cmake a/PreLoad.cmake
+--- a~/PreLoad.cmake	1970-01-01 00:00:00
++++ a/PreLoad.cmake	1970-01-01 00:00:00
+@@ -37,17 +37,6 @@ if (NOT "$ENV{CFLAGS}" STREQUAL ""
+     message("CMAKE_CXX_FLAGS_INIT: ${CMAKE_CXX_FLAGS_INIT}")
      message("CMAKE_EXE_LINKER_FLAGS_INIT: ${CMAKE_EXE_LINKER_FLAGS_INIT}")
-     message("CMAKE_SHARED_LINKER_FLAGS_INIT: ${CMAKE_SHARED_LINKER_FLAGS_INIT}")
      message("CMAKE_MODULE_LINKER_FLAGS_INIT: ${CMAKE_MODULE_LINKER_FLAGS_INIT}")
 -
 -    message(FATAL_ERROR "
@@ -29,6 +24,3 @@ index 95f65b85f7..98a5d19831 100644
  endif()
  
  # Default toolchain - this is needed to avoid dependency on OS files.
--- 
-2.40.1
-

@@ -1,0 +1,52 @@
+From c339c08c604f3e6d24b1cb8a2480c64cc642efb2 Mon Sep 17 00:00:00 2001
+From: Andy Fiddaman <illumos@fiddaman.net>
+Date: Thu, 3 Aug 2023 15:31:43 +0000
+Subject: [PATCH 10/13] std:: namespace fixes
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/base/base/preciseExp10.cpp a/base/base/preciseExp10.cpp
+--- a~/base/base/preciseExp10.cpp	1970-01-01 00:00:00
++++ a/base/base/preciseExp10.cpp	1970-01-01 00:00:00
+@@ -33,6 +33,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ #include <cstdint>
+ #include <cstdio>
+ 
++using std::isnan;
++
+ double preciseExp10(double x)
+ {
+     if (isnan(x)) return NAN;
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Core/ColumnNumbers.h a/src/Core/ColumnNumbers.h
+--- a~/src/Core/ColumnNumbers.h	1970-01-01 00:00:00
++++ a/src/Core/ColumnNumbers.h	1970-01-01 00:00:00
+@@ -3,6 +3,7 @@
+ #include <unordered_set>
+ #include <vector>
+ 
++using std::size_t;
+ 
+ namespace DB
+ {
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Functions/makeDate.cpp a/src/Functions/makeDate.cpp
+--- a~/src/Functions/makeDate.cpp	1970-01-01 00:00:00
++++ a/src/Functions/makeDate.cpp	1970-01-01 00:00:00
+@@ -16,6 +16,8 @@
+ 
+ #include <array>
+ 
++using std::pow;
++
+ namespace DB
+ {
+ namespace ErrorCodes
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/IO/ISchedulerNode.h a/src/IO/ISchedulerNode.h
+--- a~/src/IO/ISchedulerNode.h	1970-01-01 00:00:00
++++ a/src/IO/ISchedulerNode.h	1970-01-01 00:00:00
+@@ -55,7 +55,7 @@ struct SchedulerNodeInfo
+ 
+     void setWeight(double value)
+     {
+-        if (value <= 0 || !isfinite(value))
++        if (value <= 0 || !std::isfinite(value))
+             throw Exception(
+                 ErrorCodes::INVALID_SCHEDULER_NODE,
+                 "Negative and non-finite node weights are not allowed: {}",

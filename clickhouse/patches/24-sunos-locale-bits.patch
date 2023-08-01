@@ -3,23 +3,17 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Tue, 30 May 2023 11:41:40 +1000
 Subject: [PATCH 22/42] 24-sunos-locale-bits.patch
 
----
- contrib/libcxx/include/__locale | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/contrib/libcxx/include/__locale b/contrib/libcxx/include/__locale
-index 51f35eece7..348c2823a5 100644
---- a/contrib/libcxx/include/__locale
-+++ b/contrib/libcxx/include/__locale
-@@ -547,7 +547,7 @@ public:
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project/libcxx/include/__locale a/contrib/llvm-project/libcxx/include/__locale
+--- a~/contrib/llvm-project/libcxx/include/__locale	1970-01-01 00:00:00
++++ a/contrib/llvm-project/libcxx/include/__locale	1970-01-01 00:00:00
+@@ -549,8 +549,10 @@ public:
+ 
      _LIBCPP_INLINE_VISIBILITY ctype_base() {}
  
- // TODO: Remove the ifndef when the assert no longer fails on AIX.
--#ifndef _AIX
-+#if !defined(_AIX) && !defined(__sun)
++#ifndef __sun
      static_assert((__regex_word & ~(space | print | cntrl | upper | lower | alpha | digit | punct | xdigit | blank)) == __regex_word,
                    "__regex_word can't overlap other bits");
- #endif
--- 
-2.40.1
-
++#endif
+ };
+ 
+ template <class _CharT> class _LIBCPP_TEMPLATE_VIS ctype;

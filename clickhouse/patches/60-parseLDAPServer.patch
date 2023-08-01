@@ -1,0 +1,30 @@
+commit d834e5c296b20c402b672b9db414f54bf448e64f
+Author: Andy Fiddaman <illumos@fiddaman.net>
+Date:   Tue Oct 10 11:43:03 2023 +0000
+
+    parseLDAPServer
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Access/ExternalAuthenticators.cpp a/src/Access/ExternalAuthenticators.cpp
+--- a~/src/Access/ExternalAuthenticators.cpp	1970-01-01 00:00:00
++++ a/src/Access/ExternalAuthenticators.cpp	1970-01-01 00:00:00
+@@ -99,15 +99,14 @@ void parseLDAPServer(LDAPClient::Params
+         params.bind_dn = auth_dn_prefix + "{user_name}" + auth_dn_suffix;
+     }
+ 
++    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
+     if (has_user_dn_detection)
+     {
+-        if (!params.user_dn_detection)
+-        {
+-            params.user_dn_detection.emplace();
+-            params.user_dn_detection->attribute = "dn";
+-        }
++	LDAPClient::SearchParams p = LDAPClient::SearchParams();
++	p.attribute = "dn";
++	p = params.user_dn_detection.value_or(p);
+ 
+-        parseLDAPSearchParams(*params.user_dn_detection, config, ldap_server_config + ".user_dn_detection");
++        parseLDAPSearchParams(p, config, ldap_server_config + ".user_dn_detection");
+     }
+ 
+     if (has_verification_cooldown)

@@ -3,23 +3,18 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 29 May 2023 09:59:01 +1000
 Subject: [PATCH 16/42] 17-IBridge.patch
 
----
- src/Bridge/IBridge.cpp | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/src/Bridge/IBridge.cpp b/src/Bridge/IBridge.cpp
-index d30e0a4c85..e6f032f98a 100644
---- a/src/Bridge/IBridge.cpp
-+++ b/src/Bridge/IBridge.cpp
-@@ -172,6 +172,7 @@ void IBridge::initialize(Application & self)
-     max_server_connections = config().getUInt("max-server-connections", 1024);
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Bridge/IBridge.cpp a/src/Bridge/IBridge.cpp
+--- a~/src/Bridge/IBridge.cpp	1970-01-01 00:00:00
++++ a/src/Bridge/IBridge.cpp	1970-01-01 00:00:00
+@@ -171,6 +171,7 @@ void IBridge::initialize(Application & s
      keep_alive_timeout = config().getUInt64("keep-alive-timeout", 10);
+     http_max_field_value_size = config().getUInt64("http-max-field-value-size", 1048576);
  
 +#ifndef OS_SUNOS
      struct rlimit limit;
      const UInt64 gb = 1024 * 1024 * 1024;
  
-@@ -196,6 +197,7 @@ void IBridge::initialize(Application & self)
+@@ -195,6 +196,7 @@ void IBridge::initialize(Application & s
      {
          LOG_WARNING(log, "Failed to set OOM score, error: {}", e.what());
      }
@@ -27,6 +22,3 @@ index d30e0a4c85..e6f032f98a 100644
  
      initializeTerminationAndSignalProcessing();
  
--- 
-2.40.1
-

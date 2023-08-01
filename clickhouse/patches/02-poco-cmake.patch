@@ -3,25 +3,17 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 29 May 2023 09:58:55 +1000
 Subject: [PATCH 01/42] 02-poco-cmake.patch
 
----
- contrib/poco-cmake/Net/CMakeLists.txt | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/contrib/poco-cmake/Net/CMakeLists.txt b/contrib/poco-cmake/Net/CMakeLists.txt
-index 30ff799ccf..bd9ea45ab9 100644
---- a/contrib/poco-cmake/Net/CMakeLists.txt
-+++ b/contrib/poco-cmake/Net/CMakeLists.txt
-@@ -110,6 +110,10 @@ elseif (OS_DARWIN OR OS_FREEBSD)
+diff -wpruN --no-dereference '--exclude=*.orig' a~/base/poco/Net/CMakeLists.txt a/base/poco/Net/CMakeLists.txt
+--- a~/base/poco/Net/CMakeLists.txt	1970-01-01 00:00:00
++++ a/base/poco/Net/CMakeLists.txt	1970-01-01 00:00:00
+@@ -9,6 +9,10 @@ elseif (OS_DARWIN OR OS_FREEBSD)
      target_compile_definitions (_poco_net PUBLIC POCO_HAVE_FD_POLL)
  endif ()
  
 +if (OS_SUNOS)
 +    target_link_libraries (_poco_net PUBLIC socket nsl)
-+endif()
++endif ()
 +
- if (COMPILER_CLANG)
-     # clang-specific warnings
-     target_compile_options (_poco_net
--- 
-2.40.1
-
+ # TODO: remove these warning exclusions
+ target_compile_options (_poco_net
+     PRIVATE

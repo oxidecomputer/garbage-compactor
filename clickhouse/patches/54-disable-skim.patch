@@ -1,0 +1,14 @@
+From 23a9bb0756272afd7262f5f9c3274ef9ecdaa77c Mon Sep 17 00:00:00 2001
+From: Andy Fiddaman <illumos@fiddaman.net>
+Date: Thu, 3 Aug 2023 15:31:07 +0000
+Subject: [PATCH 08/13] disable skim
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/rust/skim/CMakeLists.txt a/rust/skim/CMakeLists.txt
+--- a~/rust/skim/CMakeLists.txt	1970-01-01 00:00:00
++++ a/rust/skim/CMakeLists.txt	1970-01-01 00:00:00
+@@ -1,4 +1,4 @@
+-if (OS_FREEBSD)
++if (OS_FREEBSD OR OS_SUNOS)
+     # Right nix/libc requires fspacectl and it had been added only since FreeBSD14.
+     # And sicne sysroot has older libararies you will got undefined reference for clickhouse binary.
+     #

@@ -3,15 +3,10 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Tue, 30 May 2023 17:18:50 +1000
 Subject: [PATCH 26/42] 28-llvm-cs.patch
 
----
- contrib/llvm/llvm/include/llvm/ADT/SmallVector.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/contrib/llvm/llvm/include/llvm/ADT/SmallVector.h b/contrib/llvm/llvm/include/llvm/ADT/SmallVector.h
-index e960b272db..b034508516 100644
---- a/contrib/llvm/llvm/include/llvm/ADT/SmallVector.h
-+++ b/contrib/llvm/llvm/include/llvm/ADT/SmallVector.h
-@@ -716,9 +716,9 @@ public:
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h a/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h
+--- a~/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h	1970-01-01 00:00:00
++++ a/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h	1970-01-01 00:00:00
+@@ -735,9 +735,9 @@ public:
      return(N);
    }
  
@@ -23,6 +18,3 @@ index e960b272db..b034508516 100644
      iterator E = const_cast<iterator>(CE);
  
      assert(this->isRangeInStorage(S, E) && "Range to erase is out of bounds.");
--- 
-2.40.1
-

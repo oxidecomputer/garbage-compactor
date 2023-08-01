@@ -1,0 +1,184 @@
+From 6e7540cda3fa6a13e157c9ec3f9a5fa399bf76a6 Mon Sep 17 00:00:00 2001
+From: Andy Fiddaman <illumos@fiddaman.net>
+Date: Sun, 19 Nov 2023 12:38:47 +0000
+Subject: [PATCH 5/5] variant
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Dictionaries/IPAddressDictionary.cpp a/src/Dictionaries/IPAddressDictionary.cpp
+--- a~/src/Dictionaries/IPAddressDictionary.cpp	1970-01-01 00:00:00
++++ a/src/Dictionaries/IPAddressDictionary.cpp	1970-01-01 00:00:00
+@@ -239,7 +239,7 @@ ColumnPtr IPAddressDictionary::getColumn
+         using ValueType = DictionaryValueType<AttributeType>;
+         using ColumnProvider = DictionaryAttributeColumnProvider<AttributeType>;
+ 
+-        const auto & null_value = std::get<AttributeType>(attribute.null_values);
++        const auto & null_value = get<AttributeType>(attribute.null_values);
+         DictionaryDefaultValueExtractor<AttributeType> default_value_extractor(null_value, default_values_column);
+ 
+         auto column = ColumnProvider::getColumn(dictionary_attribute, size);
+@@ -531,7 +531,7 @@ void IPAddressDictionary::loadData()
+ template <typename T>
+ void IPAddressDictionary::addAttributeSize(const Attribute & attribute)
+ {
+-    const auto & vec = std::get<ContainerType<T>>(attribute.maps);
++    const auto & vec = get<ContainerType<T>>(attribute.maps);
+     bytes_allocated += sizeof(ContainerType<T>) + (vec.capacity() * sizeof(T));
+     bucket_count = vec.size();
+ }
+@@ -545,11 +545,11 @@ void IPAddressDictionary::addAttributeSi
+ 
+ void IPAddressDictionary::calculateBytesAllocated()
+ {
+-    if (auto * ipv4_col = std::get_if<IPv4Container>(&ip_column))
++    if (auto * ipv4_col = get_if<IPv4Container>(&ip_column))
+     {
+         bytes_allocated += ipv4_col->size() * sizeof((*ipv4_col)[0]);
+     }
+-    else if (auto * ipv6_col = std::get_if<IPv6Container>(&ip_column))
++    else if (auto * ipv6_col = get_if<IPv6Container>(&ip_column))
+     {
+         bytes_allocated += ipv6_col->size() * sizeof((*ipv6_col)[0]);
+     }
+@@ -618,9 +618,9 @@ void IPAddressDictionary::getItemsByTwoK
+ {
+     const auto & first_column = key_columns.front();
+     const size_t rows = first_column->size();
+-    auto & vec = std::get<ContainerType<AttributeType>>(attribute.maps);
++    auto & vec = get<ContainerType<AttributeType>>(attribute.maps);
+ 
+-    if (const auto * ipv4_col = std::get_if<IPv4Container>(&ip_column))
++    if (const auto * ipv4_col = get_if<IPv4Container>(&ip_column))
+     {
+         const auto * key_ip_column_ptr = typeid_cast<const ColumnVector<UInt32> *>(&*key_columns.front());
+         if (key_ip_column_ptr == nullptr)
+@@ -662,7 +662,7 @@ void IPAddressDictionary::getItemsByTwoK
+ 
+     const auto & key_mask_column = assert_cast<const ColumnVector<UInt8> &>(*key_columns.back());
+ 
+-    const auto * ipv6_col = std::get_if<IPv6Container>(&ip_column);
++    const auto * ipv6_col = get_if<IPv6Container>(&ip_column);
+     auto comp_v6 = [&](size_t i, const IPv6Subnet & target)
+     {
+         auto cmpres = memcmp16(getIPv6FromOffset(*ipv6_col, i), target.addr);
+@@ -708,7 +708,7 @@ void IPAddressDictionary::getItemsImpl(
+         return;
+     }
+ 
+-    auto & vec = std::get<ContainerType<AttributeType>>(attribute.maps);
++    auto & vec = get<ContainerType<AttributeType>>(attribute.maps);
+ 
+     size_t keys_found = 0;
+ 
+@@ -758,7 +758,7 @@ void IPAddressDictionary::getItemsImpl(
+ template <typename T>
+ void IPAddressDictionary::setAttributeValueImpl(Attribute & attribute, const T value)
+ {
+-    auto & vec = std::get<ContainerType<T>>(attribute.maps);
++    auto & vec = get<ContainerType<T>>(attribute.maps);
+     vec.push_back(value);
+ }
+ 
+@@ -795,7 +795,7 @@ const IPAddressDictionary::Attribute & I
+ 
+ Columns IPAddressDictionary::getKeyColumns() const
+ {
+-    const auto * ipv4_col = std::get_if<IPv4Container>(&ip_column);
++    const auto * ipv4_col = get_if<IPv4Container>(&ip_column);
+     if (ipv4_col)
+     {
+         auto key_ip_column = ColumnVector<UInt32>::create();
+@@ -808,7 +808,7 @@ Columns IPAddressDictionary::getKeyColum
+         return {std::move(key_ip_column), std::move(key_mask_column)};
+     }
+ 
+-    const auto * ipv6_col = std::get_if<IPv6Container>(&ip_column);
++    const auto * ipv6_col = get_if<IPv6Container>(&ip_column);
+ 
+     auto key_ip_column = ColumnFixedString::create(IPV6_BINARY_LENGTH);
+     auto key_mask_column = ColumnVector<UInt8>::create();
+@@ -849,7 +849,7 @@ static auto keyViewGetter()
+ 
+ Pipe IPAddressDictionary::read(const Names & column_names, size_t max_block_size, size_t num_streams) const
+ {
+-    const bool is_ipv4 = std::get_if<IPv4Container>(&ip_column) != nullptr;
++    const bool is_ipv4 = get_if<IPv4Container>(&ip_column) != nullptr;
+ 
+     auto key_columns = getKeyColumns();
+ 
+@@ -891,7 +891,7 @@ IPAddressDictionary::RowIdxConstIter IPA
+ 
+ IPAddressDictionary::RowIdxConstIter IPAddressDictionary::tryLookupIPv4(UInt32 addr, uint8_t * buf) const
+ {
+-    if (std::get_if<IPv6Container>(&ip_column))
++    if (get_if<IPv6Container>(&ip_column))
+     {
+         mapIPv4ToIPv6(addr, buf);
+         return lookupIP<IPv6Container>(buf);
+@@ -901,7 +901,7 @@ IPAddressDictionary::RowIdxConstIter IPA
+ 
+ IPAddressDictionary::RowIdxConstIter IPAddressDictionary::tryLookupIPv6(const uint8_t * addr) const
+ {
+-    if (std::get_if<IPv4Container>(&ip_column))
++    if (get_if<IPv4Container>(&ip_column))
+     {
+         bool is_mapped = false;
+         UInt32 addrv4 = mappedIPv4ToBinary(addr, is_mapped);
+@@ -918,7 +918,7 @@ IPAddressDictionary::RowIdxConstIter IPA
+     if (row_idx.empty())
+         return ipNotFound();
+ 
+-    const auto * ipv4or6_col = std::get_if<IPContainerType>(&ip_column);
++    const auto * ipv4or6_col = get_if<IPContainerType>(&ip_column);
+     if (ipv4or6_col == nullptr)
+         return ipNotFound();
+ 
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Dictionaries/IPAddressDictionary.h a/src/Dictionaries/IPAddressDictionary.h
+--- a~/src/Dictionaries/IPAddressDictionary.h	1970-01-01 00:00:00
++++ a/src/Dictionaries/IPAddressDictionary.h	1970-01-01 00:00:00
+@@ -2,7 +2,7 @@
+ 
+ #include <atomic>
+ #include <memory>
+-#include <variant>
++#include <boost/variant2.hpp>
+ #include <Columns/ColumnDecimal.h>
+ #include <Columns/ColumnString.h>
+ #include <Common/Arena.h>
+@@ -16,6 +16,7 @@
+ #include "IDictionary.h"
+ #include "IDictionarySource.h"
+ #include "DictionaryHelpers.h"
++using namespace boost::variant2;
+ 
+ namespace DB
+ {
+@@ -97,7 +98,8 @@ private:
+     struct Attribute final
+     {
+         AttributeUnderlyingType type;
+-        std::variant<
++        variant<
++            std::string,
+             UInt8,
+             UInt16,
+             UInt32,
+@@ -120,10 +122,9 @@ private:
+             UUID,
+             IPv4,
+             IPv6,
+-            String,
+             Array>
+             null_values;
+-        std::variant<
++        variant<
+             ContainerType<UInt8>,
+             ContainerType<UInt16>,
+             ContainerType<UInt32>,
+@@ -205,7 +206,7 @@ private:
+     const std::string key_description{dict_struct.getKeyDescription()};
+ 
+     /// Contains sorted IP subnetworks. If some addresses equals, subnet with lower mask is placed first.
+-    std::variant<IPv4Container, IPv6Container> ip_column;
++    variant<IPv4Container, IPv6Container> ip_column;
+ 
+     /// Prefix lengths corresponding to ip_column.
+     IPMaskContainer mask_column;

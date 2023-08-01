@@ -3,15 +3,10 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 29 May 2023 09:58:56 +1000
 Subject: [PATCH 03/42] 04-config.patch
 
----
- programs/server/config.xml | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/programs/server/config.xml b/programs/server/config.xml
-index fa8afd83ec..9e14c20fb4 100644
---- a/programs/server/config.xml
-+++ b/programs/server/config.xml
-@@ -23,8 +23,8 @@
+diff -wpruN --no-dereference '--exclude=*.orig' a~/programs/server/config.xml a/programs/server/config.xml
+--- a~/programs/server/config.xml	1970-01-01 00:00:00
++++ a/programs/server/config.xml	1970-01-01 00:00:00
+@@ -22,8 +22,8 @@
              [1]: https://github.com/pocoproject/poco/blob/poco-1.9.4-release/Foundation/include/Poco/Logger.h#L105-L114
          -->
          <level>trace</level>
@@ -22,6 +17,3 @@ index fa8afd83ec..9e14c20fb4 100644
          <!-- Rotation policy
               See https://github.com/pocoproject/poco/blob/poco-1.9.4-release/Foundation/include/Poco/FileChannel.h#L54-L85
            -->
--- 
-2.40.1
-

@@ -3,15 +3,10 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 29 May 2023 09:58:58 +1000
 Subject: [PATCH 08/42] 09-QuantileExact.patch
 
----
- src/AggregateFunctions/QuantileExact.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/src/AggregateFunctions/QuantileExact.h b/src/AggregateFunctions/QuantileExact.h
-index 9be24689d1..118499b158 100644
---- a/src/AggregateFunctions/QuantileExact.h
-+++ b/src/AggregateFunctions/QuantileExact.h
-@@ -270,11 +270,11 @@ struct QuantileExactLow : public QuantileExactBase<Value, QuantileExactLow<Value
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/AggregateFunctions/QuantileExact.h a/src/AggregateFunctions/QuantileExact.h
+--- a~/src/AggregateFunctions/QuantileExact.h	1970-01-01 00:00:00
++++ a/src/AggregateFunctions/QuantileExact.h	1970-01-01 00:00:00
+@@ -275,11 +275,11 @@ struct QuantileExactLow : public Quantil
                  auto s = array.size();
                  if (s % 2 == 1)
                  {
@@ -25,7 +20,7 @@ index 9be24689d1..118499b158 100644
                  }
              }
              else
-@@ -306,11 +306,11 @@ struct QuantileExactLow : public QuantileExactBase<Value, QuantileExactLow<Value
+@@ -311,11 +311,11 @@ struct QuantileExactLow : public Quantil
                      auto s = array.size();
                      if (s % 2 == 1)
                      {
@@ -39,7 +34,7 @@ index 9be24689d1..118499b158 100644
                      }
                  }
                  else
-@@ -350,7 +350,7 @@ struct QuantileExactHigh : public QuantileExactBase<Value, QuantileExactHigh<Val
+@@ -355,7 +355,7 @@ struct QuantileExactHigh : public Quanti
              if (level == 0.5)
              {
                  auto s = array.size();
@@ -48,7 +43,7 @@ index 9be24689d1..118499b158 100644
              }
              else
              {
-@@ -378,7 +378,7 @@ struct QuantileExactHigh : public QuantileExactBase<Value, QuantileExactHigh<Val
+@@ -383,7 +383,7 @@ struct QuantileExactHigh : public Quanti
                  if (level == 0.5)
                  {
                      auto s = array.size();
@@ -57,6 +52,3 @@ index 9be24689d1..118499b158 100644
                  }
                  else
                  {
--- 
-2.40.1
-

@@ -3,14 +3,9 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Tue, 30 May 2023 11:50:25 +1000
 Subject: [PATCH 23/42] 25-sunos-no-vdso.patch
 
----
- contrib/abseil-cpp/absl/debugging/internal/vdso_support.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h b/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h
-index 6562c6c235..bc0d7fddc6 100644
---- a/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h
-+++ b/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h a/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h
+--- a~/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h	1970-01-01 00:00:00
++++ a/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h	1970-01-01 00:00:00
 @@ -48,7 +48,7 @@
  
  #ifdef ABSL_HAVE_VDSO_SUPPORT
@@ -20,6 +15,3 @@ index 6562c6c235..bc0d7fddc6 100644
  #define ABSL_HAVE_VDSO_SUPPORT 1
  #endif
  
--- 
-2.40.1
-

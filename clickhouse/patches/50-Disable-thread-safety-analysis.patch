@@ -1,0 +1,17 @@
+From b4eff5a746cc07285d08490fb7bae215e713c8f3 Mon Sep 17 00:00:00 2001
+From: Andy Fiddaman <illumos@fiddaman.net>
+Date: Thu, 3 Aug 2023 15:29:31 +0000
+Subject: [PATCH 04/13] Disable thread safety analysis
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/cmake/warnings.cmake a/cmake/warnings.cmake
+--- a~/cmake/warnings.cmake	1970-01-01 00:00:00
++++ a/cmake/warnings.cmake	1970-01-01 00:00:00
+@@ -44,6 +44,8 @@ if (COMPILER_CLANG)
+     no_warning(weak-template-vtables)
+     no_warning(weak-vtables)
+     no_warning(thread-safety-negative) # experimental flag, too many false positives
++    no_warning(thread-safety-analysis) # experimental flag, too many false positives
++    no_warning(thread-safety-attributes) # experimental flag, too many false positives
+     no_warning(enum-constexpr-conversion) # breaks magic-enum library in clang-16
+     no_warning(unsafe-buffer-usage) # too aggressive
+     # TODO Enable conversion, sign-conversion, double-promotion warnings.

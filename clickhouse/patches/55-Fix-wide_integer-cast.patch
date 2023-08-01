@@ -1,0 +1,17 @@
+From 9b538ed473e465190ed64bafa10a023d1a8b53f0 Mon Sep 17 00:00:00 2001
+From: Andy Fiddaman <illumos@fiddaman.net>
+Date: Thu, 3 Aug 2023 15:31:31 +0000
+Subject: [PATCH 09/13] Fix wide_integer cast
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/base/base/wide_integer_impl.h a/base/base/wide_integer_impl.h
+--- a~/base/base/wide_integer_impl.h	1970-01-01 00:00:00
++++ a/base/base/wide_integer_impl.h	1970-01-01 00:00:00
+@@ -555,7 +555,7 @@ private:
+             HalfType a0 = lhs.items[little(0)];
+             HalfType a1 = lhs.items[little(1)];
+ 
+-            HalfType b01 = rhs;
++            HalfType b01 = (HalfType(rhs.items[little(1)]) << 64) + rhs.items[little(0)];
+             uint64_t b0 = b01;
+             uint64_t b1 = 0;
+             HalfType b23 = 0;

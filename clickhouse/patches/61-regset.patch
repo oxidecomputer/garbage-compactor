@@ -1,0 +1,42 @@
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Client/ClientBase.cpp a/src/Client/ClientBase.cpp
+--- a~/src/Client/ClientBase.cpp	1970-01-01 00:00:00
++++ a/src/Client/ClientBase.cpp	1970-01-01 00:00:00
+@@ -134,7 +134,7 @@ ProgressOption toProgressOption(std::str
+     if (progress == "TTY" || progress == "ON" || progress == "TRUE" || progress == "1" || progress == "YES")
+         return ProgressOption::TTY;
+     if (progress == "ERR")
+-        return ProgressOption::ERR;
++        return ProgressOption::XERR;
+     if (progress == "DEFAULT")
+         return ProgressOption::DEFAULT;
+ 
+@@ -725,7 +725,7 @@ void ClientBase::initTtyBuffer(ProgressO
+         }
+     }
+ 
+-    if (stderr_is_a_tty || progress == ProgressOption::ERR)
++    if (stderr_is_a_tty || progress == ProgressOption::XERR)
+     {
+         tty_buf = std::make_unique<WriteBufferFromFileDescriptor>(STDERR_FILENO, buf_size);
+     }
+@@ -2627,7 +2627,7 @@ void ClientBase::init(int argc, char **
+             case TTY:
+                 config().setString("progress", "tty");
+                 break;
+-            case ERR:
++            case XERR:
+                 config().setString("progress", "err");
+                 break;
+         }
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Client/ClientBase.h a/src/Client/ClientBase.h
+--- a~/src/Client/ClientBase.h	1970-01-01 00:00:00
++++ a/src/Client/ClientBase.h	1970-01-01 00:00:00
+@@ -43,7 +43,7 @@ enum ProgressOption
+     DEFAULT,
+     OFF,
+     TTY,
+-    ERR,
++    XERR,
+ };
+ ProgressOption toProgressOption(std::string progress);
+ std::istream& operator>> (std::istream & in, ProgressOption & progress);

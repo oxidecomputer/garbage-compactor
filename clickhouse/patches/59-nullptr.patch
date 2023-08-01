@@ -1,0 +1,26 @@
+commit 534936fa768fe21a3aab1d8131a6fe4d83665d75
+Author: Andy Fiddaman <illumos@fiddaman.net>
+Date:   Tue Oct 10 11:43:35 2023 +0000
+
+    std::nullptr_t
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/IO/ReadBuffer.cpp a/src/IO/ReadBuffer.cpp
+--- a~/src/IO/ReadBuffer.cpp	1970-01-01 00:00:00
++++ a/src/IO/ReadBuffer.cpp	1970-01-01 00:00:00
+@@ -1,5 +1,6 @@
+ #include <IO/ReadBuffer.h>
+ 
++using std::nullptr_t;
+ 
+ namespace DB
+ {
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/IO/SeekableReadBuffer.cpp a/src/IO/SeekableReadBuffer.cpp
+--- a~/src/IO/SeekableReadBuffer.cpp	1970-01-01 00:00:00
++++ a/src/IO/SeekableReadBuffer.cpp	1970-01-01 00:00:00
+@@ -1,5 +1,6 @@
+ #include <IO/SeekableReadBuffer.h>
+ 
++using std::nullptr_t;
+ 
+ namespace DB
+ {

@@ -3,17 +3,64 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 12 Jun 2023 13:56:34 +1000
 Subject: [PATCH 42/42] 44-sunos-memory-stats.patch
 
----
- src/Common/MemoryStatisticsOS.cpp        | 51 +++++++++++++++++++++++-
- src/Common/MemoryStatisticsOS.h          |  5 ++-
- src/Interpreters/AsynchronousMetrics.cpp |  6 ++-
- src/Interpreters/AsynchronousMetrics.h   |  2 +-
- 4 files changed, 59 insertions(+), 5 deletions(-)
-
-diff --git a/src/Common/MemoryStatisticsOS.cpp b/src/Common/MemoryStatisticsOS.cpp
-index 22f8446121..338fab9289 100644
---- a/src/Common/MemoryStatisticsOS.cpp
-+++ b/src/Common/MemoryStatisticsOS.cpp
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/AsynchronousMetrics.cpp a/src/Common/AsynchronousMetrics.cpp
+--- a~/src/Common/AsynchronousMetrics.cpp	1970-01-01 00:00:00
++++ a/src/Common/AsynchronousMetrics.cpp	1970-01-01 00:00:00
+@@ -548,7 +548,7 @@ void AsynchronousMetrics::update(TimePoi
+         "The difference in time the thread for calculation of the asynchronous metrics was scheduled to wake up and the time it was in fact, woken up."
+         " A proxy-indicator of overall system latency and responsiveness." };
+ 
+-#if defined(OS_LINUX) || defined(OS_FREEBSD)
++#if defined(OS_LINUX) || defined(OS_FREEBSD) || defined(OS_SUNOS)
+     MemoryStatisticsOS::Data memory_statistics_data = memory_stat.get();
+ #endif
+ 
+@@ -578,7 +578,7 @@ void AsynchronousMetrics::update(TimePoi
+ #endif
+ 
+     /// Process process memory usage according to OS
+-#if defined(OS_LINUX) || defined(OS_FREEBSD)
++#if defined(OS_LINUX) || defined(OS_FREEBSD) || defined(OS_SUNOS)
+     {
+         MemoryStatisticsOS::Data & data = memory_statistics_data;
+ 
+@@ -588,18 +588,20 @@ void AsynchronousMetrics::update(TimePoi
+             " The large values of this metric are totally normal, and makes only technical sense."};
+         new_values["MemoryResident"] = { data.resident,
+             "The amount of physical memory used by the server process, in bytes." };
+-#if !defined(OS_FREEBSD)
++#if !defined(OS_FREEBSD) && !defined(OS_SUNOS)
+         new_values["MemoryShared"] = { data.shared,
+             "The amount of memory used by the server process, that is also shared by another processes, in bytes."
+             " ClickHouse does not use shared memory, but some memory can be labeled by OS as shared for its own reasons."
+             " This metric does not make a lot of sense to watch, and it exists only for completeness reasons."};
+ #endif
++#if !defined(OS_SUNOS)
+         new_values["MemoryCode"] = { data.code,
+             "The amount of virtual memory mapped for the pages of machine code of the server process, in bytes." };
+         new_values["MemoryDataAndStack"] = { data.data_and_stack,
+             "The amount of virtual memory mapped for the use of stack and for the allocated memory, in bytes."
+             " It is unspecified whether it includes the per-thread stacks and most of the allocated memory, that is allocated with the 'mmap' system call."
+             " This metric exists only for completeness reasons. I recommend to use the `MemoryResident` metric for monitoring."};
++#endif
+ 
+         /// We must update the value of total_memory_tracker periodically.
+         /// Otherwise it might be calculated incorrectly - it can include a "drift" of memory amount.
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/AsynchronousMetrics.h a/src/Common/AsynchronousMetrics.h
+--- a~/src/Common/AsynchronousMetrics.h	1970-01-01 00:00:00
++++ a/src/Common/AsynchronousMetrics.h	1970-01-01 00:00:00
+@@ -95,7 +95,7 @@ private:
+     bool quit {false};
+     AsynchronousMetricValues values;
+ 
+-#if defined(OS_LINUX) || defined(OS_FREEBSD)
++#if defined(OS_LINUX) || defined(OS_FREEBSD) || defined(OS_SUNOS)
+     MemoryStatisticsOS memory_stat;
+ #endif
+ 
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/MemoryStatisticsOS.cpp a/src/Common/MemoryStatisticsOS.cpp
+--- a~/src/Common/MemoryStatisticsOS.cpp	1970-01-01 00:00:00
++++ a/src/Common/MemoryStatisticsOS.cpp	1970-01-01 00:00:00
 @@ -1,7 +1,8 @@
 -#if defined(OS_LINUX) || defined(OS_FREEBSD)
 +#if defined(OS_LINUX) || defined(OS_FREEBSD) || defined(OS_SUNOS)
@@ -35,10 +82,13 @@ index 22f8446121..338fab9289 100644
  
  namespace DB
  {
-@@ -156,6 +161,50 @@ MemoryStatisticsOS::Data MemoryStatisticsOS::get() const
+@@ -153,6 +158,50 @@ MemoryStatisticsOS::Data MemoryStatistic
  
- #endif
- 
+     return data;
+ }
++
++#endif
++
 +#if defined(OS_SUNOS)
 +
 +namespace ErrorCodes
@@ -80,16 +130,12 @@ index 22f8446121..338fab9289 100644
 +
 +    return data;
 +}
-+
-+#endif
-+
- }
  
  #endif
-diff --git a/src/Common/MemoryStatisticsOS.h b/src/Common/MemoryStatisticsOS.h
-index 43f3fdf2f2..5756bb4dff 100644
---- a/src/Common/MemoryStatisticsOS.h
-+++ b/src/Common/MemoryStatisticsOS.h
+ 
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/MemoryStatisticsOS.h a/src/Common/MemoryStatisticsOS.h
+--- a~/src/Common/MemoryStatisticsOS.h	1970-01-01 00:00:00
++++ a/src/Common/MemoryStatisticsOS.h	1970-01-01 00:00:00
 @@ -1,5 +1,5 @@
  #pragma once
 -#if defined(OS_LINUX) || defined(OS_FREEBSD)
@@ -98,7 +144,7 @@ index 43f3fdf2f2..5756bb4dff 100644
  #if defined(OS_FREEBSD)
  #include <unistd.h>
 @@ -47,6 +47,9 @@ private:
-     int pagesize;
+     size_t pagesize;
      pid_t self;
  #endif
 +#if defined(OS_SUNOS)
@@ -107,45 +153,3 @@ index 43f3fdf2f2..5756bb4dff 100644
  };
  
  }
-diff --git a/src/Interpreters/AsynchronousMetrics.cpp b/src/Interpreters/AsynchronousMetrics.cpp
-index f9bc22dd11..fbfee10146 100644
---- a/src/Interpreters/AsynchronousMetrics.cpp
-+++ b/src/Interpreters/AsynchronousMetrics.cpp
-@@ -656,17 +656,19 @@ void AsynchronousMetrics::update(std::chrono::system_clock::time_point update_ti
-     }
- 
-     /// Process process memory usage according to OS
--#if defined(OS_LINUX) || defined(OS_FREEBSD)
-+#if defined(OS_LINUX) || defined(OS_FREEBSD) || defined(OS_SUNOS)
-     {
-         MemoryStatisticsOS::Data data = memory_stat.get();
- 
-         new_values["MemoryVirtual"] = data.virt;
-         new_values["MemoryResident"] = data.resident;
--#if !defined(OS_FREEBSD)
-+#if !defined(OS_FREEBSD) && !defined(OS_SUNOS)
-         new_values["MemoryShared"] = data.shared;
- #endif
-+#if !defined(OS_SUNOS)
-         new_values["MemoryCode"] = data.code;
-         new_values["MemoryDataAndStack"] = data.data_and_stack;
-+#endif
- 
-         /// We must update the value of total_memory_tracker periodically.
-         /// Otherwise it might be calculated incorrectly - it can include a "drift" of memory amount.
-diff --git a/src/Interpreters/AsynchronousMetrics.h b/src/Interpreters/AsynchronousMetrics.h
-index e4bcb2890f..ed82303379 100644
---- a/src/Interpreters/AsynchronousMetrics.h
-+++ b/src/Interpreters/AsynchronousMetrics.h
-@@ -76,7 +76,7 @@ private:
-     bool first_run = true;
-     std::chrono::system_clock::time_point previous_update_time;
- 
--#if defined(OS_LINUX) || defined(OS_FREEBSD)
-+#if defined(OS_LINUX) || defined(OS_FREEBSD) || defined(OS_SUNOS)
-     MemoryStatisticsOS memory_stat;
- #endif
- 
--- 
-2.40.1
-

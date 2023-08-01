@@ -3,17 +3,10 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 5 Jun 2023 13:19:44 +1000
 Subject: [PATCH 28/42] 30-more-cs-ds.patch
 
----
- .../strategies/line_interpolate/cartesian.hpp |  6 +++---
- .../strategies/line_interpolate/spherical.hpp |  8 ++++----
- .../llvm/include/llvm/IR/DebugInfoMetadata.h  | 20 +++++++++----------
- 3 files changed, 17 insertions(+), 17 deletions(-)
-
-diff --git a/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp b/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp
-index d00b473089..e1f52f797d 100644
---- a/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp
-+++ b/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp
-@@ -56,10 +56,10 @@ struct default_strategy<Geometry, cartesian_tag>
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp a/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp
+--- a~/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp	1970-01-01 00:00:00
++++ a/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp	1970-01-01 00:00:00
+@@ -56,10 +56,10 @@ struct default_strategy<Geometry, cartes
  };
  
  
@@ -27,11 +20,10 @@ index d00b473089..e1f52f797d 100644
      {
          return strategies::line_interpolate::cartesian<CT>();
      }
-diff --git a/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp b/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp
-index 6b083bb313..4ad668158e 100644
---- a/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp
-+++ b/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp
-@@ -72,12 +72,12 @@ struct default_strategy<Geometry, spherical_equatorial_tag>
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp a/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp
+--- a~/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp	1970-01-01 00:00:00
++++ a/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp	1970-01-01 00:00:00
+@@ -72,12 +72,12 @@ struct default_strategy<Geometry, spheri
  };
  
  
@@ -48,37 +40,33 @@ index 6b083bb313..4ad668158e 100644
          return strategies::line_interpolate::spherical<radius_type, CT>(s.radius());
      }
  };
-diff --git a/contrib/llvm/llvm/include/llvm/IR/DebugInfoMetadata.h b/contrib/llvm/llvm/include/llvm/IR/DebugInfoMetadata.h
-index 22dd5ee6ef..5d97be53fa 100644
---- a/contrib/llvm/llvm/include/llvm/IR/DebugInfoMetadata.h
-+++ b/contrib/llvm/llvm/include/llvm/IR/DebugInfoMetadata.h
-@@ -561,20 +561,20 @@ private:
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h a/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h
+--- a~/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h	1970-01-01 00:00:00
++++ a/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h	1970-01-01 00:00:00
+@@ -563,18 +563,18 @@ private:
    Optional<MDString *> Source;
  
    DIFile(LLVMContext &C, StorageType Storage,
 -         Optional<ChecksumInfo<MDString *>> CS, Optional<MDString *> Src,
 +         Optional<ChecksumInfo<MDString *>> CSI, Optional<MDString *> Src,
-          ArrayRef<Metadata *> Ops)
-       : DIScope(C, DIFileKind, Storage, dwarf::DW_TAG_file_type, Ops),
--        Checksum(CS), Source(Src) {}
-+        Checksum(CSI), Source(Src) {}
+          ArrayRef<Metadata *> Ops);
    ~DIFile() = default;
  
    static DIFile *getImpl(LLVMContext &Context, StringRef Filename,
                           StringRef Directory,
 -                         Optional<ChecksumInfo<StringRef>> CS,
 +                         Optional<ChecksumInfo<StringRef>> CSI,
-                          Optional<StringRef> Source,
-                          StorageType Storage, bool ShouldCreate = true) {
+                          Optional<StringRef> Source, StorageType Storage,
+                          bool ShouldCreate = true) {
      Optional<ChecksumInfo<MDString *>> MDChecksum;
 -    if (CS)
 -      MDChecksum.emplace(CS->Kind, getCanonicalMDString(Context, CS->Value));
 +    if (CSI)
 +      MDChecksum.emplace(CSI->Kind, getCanonicalMDString(Context, CSI->Value));
-     return getImpl(Context, getCanonicalMDString(Context, Filename),
-                    getCanonicalMDString(Context, Directory), MDChecksum,
-                    Source ? Optional<MDString *>(getCanonicalMDString(Context, *Source)) : None,
-@@ -582,7 +582,7 @@ private:
+     return getImpl(
+         Context, getCanonicalMDString(Context, Filename),
+         getCanonicalMDString(Context, Directory), MDChecksum,
+@@ -584,7 +584,7 @@ private:
    }
    static DIFile *getImpl(LLVMContext &Context, MDString *Filename,
                           MDString *Directory,
@@ -87,24 +75,22 @@ index 22dd5ee6ef..5d97be53fa 100644
                           Optional<MDString *> Source, StorageType Storage,
                           bool ShouldCreate = true);
  
-@@ -593,13 +593,13 @@ private:
- 
+@@ -596,14 +596,14 @@ private:
  public:
-   DEFINE_MDNODE_GET(DIFile, (StringRef Filename, StringRef Directory,
--                             Optional<ChecksumInfo<StringRef>> CS = None,
-+                             Optional<ChecksumInfo<StringRef>> CSI = None,
-                              Optional<StringRef> Source = None),
+   DEFINE_MDNODE_GET(DIFile,
+                     (StringRef Filename, StringRef Directory,
+-                     Optional<ChecksumInfo<StringRef>> CS = None,
++                     Optional<ChecksumInfo<StringRef>> CSI = None,
+                      Optional<StringRef> Source = None),
 -                    (Filename, Directory, CS, Source))
 +                    (Filename, Directory, CSI, Source))
-   DEFINE_MDNODE_GET(DIFile, (MDString * Filename, MDString *Directory,
--                             Optional<ChecksumInfo<MDString *>> CS = None,
-+                             Optional<ChecksumInfo<MDString *>> CSI = None,
-                              Optional<MDString *> Source = None),
+   DEFINE_MDNODE_GET(DIFile,
+                     (MDString * Filename, MDString *Directory,
+-                     Optional<ChecksumInfo<MDString *>> CS = None,
++                     Optional<ChecksumInfo<MDString *>> CSI = None,
+                      Optional<MDString *> Source = None),
 -                    (Filename, Directory, CS, Source))
 +                    (Filename, Directory, CSI, Source))
  
    TempDIFile clone() const { return cloneImpl(); }
  
--- 
-2.40.1
-

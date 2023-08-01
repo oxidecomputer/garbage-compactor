@@ -3,20 +3,13 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 29 May 2023 09:58:59 +1000
 Subject: [PATCH 11/42] 12-zlib-ng.patch
 
----
- contrib/zlib-ng/zutil_p.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/contrib/zlib-ng/zutil_p.h b/contrib/zlib-ng/zutil_p.h
-index c8122607ea..00feeb23a2 100644
---- a/contrib/zlib-ng/zutil_p.h
-+++ b/contrib/zlib-ng/zutil_p.h
-@@ -10,13 +10,16 @@
- #elif defined(__FreeBSD__)
- #  include <stdlib.h>
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/zlib-ng/zutil_p.h a/contrib/zlib-ng/zutil_p.h
+--- a~/contrib/zlib-ng/zutil_p.h	1970-01-01 00:00:00
++++ a/contrib/zlib-ng/zutil_p.h	1970-01-01 00:00:00
+@@ -12,13 +12,14 @@
  #  include <malloc_np.h>
-+#elif defined(OS_SUNOS)
-+#  include <stdlib.h>
+ #elif defined(__sun)
+ #  include <stdlib.h>
 +#  include <sys/mman.h>
  #else
  #  include <malloc.h>
@@ -24,11 +17,8 @@ index c8122607ea..00feeb23a2 100644
  
  /* Function to allocate 16 or 64-byte aligned memory */
  static inline void *zng_alloc(size_t size) {
--#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__)
-+#if defined(__FreeBSD__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(OS_SUNOS)
+-#if defined(__FreeBSD__)
++#if defined(__FreeBSD__) || defined(OS_SUNOS)
      void *ptr;
      return posix_memalign(&ptr, 64, size) ? NULL : ptr;
  #elif defined(_WIN32)
--- 
-2.40.1
-

@@ -3,15 +3,10 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 5 Jun 2023 13:20:26 +1000
 Subject: [PATCH 29/42] 31-pg-attribute-printf.patch
 
----
- contrib/libpq/include/port.h | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/contrib/libpq/include/port.h b/contrib/libpq/include/port.h
-index 82f63de325..f0d4e702c2 100644
---- a/contrib/libpq/include/port.h
-+++ b/contrib/libpq/include/port.h
-@@ -195,6 +195,9 @@ extern unsigned char pg_ascii_tolower(unsigned char ch);
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/libpq/include/port.h a/contrib/libpq/include/port.h
+--- a~/contrib/libpq/include/port.h	1970-01-01 00:00:00
++++ a/contrib/libpq/include/port.h	1970-01-01 00:00:00
+@@ -195,6 +195,9 @@ extern unsigned char pg_ascii_tolower(un
  #undef printf
  #endif
  
@@ -21,6 +16,3 @@ index 82f63de325..f0d4e702c2 100644
  extern int	pg_vsnprintf(char *str, size_t count, const char *fmt, va_list args);
  extern int	pg_snprintf(char *str, size_t count, const char *fmt,...) pg_attribute_printf(3, 4);
  extern int	pg_vsprintf(char *str, const char *fmt, va_list args);
--- 
-2.40.1
-

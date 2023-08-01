@@ -3,38 +3,31 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Tue, 30 May 2023 17:19:04 +1000
 Subject: [PATCH 27/42] 29-sunos-common.patch
 
----
- src/Common/QueryProfiler.cpp |  4 +++-
- src/Common/waitForPid.cpp    | 22 ++++++++++++++++++++++
- 2 files changed, 25 insertions(+), 1 deletion(-)
-
-diff --git a/src/Common/QueryProfiler.cpp b/src/Common/QueryProfiler.cpp
-index 741ae5b574..bee2d73000 100644
---- a/src/Common/QueryProfiler.cpp
-+++ b/src/Common/QueryProfiler.cpp
-@@ -104,7 +104,7 @@ QueryProfilerBase<ProfilerImpl>::QueryProfilerBase(UInt64 thread_id, int clock_t
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/QueryProfiler.cpp a/src/Common/QueryProfiler.cpp
+--- a~/src/Common/QueryProfiler.cpp	1970-01-01 00:00:00
++++ a/src/Common/QueryProfiler.cpp	1970-01-01 00:00:00
+@@ -104,7 +104,7 @@ QueryProfilerBase<ProfilerImpl>::QueryPr
      UNUSED(pause_signal);
  
-     throw Exception("QueryProfiler cannot work with stock libunwind", ErrorCodes::NOT_IMPLEMENTED);
+     throw Exception(ErrorCodes::NOT_IMPLEMENTED, "QueryProfiler cannot work with stock libunwind");
 -#else
 +#elif defined(SIGEV_THREAD_ID)
      /// Sanity check.
      if (!hasPHDRCache())
-         throw Exception("QueryProfiler cannot be used without PHDR cache, that is not available for TSan build", ErrorCodes::NOT_IMPLEMENTED);
-@@ -172,6 +172,8 @@ QueryProfilerBase<ProfilerImpl>::QueryProfilerBase(UInt64 thread_id, int clock_t
+         throw Exception(ErrorCodes::NOT_IMPLEMENTED, "QueryProfiler cannot be used without PHDR cache, that is not available for TSan build");
+@@ -172,6 +172,8 @@ QueryProfilerBase<ProfilerImpl>::QueryPr
          tryCleanup();
          throw;
      }
 +#else
-+    throw Exception("OS does not support QueryProfiler", ErrorCodes::CANNOT_CREATE_TIMER);
++    throw Exception(ErrorCodes::CANNOT_CREATE_TIMER, "OS does not support QueryProfiler");
  #endif
  }
  
-diff --git a/src/Common/waitForPid.cpp b/src/Common/waitForPid.cpp
-index dd431e1506..d18dd38ebe 100644
---- a/src/Common/waitForPid.cpp
-+++ b/src/Common/waitForPid.cpp
-@@ -147,6 +147,28 @@ static PollPidResult pollPid(pid_t pid, int timeout_in_ms)
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/waitForPid.cpp a/src/Common/waitForPid.cpp
+--- a~/src/Common/waitForPid.cpp	1970-01-01 00:00:00
++++ a/src/Common/waitForPid.cpp	1970-01-01 00:00:00
+@@ -153,6 +153,28 @@ static PollPidResult pollPid(pid_t pid,
  
      return result;
  }
@@ -63,6 +56,3 @@ index dd431e1506..d18dd38ebe 100644
  #else
      #error "Unsupported OS type"
  #endif
--- 
-2.40.1
-

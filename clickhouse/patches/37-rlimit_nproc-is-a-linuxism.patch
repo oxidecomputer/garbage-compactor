@@ -3,15 +3,10 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 5 Jun 2023 13:27:20 +1000
 Subject: [PATCH 35/42] 37-rlimit_nproc-is-a-linuxism.patch
 
----
- programs/server/Server.cpp | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/programs/server/Server.cpp b/programs/server/Server.cpp
-index db00859880..ccf9199e11 100644
---- a/programs/server/Server.cpp
-+++ b/programs/server/Server.cpp
-@@ -915,6 +915,7 @@ int Server::main(const std::vector<std::string> & /*args*/)
+diff -wpruN --no-dereference '--exclude=*.orig' a~/programs/server/Server.cpp a/programs/server/Server.cpp
+--- a~/programs/server/Server.cpp	1970-01-01 00:00:00
++++ a/programs/server/Server.cpp	1970-01-01 00:00:00
+@@ -1004,6 +1004,7 @@ try
          }
      }
  
@@ -19,7 +14,7 @@ index db00859880..ccf9199e11 100644
      /// Try to increase limit on number of threads.
      {
          rlimit rlim;
-@@ -946,6 +947,7 @@ int Server::main(const std::vector<std::string> & /*args*/)
+@@ -1035,6 +1036,7 @@ try
              global_context->addWarningMessage("Maximum number of threads is lower than 30000. There could be problems with handling a lot of simultaneous queries.");
          }
      }
@@ -27,6 +22,3 @@ index db00859880..ccf9199e11 100644
  
      static ServerErrorHandler error_handler;
      Poco::ErrorHandler::set(&error_handler);
--- 
-2.40.1
-

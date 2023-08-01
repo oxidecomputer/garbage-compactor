@@ -1,0 +1,244 @@
+From 201069b6b977b6d735a3b300a50cde33c7aca5b7 Mon Sep 17 00:00:00 2001
+From: Andy Fiddaman <illumos@fiddaman.net>
+Date: Thu, 3 Aug 2023 16:15:07 +0000
+Subject: [PATCH 12/13] missing includes
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/base/base/bit_cast.h a/base/base/bit_cast.h
+--- a~/base/base/bit_cast.h	1970-01-01 00:00:00
++++ a/base/base/bit_cast.h	1970-01-01 00:00:00
+@@ -3,6 +3,7 @@
+ #include <cstring>
+ #include <algorithm>
+ #include <type_traits>
++#include <bit>
+ 
+ 
+ /** Returns value `from` converted to type `To` while retaining bit representation.
+diff -wpruN --no-dereference '--exclude=*.orig' a~/base/base/iostream_debug_helpers.h a/base/base/iostream_debug_helpers.h
+--- a~/base/base/iostream_debug_helpers.h	1970-01-01 00:00:00
++++ a/base/base/iostream_debug_helpers.h	1970-01-01 00:00:00
+@@ -7,6 +7,8 @@
+ #include <iomanip>
+ #include <iostream>
+ #include <magic_enum.hpp>
++#include <cstring>
++#include <memory>
+ 
+ /** Usage:
+   *
+diff -wpruN --no-dereference '--exclude=*.orig' a~/programs/copier/ShardPartition.h a/programs/copier/ShardPartition.h
+--- a~/programs/copier/ShardPartition.h	1970-01-01 00:00:00
++++ a/programs/copier/ShardPartition.h	1970-01-01 00:00:00
+@@ -4,6 +4,7 @@
+ 
+ #include <base/types.h>
+ 
++#include <vector>
+ #include <map>
+ 
+ namespace DB
+diff -wpruN --no-dereference '--exclude=*.orig' a~/programs/copier/ShardPartitionPiece.h a/programs/copier/ShardPartitionPiece.h
+--- a~/programs/copier/ShardPartitionPiece.h	1970-01-01 00:00:00
++++ a/programs/copier/ShardPartitionPiece.h	1970-01-01 00:00:00
+@@ -1,5 +1,6 @@
+ #pragma once
+ 
++#include <vector>
+ #include <base/types.h>
+ 
+ namespace DB
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Access/AccessBackup.h a/src/Access/AccessBackup.h
+--- a~/src/Access/AccessBackup.h	1970-01-01 00:00:00
++++ a/src/Access/AccessBackup.h	1970-01-01 00:00:00
+@@ -3,6 +3,7 @@
+ #include <Core/UUID.h>
+ #include <unordered_map>
+ #include <unordered_set>
++#include <memory>
+ 
+ 
+ namespace DB
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Access/Common/AccessFlags.h a/src/Access/Common/AccessFlags.h
+--- a~/src/Access/Common/AccessFlags.h	1970-01-01 00:00:00
++++ a/src/Access/Common/AccessFlags.h	1970-01-01 00:00:00
+@@ -4,6 +4,7 @@
+ #include <bitset>
+ #include <cstring>
+ #include <vector>
++#include <unordered_map>
+ 
+ 
+ namespace DB
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Backups/BackupStatus.h a/src/Backups/BackupStatus.h
+--- a~/src/Backups/BackupStatus.h	1970-01-01 00:00:00
++++ a/src/Backups/BackupStatus.h	1970-01-01 00:00:00
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <base/types.h>
++#include <vector>
+ 
+ 
+ namespace DB
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Backups/IBackupCoordination.h a/src/Backups/IBackupCoordination.h
+--- a~/src/Backups/IBackupCoordination.h	1970-01-01 00:00:00
++++ a/src/Backups/IBackupCoordination.h	1970-01-01 00:00:00
+@@ -1,6 +1,8 @@
+ #pragma once
+ 
+ #include <Core/Types.h>
++#include <chrono>
++#include <atomic>
+ 
+ 
+ namespace DB
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Backups/IRestoreCoordination.h a/src/Backups/IRestoreCoordination.h
+--- a~/src/Backups/IRestoreCoordination.h	1970-01-01 00:00:00
++++ a/src/Backups/IRestoreCoordination.h	1970-01-01 00:00:00
+@@ -1,6 +1,8 @@
+ #pragma once
+ 
+ #include <Core/Types.h>
++#include <atomic>
++#include <chrono>
+ 
+ 
+ namespace DB
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Backups/RestoreCoordinationLocal.h a/src/Backups/RestoreCoordinationLocal.h
+--- a~/src/Backups/RestoreCoordinationLocal.h	1970-01-01 00:00:00
++++ a/src/Backups/RestoreCoordinationLocal.h	1970-01-01 00:00:00
+@@ -4,6 +4,7 @@
+ #include <mutex>
+ #include <set>
+ #include <unordered_set>
++#include <atomic>
+ 
+ namespace Poco { class Logger; }
+ 
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/RemoteHostFilter.h a/src/Common/RemoteHostFilter.h
+--- a~/src/Common/RemoteHostFilter.h	1970-01-01 00:00:00
++++ a/src/Common/RemoteHostFilter.h	1970-01-01 00:00:00
+@@ -3,6 +3,7 @@
+ #include <string>
+ #include <vector>
+ #include <mutex>
++#include <atomic>
+ #include <unordered_set>
+ #include <base/defines.h>
+ 
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/ZooKeeper/ZooKeeper.h a/src/Common/ZooKeeper/ZooKeeper.h
+--- a~/src/Common/ZooKeeper/ZooKeeper.h	1970-01-01 00:00:00
++++ a/src/Common/ZooKeeper/ZooKeeper.h	1970-01-01 00:00:00
+@@ -18,6 +18,7 @@
+ #include <Common/thread_local_rng.h>
+ #include <unistd.h>
+ #include <random>
++#include <variant>
+ 
+ 
+ namespace ProfileEvents
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Disks/DiskType.cpp a/src/Disks/DiskType.cpp
+--- a~/src/Disks/DiskType.cpp	1970-01-01 00:00:00
++++ a/src/Disks/DiskType.cpp	1970-01-01 00:00:00
+@@ -1,4 +1,5 @@
+ #include "DiskType.h"
++#include <tuple>
+ 
+ namespace DB
+ {
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Disks/ObjectStorages/DiskObjectStorageRemoteMetadataRestoreHelper.cpp a/src/Disks/ObjectStorages/DiskObjectStorageRemoteMetadataRestoreHelper.cpp
+--- a~/src/Disks/ObjectStorages/DiskObjectStorageRemoteMetadataRestoreHelper.cpp	1970-01-01 00:00:00
++++ a/src/Disks/ObjectStorages/DiskObjectStorageRemoteMetadataRestoreHelper.cpp	1970-01-01 00:00:00
+@@ -9,6 +9,8 @@
+ #include <Common/checkStackSize.h>
+ #include <Common/logger_useful.h>
+ 
++#include <bitset>
++
+ namespace DB
+ {
+ 
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Disks/ObjectStorages/DiskObjectStorageTransaction.cpp a/src/Disks/ObjectStorages/DiskObjectStorageTransaction.cpp
+--- a~/src/Disks/ObjectStorages/DiskObjectStorageTransaction.cpp	1970-01-01 00:00:00
++++ a/src/Disks/ObjectStorages/DiskObjectStorageTransaction.cpp	1970-01-01 00:00:00
+@@ -2,6 +2,7 @@
+ #include <Disks/ObjectStorages/DiskObjectStorage.h>
+ #include <Common/checkStackSize.h>
+ #include <ranges>
++#include <bitset>
+ #include <Common/logger_useful.h>
+ #include <Common/Exception.h>
+ 
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Formats/BSONTypes.h a/src/Formats/BSONTypes.h
+--- a~/src/Formats/BSONTypes.h	1970-01-01 00:00:00
++++ a/src/Formats/BSONTypes.h	1970-01-01 00:00:00
+@@ -2,6 +2,7 @@
+ 
+ #include <cstdint>
+ #include <string>
++#include <numeric>
+ 
+ namespace DB
+ {
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/IO/ISchedulerNode.h a/src/IO/ISchedulerNode.h
+--- a~/src/IO/ISchedulerNode.h	1970-01-01 00:00:00
++++ a/src/IO/ISchedulerNode.h	1970-01-01 00:00:00
+@@ -13,6 +13,7 @@
+ #include <functional>
+ #include <memory>
+ #include <mutex>
++#include <condition_variable>
+ 
+ 
+ namespace DB
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Loggers/OwnSplitChannel.h a/src/Loggers/OwnSplitChannel.h
+--- a~/src/Loggers/OwnSplitChannel.h	1970-01-01 00:00:00
++++ a/src/Loggers/OwnSplitChannel.h	1970-01-01 00:00:00
+@@ -3,6 +3,7 @@
+ #include <vector>
+ #include <map>
+ #include <mutex>
++#include <memory>
+ #include <Poco/AutoPtr.h>
+ #include <Poco/Channel.h>
+ #include "ExtendedLogChannel.h"
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Storages/MergeTree/IPartMetadataManager.h a/src/Storages/MergeTree/IPartMetadataManager.h
+--- a~/src/Storages/MergeTree/IPartMetadataManager.h	1970-01-01 00:00:00
++++ a/src/Storages/MergeTree/IPartMetadataManager.h	1970-01-01 00:00:00
+@@ -3,6 +3,7 @@
+ #include <unordered_map>
+ #include <city.h>
+ #include <base/types.h>
++#include <memory>
+ 
+ namespace DB
+ {
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Storages/NATS/NATSConnection.cpp a/src/Storages/NATS/NATSConnection.cpp
+--- a~/src/Storages/NATS/NATSConnection.cpp	1970-01-01 00:00:00
++++ a/src/Storages/NATS/NATSConnection.cpp	1970-01-01 00:00:00
+@@ -1,3 +1,5 @@
++#include <string.h>
++#include <cstring>
+ #include "NATSConnection.h"
+ 
+ #include <IO/WriteHelpers.h>
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Storages/NATS/NATSHandler.cpp a/src/Storages/NATS/NATSHandler.cpp
+--- a~/src/Storages/NATS/NATSHandler.cpp	1970-01-01 00:00:00
++++ a/src/Storages/NATS/NATSHandler.cpp	1970-01-01 00:00:00
+@@ -1,3 +1,5 @@
++#include <string.h>
++#include <cstring>
+ #include <Storages/NATS/NATSHandler.h>
+ #include <adapters/libuv.h>
+ #include <Common/Exception.h>
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Storages/StorageLogSettings.h a/src/Storages/StorageLogSettings.h
+--- a~/src/Storages/StorageLogSettings.h	1970-01-01 00:00:00
++++ a/src/Storages/StorageLogSettings.h	1970-01-01 00:00:00
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <base/types.h>
++#include <memory>
+ 
+ namespace DB
+ {

@@ -1,7 +1,6 @@
-diff --git a/contrib/libpq/contrib/libpq/fe-auth.c b/contrib/libpq/fe-auth.c
-index e806264..f29b86f 100644
---- a/contrib/libpq/fe-auth.c
-+++ b/contrib/libpq/fe-auth.c
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/libpq/fe-auth.c a/contrib/libpq/fe-auth.c
+--- a~/contrib/libpq/fe-auth.c	1970-01-01 00:00:00
++++ a/contrib/libpq/fe-auth.c	1970-01-01 00:00:00
 @@ -732,7 +732,7 @@ pg_local_sendauth(PGconn *conn)
  
  		appendPQExpBuffer(&conn->errorMessage,
@@ -11,7 +10,7 @@ index e806264..f29b86f 100644
  		return STATUS_ERROR;
  	}
  	return STATUS_OK;
-@@ -1116,7 +1116,7 @@ pg_fe_getauthname(PQExpBuffer errorMessage)
+@@ -1116,7 +1116,7 @@ pg_fe_getauthname(PQExpBuffer errorMessa
  			appendPQExpBuffer(errorMessage,
  							  libpq_gettext("could not look up local user ID %d: %s\n"),
  							  (int) user_id,
@@ -20,11 +19,10 @@ index e806264..f29b86f 100644
  		else
  			appendPQExpBuffer(errorMessage,
  							  libpq_gettext("local user with ID %d does not exist\n"),
-diff --git a/contrib/libpq/contrib/libpq/fe-connect.c b/contrib/libpq/fe-connect.c
-index fc65e49..a5807d8 100644
---- a/contrib/libpq/fe-connect.c
-+++ b/contrib/libpq/fe-connect.c
-@@ -2838,7 +2838,7 @@ keep_going:						/* We will come back to here until there is
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/libpq/fe-connect.c a/contrib/libpq/fe-connect.c
+--- a~/contrib/libpq/fe-connect.c	1970-01-01 00:00:00
++++ a/contrib/libpq/fe-connect.c	1970-01-01 00:00:00
+@@ -2838,7 +2838,7 @@ keep_going:						/* We will come back to
  						else
  							appendPQExpBuffer(&conn->errorMessage,
  											  libpq_gettext("could not get peer credentials: %s\n"),
@@ -33,7 +31,7 @@ index fc65e49..a5807d8 100644
  						goto error_return;
  					}
  
-@@ -2850,7 +2850,7 @@ keep_going:						/* We will come back to here until there is
+@@ -2850,7 +2850,7 @@ keep_going:						/* We will come back to
  							appendPQExpBuffer(&conn->errorMessage,
  											  libpq_gettext("could not look up local user ID %d: %s\n"),
  											  (int) uid,
@@ -42,11 +40,10 @@ index fc65e49..a5807d8 100644
  						else
  							appendPQExpBuffer(&conn->errorMessage,
  											  libpq_gettext("local user with ID %d does not exist\n"),
-diff --git a/contrib/libpq/contrib/libpq/fe-lobj.c b/contrib/libpq/fe-lobj.c
-index ffd9926..9c3a618 100644
---- a/contrib/libpq/fe-lobj.c
-+++ b/contrib/libpq/fe-lobj.c
-@@ -676,7 +676,7 @@ lo_import_internal(PGconn *conn, const char *filename, Oid oid)
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/libpq/fe-lobj.c a/contrib/libpq/fe-lobj.c
+--- a~/contrib/libpq/fe-lobj.c	1970-01-01 00:00:00
++++ a/contrib/libpq/fe-lobj.c	1970-01-01 00:00:00
+@@ -676,7 +676,7 @@ lo_import_internal(PGconn *conn, const c
  	{							/* error */
  		appendPQExpBuffer(&conn->errorMessage,
  						  libpq_gettext("could not open file \"%s\": %s\n"),
@@ -55,7 +52,7 @@ index ffd9926..9c3a618 100644
  		return InvalidOid;
  	}
  
-@@ -733,7 +733,7 @@ lo_import_internal(PGconn *conn, const char *filename, Oid oid)
+@@ -733,7 +733,7 @@ lo_import_internal(PGconn *conn, const c
  		printfPQExpBuffer(&conn->errorMessage,
  						  libpq_gettext("could not read from file \"%s\": %s\n"),
  						  filename,
@@ -64,7 +61,7 @@ index ffd9926..9c3a618 100644
  		return InvalidOid;
  	}
  
-@@ -788,7 +788,7 @@ lo_export(PGconn *conn, Oid lobjId, const char *filename)
+@@ -788,7 +788,7 @@ lo_export(PGconn *conn, Oid lobjId, cons
  		printfPQExpBuffer(&conn->errorMessage,
  						  libpq_gettext("could not open file \"%s\": %s\n"),
  						  filename,
@@ -73,7 +70,7 @@ index ffd9926..9c3a618 100644
  		return -1;
  	}
  
-@@ -809,7 +809,7 @@ lo_export(PGconn *conn, Oid lobjId, const char *filename)
+@@ -809,7 +809,7 @@ lo_export(PGconn *conn, Oid lobjId, cons
  			printfPQExpBuffer(&conn->errorMessage,
  							  libpq_gettext("could not write to file \"%s\": %s\n"),
  							  filename,
@@ -82,7 +79,7 @@ index ffd9926..9c3a618 100644
  			return -1;
  		}
  	}
-@@ -832,7 +832,7 @@ lo_export(PGconn *conn, Oid lobjId, const char *filename)
+@@ -832,7 +832,7 @@ lo_export(PGconn *conn, Oid lobjId, cons
  	{
  		appendPQExpBuffer(&conn->errorMessage,
  						  libpq_gettext("could not write to file \"%s\": %s\n"),
@@ -91,10 +88,9 @@ index ffd9926..9c3a618 100644
  		result = -1;
  	}
  
-diff --git a/contrib/libpq/contrib/libpq/fe-secure-openssl.c b/contrib/libpq/fe-secure-openssl.c
-index 497777b..fbbb22a 100644
---- a/contrib/libpq/fe-secure-openssl.c
-+++ b/contrib/libpq/fe-secure-openssl.c
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/libpq/fe-secure-openssl.c a/contrib/libpq/fe-secure-openssl.c
+--- a~/contrib/libpq/fe-secure-openssl.c	1970-01-01 00:00:00
++++ a/contrib/libpq/fe-secure-openssl.c	1970-01-01 00:00:00
 @@ -1029,7 +1029,7 @@ initialize_SSL(PGconn *conn)
  		{
  			appendPQExpBuffer(&conn->errorMessage,
@@ -104,10 +100,9 @@ index 497777b..fbbb22a 100644
  			SSL_CTX_free(SSL_context);
  			return -1;
  		}
-diff --git a/contrib/libpq/contrib/libpq/include/port.h b/contrib/libpq/include/port.h
-index f0d4e70..cf789d5 100644
---- a/contrib/libpq/include/port.h
-+++ b/contrib/libpq/include/port.h
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/libpq/include/port.h a/contrib/libpq/include/port.h
+--- a~/contrib/libpq/include/port.h	1970-01-01 00:00:00
++++ a/contrib/libpq/include/port.h	1970-01-01 00:00:00
 @@ -233,7 +233,9 @@ extern char *pg_strerror(int errnum);
  
  /* Likewise for strerror_r(); note we prefer the GNU API for that */
@@ -118,11 +113,10 @@ index f0d4e70..cf789d5 100644
  #define PG_STRERROR_R_BUFLEN 256	/* Recommended buffer size for strerror_r */
  
  /* Wrap strsignal(), or provide our own version if necessary */
-diff --git a/contrib/libpq/contrib/libpq/libpq-int.h b/contrib/libpq/libpq-int.h
-index 6b7fd2c..aa848b5 100644
---- a/contrib/libpq/libpq-int.h
-+++ b/contrib/libpq/libpq-int.h
-@@ -850,7 +850,7 @@ extern char *libpq_ngettext(const char *msgid, const char *msgid_plural, unsigne
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/libpq/libpq-int.h a/contrib/libpq/libpq-int.h
+--- a~/contrib/libpq/libpq-int.h	1970-01-01 00:00:00
++++ a/contrib/libpq/libpq-int.h	1970-01-01 00:00:00
+@@ -850,7 +850,7 @@ extern char *libpq_ngettext(const char *
  #define SOCK_ERRNO_SET(e) WSASetLastError(e)
  #else
  #define SOCK_ERRNO errno
@@ -131,10 +125,9 @@ index 6b7fd2c..aa848b5 100644
  #define SOCK_ERRNO_SET(e) (errno = (e))
  #endif
  
-diff --git a/contrib/libpq/contrib/libpq/port/snprintf.c b/contrib/libpq/port/snprintf.c
-index c0a452d..95eddd1 100644
---- a/contrib/libpq/port/snprintf.c
-+++ b/contrib/libpq/port/snprintf.c
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/libpq/port/snprintf.c a/contrib/libpq/port/snprintf.c
+--- a~/contrib/libpq/port/snprintf.c	1970-01-01 00:00:00
++++ a/contrib/libpq/port/snprintf.c	1970-01-01 00:00:00
 @@ -707,7 +707,7 @@ nextch2:
  			case 'm':
  				{

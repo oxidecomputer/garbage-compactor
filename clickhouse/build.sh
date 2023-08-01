@@ -28,12 +28,12 @@ for pkg in cmake ninja; do
 done
 
 NAM='clickhouse'
-VER="22.8.9.24"
+VER="23.3.8.21"
 FILE="clickhouse-src-bundle-v$VER-lts.tar.gz"
 S3="https://oxide-clickhouse-build.s3.us-west-2.amazonaws.com"
 URL="$S3/$FILE"
-SHA256='860d5ebf5b3d598bca92d3f11b212ade0b1b916947ac3fd28aa4882b3931e621'
-CLANGVER=15
+SHA256='5efe05de89c5be31c00e921cef3fad95e7a13b28e36d043216862b68d496f3d9'
+CLANGVER=17
 
 #
 # Download ClickHouse sources
@@ -55,15 +55,50 @@ extract_to clickhouse "$file" "$SRC" --strip-components=1
 #
 header 'patching clickhouse source'
 
+# Set to 1 to re-base patches to improve the chances of them continuing to
+# apply to future versions.
+rebase=0
+
 stamp="$STAMPS/patched.stamp"
 if [[ ! -f "$stamp" ]]; then
-	for f in $ROOT/patches/*.patch; do
+	for f in $ROOT/patches/[0-9]*.patch; do
 		if [[ ! -f $f ]]; then
 			continue;
 		fi
 
+		pstamp="$stamp.${f##*/}"
+
+		[[ -f "$pstamp" ]] && continue
+
+		((rebase)) && rsync -a "$SRC"{,~}/ --delete
+
 		info "apply patch $f"
-		(cd "$SRC" && patch --verbose -p1 < "$f")
+		(cd "$SRC" && gpatch --batch --forward --strip=1 < "$f")
+
+		if ((rebase)); then
+			mv "$f"{,~}
+			sed -n '
+			    /^---/q
+			    /^diff -/q
+			    p
+			    ' < "$f~" > "$f"
+			rm -f "$f~"
+			(cd "$SRC/.." && gdiff -wpruN \
+			    --no-dereference \
+			    --exclude='*.orig' \
+			    "${SRC##*/}"{~,} \
+			    >> "$f" || true
+			)
+			sed -i '
+                    /^diff -wpruN/,/^\+\+\+ / {
+                        s% [^ ~/]*\(~*\)/% a\1/%g
+                        s%[0-9][0-9][0-9][0-9]-[0-9].*%1970-01-01 00:00:00%
+                    }
+			' "$f"
+			echo
+		fi
+
+		touch "$pstamp"
 	done
 
 	touch "$stamp"
@@ -115,33 +150,21 @@ if [[ ! -f "$stamp" ]]; then
 	CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" cmake \
 	    -DCMAKE_BUILD_TYPE=Release \
 	    -DCMAKE_INSTALL_PREFIX="/opt/oxide/clickhouse" \
-	    -DCMAKE_C_COMPILER="/opt/ooce/bin/clang-$CLANGVER" \
-	    -DCMAKE_CXX_COMPILER="/opt/ooce/bin/clang-$CLANGVER" \
+	    -DCMAKE_C_COMPILER="/opt/ooce/llvm-$CLANGVER/bin/clang" \
+	    -DCMAKE_CXX_COMPILER="/opt/ooce/llvm-$CLANGVER/bin/clang++" \
 	    -DCMAKE_C_FLAGS="$CFLAGS" \
 	    -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
 	    -DABSL_CXX_STANDARD="20" \
 	    -DENABLE_CCACHE=0 \
 	    -DENABLE_CURL_BUILD=off \
 	    -DENABLE_LDAP=off \
-	    -DUSE_INTERNAL_LDAP_LIBRARY=off \
 	    -DENABLE_HDFS=off \
-	    -DUSE_INTERNAL_HDFS3_LIBRARY=off \
 	    -DENABLE_AMQPCPP=off \
 	    -DENABLE_AVRO=off \
-	    -DUSE_INTERNAL_AVRO_LIBRARY=off \
 	    -DENABLE_CAPNP=off \
-	    -DUSE_INTERNAL_CAPNP_LIBRARY=off \
 	    -DENABLE_MSGPACK=off \
-	    -DUSE_INTERNAL_MSGPACK_LIBRARY=off \
 	    -DENABLE_MYSQL=off \
-	    -DENABLE_S3=off \
-	    -DUSE_INTERNAL_AWS_S3_LIBRARY=off \
 	    -DENABLE_PARQUET=off \
-	    -DUSE_INTERNAL_PARQUET_LIBRARY=off \
-	    -DENABLE_ORC=off \
-	    -DUSE_INTERNAL_ORC_LIBRARY=off \
-	    -DUSE_SENTRY=off \
-	    -DENABLE_SENTRY=off \
 	    -DENABLE_CLICKHOUSE_ODBC_BRIDGE=off \
 	    -DENABLE_CLICKHOUSE_BENCHMARK=off \
 	    -DENABLE_TESTS=off \
@@ -244,7 +267,7 @@ ips)
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
 	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
-	    "database/$NAM-$SVER@$VER-1.0" \
+	    "database/$NAM-$SVER@$VER-2.0" \
 	    "database/$NAM-common@$CVER"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0

@@ -1,0 +1,17 @@
+From 3ca8f33087e687b3229b164601ebc22014d10fc6 Mon Sep 17 00:00:00 2001
+From: Andy Fiddaman <illumos@fiddaman.net>
+Date: Tue, 17 Oct 2023 16:58:36 +0000
+Subject: [PATCH 1/5] DependencyGraph
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Databases/TablesDependencyGraph.h a/src/Databases/TablesDependencyGraph.h
+--- a~/src/Databases/TablesDependencyGraph.h	1970-01-01 00:00:00
++++ a/src/Databases/TablesDependencyGraph.h	1970-01-01 00:00:00
+@@ -151,6 +151,8 @@ private:
+     {
+         using is_transparent = void;
+         size_t operator()(const NodeSharedPtr & left, const Node * right) const { return left.get() == right; }
++        size_t operator()(const Node * left, const NodeSharedPtr & right) const { return left == right.get(); }
++        size_t operator()(const Node * left, const Node * right) const { return left == right; }
+         size_t operator()(const NodeSharedPtr & left, const NodeSharedPtr & right) const { return left == right; }
+     };
+ 

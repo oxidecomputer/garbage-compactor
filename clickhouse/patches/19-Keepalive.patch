@@ -3,16 +3,11 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 29 May 2023 09:59:01 +1000
 Subject: [PATCH 17/42] 19-Keepalive.patch
 
----
- src/Client/Connection.cpp | 20 ++++++++++++++------
- 1 file changed, 14 insertions(+), 6 deletions(-)
-
-diff --git a/src/Client/Connection.cpp b/src/Client/Connection.cpp
-index 5047f958a1..15a69f6894 100644
---- a/src/Client/Connection.cpp
-+++ b/src/Client/Connection.cpp
-@@ -150,13 +150,21 @@ void Connection::connect(const ConnectionTimeouts & timeouts)
-         if (timeouts.tcp_keep_alive_timeout.totalSeconds())
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Client/Connection.cpp a/src/Client/Connection.cpp
+--- a~/src/Client/Connection.cpp	1970-01-01 00:00:00
++++ a/src/Client/Connection.cpp	1970-01-01 00:00:00
+@@ -152,13 +152,21 @@ void Connection::connect(const Connectio
+         if (tcp_keep_alive_timeout_in_sec)
          {
              socket->setKeepAlive(true);
 -            socket->setOption(IPPROTO_TCP,
@@ -31,14 +26,11 @@ index 5047f958a1..15a69f6894 100644
 +            socket->setOption(IPPROTO_TCP, TCP_KEEPINTVL, intvl);
 +            socket->setOption(IPPROTO_TCP, TCP_KEEPCNT, 3);
 +#elif defined(TCP_KEEPALIVE)
-+            socket->setOption(IPPROTO_TCP, TCP_KEEPALIVE, timeouts.tcp_keep_alive_timeout);
++            socket->setOption(IPPROTO_TCP, TCP_KEEPALIVE, tcp_keep_alive_timeout_in_sec);
 +#elif defined(TCP_KEEPIDLE)
-+            socket->setOption(IPPROTO_TCP, TCP_KEEPIDLE, timeouts.tcp_keep_alive_timeout);
++            socket->setOption(IPPROTO_TCP, TCP_KEEPIDLE, tcp_keep_alive_timeout_in_sec);
  #endif
--                , timeouts.tcp_keep_alive_timeout);
+-                , tcp_keep_alive_timeout_in_sec);
          }
  
          in = std::make_shared<ReadBufferFromPocoSocket>(*socket);
--- 
-2.40.1
-

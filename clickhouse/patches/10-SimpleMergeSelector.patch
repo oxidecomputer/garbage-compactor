@@ -3,15 +3,10 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 29 May 2023 09:58:58 +1000
 Subject: [PATCH 09/42] 10-SimpleMergeSelector.patch
 
----
- src/Storages/MergeTree/SimpleMergeSelector.cpp | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/src/Storages/MergeTree/SimpleMergeSelector.cpp b/src/Storages/MergeTree/SimpleMergeSelector.cpp
-index 434d44022d..064e4c12d1 100644
---- a/src/Storages/MergeTree/SimpleMergeSelector.cpp
-+++ b/src/Storages/MergeTree/SimpleMergeSelector.cpp
-@@ -207,8 +207,8 @@ SimpleMergeSelector::PartsRange SimpleMergeSelector::select(
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Storages/MergeTree/SimpleMergeSelector.cpp a/src/Storages/MergeTree/SimpleMergeSelector.cpp
+--- a~/src/Storages/MergeTree/SimpleMergeSelector.cpp	1970-01-01 00:00:00
++++ a/src/Storages/MergeTree/SimpleMergeSelector.cpp	1970-01-01 00:00:00
+@@ -210,8 +210,8 @@ SimpleMergeSelector::PartsRange SimpleMe
      Estimator estimator;
  
      /// Precompute logarithm of settings boundaries, because log function is quite expensive in terms of performance
@@ -22,6 +17,3 @@ index 434d44022d..064e4c12d1 100644
  
      for (const auto & part_range : parts_ranges)
          selectWithinPartition(part_range, max_total_size_to_merge, estimator, settings, min_size_to_lower_base_log, max_size_to_lower_base_log);
--- 
-2.40.1
-

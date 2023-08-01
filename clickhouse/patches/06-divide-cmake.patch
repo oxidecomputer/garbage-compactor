@@ -3,14 +3,9 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 29 May 2023 09:58:57 +1000
 Subject: [PATCH 05/42] 06-divide-cmake.patch
 
----
- src/Functions/divide/CMakeLists.txt | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/src/Functions/divide/CMakeLists.txt b/src/Functions/divide/CMakeLists.txt
-index 03c2faaf3c..bec9d3c66c 100644
---- a/src/Functions/divide/CMakeLists.txt
-+++ b/src/Functions/divide/CMakeLists.txt
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Functions/divide/CMakeLists.txt a/src/Functions/divide/CMakeLists.txt
+--- a~/src/Functions/divide/CMakeLists.txt	1970-01-01 00:00:00
++++ a/src/Functions/divide/CMakeLists.txt	1970-01-01 00:00:00
 @@ -1,6 +1,6 @@
  # A library for integer division by constant with CPU dispatching.
  
@@ -19,6 +14,3 @@ index 03c2faaf3c..bec9d3c66c 100644
      add_library(divide_impl_sse2 divideImpl.cpp)
      target_compile_options(divide_impl_sse2 PRIVATE -msse2 -DNAMESPACE=SSE2)
      target_link_libraries(divide_impl_sse2 ch_contrib::libdivide)
--- 
-2.40.1
-

@@ -3,14 +3,9 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 5 Jun 2023 13:25:34 +1000
 Subject: [PATCH 31/42] 33-statfs-linuxism.patch
 
----
- utils/self-extracting-executable/decompressor.cpp | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/utils/self-extracting-executable/decompressor.cpp b/utils/self-extracting-executable/decompressor.cpp
-index c0c97b1d71..1422b1f13c 100644
---- a/utils/self-extracting-executable/decompressor.cpp
-+++ b/utils/self-extracting-executable/decompressor.cpp
+diff -wpruN --no-dereference '--exclude=*.orig' a~/utils/self-extracting-executable/decompressor.cpp a/utils/self-extracting-executable/decompressor.cpp
+--- a~/utils/self-extracting-executable/decompressor.cpp	1970-01-01 00:00:00
++++ a/utils/self-extracting-executable/decompressor.cpp	1970-01-01 00:00:00
 @@ -3,7 +3,7 @@
  #if defined(OS_DARWIN) || defined(OS_FREEBSD)
  #   include <sys/mount.h>
@@ -20,7 +15,7 @@ index c0c97b1d71..1422b1f13c 100644
  #endif
  #include <fcntl.h>
  #include <sys/wait.h>
-@@ -204,10 +204,10 @@ int decompressFiles(int input_fd, char * path, char * name, bool & have_compress
+@@ -210,10 +210,10 @@ int decompressFiles(int input_fd, char *
      }
  
      /// Check free space
@@ -34,6 +29,3 @@ index c0c97b1d71..1422b1f13c 100644
          if (0 != munmap(input, info_in.st_size))
                  perror("munmap");
          return 1;
--- 
-2.40.1
-

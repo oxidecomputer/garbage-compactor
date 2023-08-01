@@ -1,23 +1,20 @@
 
 See https://github.com/ClickHouse/ClickHouse/pull/52833
 
-diff --git a/src/Server/KeeperTCPHandler.cpp b/src/Server/KeeperTCPHandler.cpp
-index 94e3597..9069369 100644
---- a/src/Server/KeeperTCPHandler.cpp
-+++ b/src/Server/KeeperTCPHandler.cpp
-@@ -169,10 +169,12 @@ struct SocketInterruptablePollWrapper
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Server/KeeperTCPHandler.cpp a/src/Server/KeeperTCPHandler.cpp
+--- a~/src/Server/KeeperTCPHandler.cpp	1970-01-01 00:00:00
++++ a/src/Server/KeeperTCPHandler.cpp	1970-01-01 00:00:00
+@@ -175,10 +175,12 @@ struct SocketInterruptablePollWrapper
              }
              while (rc < 0 && errno == POCO_EINTR);
  
 -            if (rc >= 1 && poll_buf[0].revents & POLLIN)
--                socket_ready = true;
--            if (rc >= 2 && poll_buf[1].revents & POLLIN)
--                fd_ready = true;
 +            if (rc >= 1) {
 +                if (poll_buf[0].revents & POLLIN)
-+                    socket_ready = true;
+                 socket_ready = true;
+-            if (rc >= 2 && poll_buf[1].revents & POLLIN)
 +                if (poll_buf[1].revents & POLLIN)
-+                    fd_ready = true;
+                 fd_ready = true;
 +            }
  #endif
          }

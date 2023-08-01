@@ -7,16 +7,17 @@ The flag was removed in
 https://github.com/llvm/llvm-project/commit/69b2b7282e92a1b576b7bd26f3b16
 The new pass manager has been the default since clang 13.
 
---- a/CMakeLists.txt~	2023-06-27 11:46:52.012613790 +0000
-+++ a/CMakeLists.txt	2023-06-27 11:47:19.841375744 +0000
-@@ -404,8 +404,8 @@
- 
-     # Set new experimental pass manager, it's a performance, build time and binary size win.
-     # Can be removed after https://reviews.llvm.org/D66490 merged and released to at least two versions of clang.
--    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexperimental-new-pass-manager")
--    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexperimental-new-pass-manager")
-+    #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexperimental-new-pass-manager")
-+    #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexperimental-new-pass-manager")
+diff -wpruN --no-dereference '--exclude=*.orig' a~/CMakeLists.txt a/CMakeLists.txt
+--- a~/CMakeLists.txt	1970-01-01 00:00:00
++++ a/CMakeLists.txt	1970-01-01 00:00:00
+@@ -368,8 +368,8 @@ if (COMPILER_CLANG)
+     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 16)
+         # Set new experimental pass manager, it's a performance, build time and binary size win.
+         # Can be removed after https://reviews.llvm.org/D66490 merged and released to at least two versions of clang.
+-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexperimental-new-pass-manager")
+-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexperimental-new-pass-manager")
++	#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fexperimental-new-pass-manager")
++	#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fexperimental-new-pass-manager")
+     endif ()
  
      # We cannot afford to use LTO when compiling unit tests, and it's not enough
-     # to only supply -fno-lto at the final linking stage. So we disable it

@@ -1,0 +1,29 @@
+From 89dad9e3eea5505519fb8dd844c18714d876a0e3 Mon Sep 17 00:00:00 2001
+From: Andy Fiddaman <illumos@fiddaman.net>
+Date: Thu, 3 Aug 2023 15:30:15 +0000
+Subject: [PATCH 05/13] llvm-project
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project/libcxx/include/__support/solaris/xlocale.h a/contrib/llvm-project/libcxx/include/__support/solaris/xlocale.h
+--- a~/contrib/llvm-project/libcxx/include/__support/solaris/xlocale.h	1970-01-01 00:00:00
++++ a/contrib/llvm-project/libcxx/include/__support/solaris/xlocale.h	1970-01-01 00:00:00
+@@ -43,7 +43,7 @@ strtol_l(const char *__nptr, char **__en
+ }
+ 
+ inline _LIBCPP_HIDE_FROM_ABI unsigned long long
+-strtoull_l(const char *__nptr, char **__endptr, int __base, locale_t __loc) 
++strtoull_l(const char *__nptr, char **__endptr, int __base, locale_t __loc) {
+   return ::strtoull(__nptr, __endptr, __base);
+ }
+ 
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project/libcxxabi/src/demangle/Utility.h a/contrib/llvm-project/libcxxabi/src/demangle/Utility.h
+--- a~/contrib/llvm-project/libcxxabi/src/demangle/Utility.h	1970-01-01 00:00:00
++++ a/contrib/llvm-project/libcxxabi/src/demangle/Utility.h	1970-01-01 00:00:00
+@@ -134,7 +134,7 @@ public:
+   OutputBuffer &operator<<(char C) { return (*this += C); }
+ 
+   OutputBuffer &operator<<(long long N) {
+-    return writeUnsigned(static_cast<unsigned long long>(std::abs(N)), N < 0);
++    return writeUnsigned(static_cast<unsigned long long>(std::llabs(N)), N < 0);
+   }
+ 
+   OutputBuffer &operator<<(unsigned long long N) {

@@ -3,16 +3,136 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Mon, 29 May 2023 09:58:56 +1000
 Subject: [PATCH 04/42] 05-datasketches-cpp.patch
 
----
- .../theta/include/theta_union_base_impl.hpp   | 26 +++++++++----------
- .../theta/include/theta_union_impl.hpp        |  6 ++---
- 2 files changed, 16 insertions(+), 16 deletions(-)
-
-diff --git a/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp b/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp
-index ec8ce56101..ad8075f2ff 100644
---- a/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp
-+++ b/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp
-@@ -26,17 +26,17 @@
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/datasketches-cpp/theta/include/theta_intersection_base_impl.hpp a/contrib/datasketches-cpp/theta/include/theta_intersection_base_impl.hpp
+--- a~/contrib/datasketches-cpp/theta/include/theta_intersection_base_impl.hpp	1970-01-01 00:00:00
++++ a/contrib/datasketches-cpp/theta/include/theta_intersection_base_impl.hpp	1970-01-01 00:00:00
+@@ -26,16 +26,16 @@
+ 
+ namespace datasketches {
+ 
+-template<typename EN, typename EK, typename P, typename S, typename CS, typename A>
+-theta_intersection_base<EN, EK, P, S, CS, A>::theta_intersection_base(uint64_t seed, const P& policy, const A& allocator):
++template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
++theta_intersection_base<EN, EK, P, S, CompactSketch, A>::theta_intersection_base(uint64_t seed, const P& policy, const A& allocator):
+ policy_(policy),
+ is_valid_(false),
+ table_(0, 0, resize_factor::X1, 1, theta_constants::MAX_THETA, seed, allocator, false)
+ {}
+ 
+-template<typename EN, typename EK, typename P, typename S, typename CS, typename A>
+-template<typename SS>
+-void theta_intersection_base<EN, EK, P, S, CS, A>::update(SS&& sketch) {
++template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
++template<typename SSketch>
++void theta_intersection_base<EN, EK, P, S, CompactSketch, A>::update(SSketch&& sketch) {
+   if (table_.is_empty_) return;
+   if (!sketch.is_empty() && sketch.get_seed_hash() != compute_seed_hash(table_.seed_)) throw std::invalid_argument("seed hash mismatch");
+   table_.is_empty_ |= sketch.is_empty();
+@@ -55,7 +55,7 @@ void theta_intersection_base<EN, EK, P,
+       if (result.second) {
+         throw std::invalid_argument("duplicate key, possibly corrupted input sketch");
+       }
+-      table_.insert(result.first, conditional_forward<SS>(entry));
++      table_.insert(result.first, conditional_forward<SSketch>(entry));
+     }
+     if (table_.num_entries_ != sketch.get_num_retained()) throw std::invalid_argument("num entries mismatch, possibly corrupted input sketch");
+   } else { // intersection
+@@ -69,7 +69,7 @@ void theta_intersection_base<EN, EK, P,
+         auto result = table_.find(EK()(entry));
+         if (result.second) {
+           if (match_count == max_matches) throw std::invalid_argument("max matches exceeded, possibly corrupted input sketch");
+-          policy_(*result.first, conditional_forward<SS>(entry));
++          policy_(*result.first, conditional_forward<SSketch>(entry));
+           matched_entries.push_back(std::move(*result.first));
+           ++match_count;
+         }
+@@ -97,8 +97,8 @@ void theta_intersection_base<EN, EK, P,
+   }
+ }
+ 
+-template<typename EN, typename EK, typename P, typename S, typename CS, typename A>
+-CS theta_intersection_base<EN, EK, P, S, CS, A>::get_result(bool ordered) const {
++template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
++CompactSketch theta_intersection_base<EN, EK, P, S, CompactSketch, A>::get_result(bool ordered) const {
+   if (!is_valid_) throw std::invalid_argument("calling get_result() before calling update() is undefined");
+   std::vector<EN, A> entries(table_.allocator_);
+   if (table_.num_entries_ > 0) {
+@@ -106,16 +106,16 @@ CS theta_intersection_base<EN, EK, P, S,
+     std::copy_if(table_.begin(), table_.end(), std::back_inserter(entries), key_not_zero<EN, EK>());
+     if (ordered) std::sort(entries.begin(), entries.end(), comparator());
+   }
+-  return CS(table_.is_empty_, ordered, compute_seed_hash(table_.seed_), table_.theta_, std::move(entries));
++  return CompactSketch(table_.is_empty_, ordered, compute_seed_hash(table_.seed_), table_.theta_, std::move(entries));
+ }
+ 
+-template<typename EN, typename EK, typename P, typename S, typename CS, typename A>
+-bool theta_intersection_base<EN, EK, P, S, CS, A>::has_result() const {
++template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
++bool theta_intersection_base<EN, EK, P, S, CompactSketch, A>::has_result() const {
+   return is_valid_;
+ }
+ 
+-template<typename EN, typename EK, typename P, typename S, typename CS, typename A>
+-const P& theta_intersection_base<EN, EK, P, S, CS, A>::get_policy() const {
++template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
++const P& theta_intersection_base<EN, EK, P, S, CompactSketch, A>::get_policy() const {
+   return policy_;
+ }
+ 
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/datasketches-cpp/theta/include/theta_intersection_impl.hpp a/contrib/datasketches-cpp/theta/include/theta_intersection_impl.hpp
+--- a~/contrib/datasketches-cpp/theta/include/theta_intersection_impl.hpp	1970-01-01 00:00:00
++++ a/contrib/datasketches-cpp/theta/include/theta_intersection_impl.hpp	1970-01-01 00:00:00
+@@ -28,9 +28,9 @@ state_(seed, nop_policy(), allocator)
+ {}
+ 
+ template<typename A>
+-template<typename SS>
+-void theta_intersection_alloc<A>::update(SS&& sketch) {
+-  state_.update(std::forward<SS>(sketch));
++template<typename SSketch>
++void theta_intersection_alloc<A>::update(SSketch&& sketch) {
++  state_.update(std::forward<SSketch>(sketch));
+ }
+ 
+ template<typename A>
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/datasketches-cpp/theta/include/theta_set_difference_base_impl.hpp a/contrib/datasketches-cpp/theta/include/theta_set_difference_base_impl.hpp
+--- a~/contrib/datasketches-cpp/theta/include/theta_set_difference_base_impl.hpp	1970-01-01 00:00:00
++++ a/contrib/datasketches-cpp/theta/include/theta_set_difference_base_impl.hpp	1970-01-01 00:00:00
+@@ -28,16 +28,16 @@
+ 
+ namespace datasketches {
+ 
+-template<typename EN, typename EK, typename CS, typename A>
+-theta_set_difference_base<EN, EK, CS, A>::theta_set_difference_base(uint64_t seed, const A& allocator):
++template<typename EN, typename EK, typename CompactSketch, typename A>
++theta_set_difference_base<EN, EK, CompactSketch, A>::theta_set_difference_base(uint64_t seed, const A& allocator):
+ allocator_(allocator),
+ seed_hash_(compute_seed_hash(seed))
+ {}
+ 
+-template<typename EN, typename EK, typename CS, typename A>
++template<typename EN, typename EK, typename CompactSketch, typename A>
+ template<typename FwdSketch, typename Sketch>
+-CS theta_set_difference_base<EN, EK, CS, A>::compute(FwdSketch&& a, const Sketch& b, bool ordered) const {
+-  if (a.is_empty() || (a.get_num_retained() > 0 && b.is_empty())) return CS(a, ordered);
++CompactSketch theta_set_difference_base<EN, EK, CompactSketch, A>::compute(FwdSketch&& a, const Sketch& b, bool ordered) const {
++  if (a.is_empty() || (a.get_num_retained() > 0 && b.is_empty())) return CompactSketch(a, ordered);
+   if (a.get_seed_hash() != seed_hash_) throw std::invalid_argument("A seed hash mismatch");
+   if (b.get_seed_hash() != seed_hash_) throw std::invalid_argument("B seed hash mismatch");
+ 
+@@ -78,7 +78,7 @@ CS theta_set_difference_base<EN, EK, CS,
+   }
+   if (entries.empty() && theta == theta_constants::MAX_THETA) is_empty = true;
+   if (ordered && !a.is_ordered()) std::sort(entries.begin(), entries.end(), comparator());
+-  return CS(is_empty, a.is_ordered() || ordered, seed_hash_, theta, std::move(entries));
++  return CompactSketch(is_empty, a.is_ordered() || ordered, seed_hash_, theta, std::move(entries));
+ }
+ 
+ } /* namespace datasketches */
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp a/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp
+--- a~/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp	1970-01-01 00:00:00
++++ a/contrib/datasketches-cpp/theta/include/theta_union_base_impl.hpp	1970-01-01 00:00:00
+@@ -27,17 +27,17 @@
  
  namespace datasketches {
  
@@ -20,9 +140,9 @@ index ec8ce56101..ad8075f2ff 100644
 -theta_union_base<EN, EK, P, S, CS, A>::theta_union_base(uint8_t lg_cur_size, uint8_t lg_nom_size, resize_factor rf,
 +template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
 +theta_union_base<EN, EK, P, S, CompactSketch, A>::theta_union_base(uint8_t lg_cur_size, uint8_t lg_nom_size, resize_factor rf,
-     uint64_t theta, uint64_t seed, const P& policy, const A& allocator):
+     float p, uint64_t theta, uint64_t seed, const P& policy, const A& allocator):
  policy_(policy),
- table_(lg_cur_size, lg_nom_size, rf, theta, seed, allocator),
+ table_(lg_cur_size, lg_nom_size, rf, p, theta, seed, allocator),
  union_theta_(table_.theta_)
  {}
  
@@ -35,8 +155,8 @@ index ec8ce56101..ad8075f2ff 100644
    if (sketch.is_empty()) return;
    if (sketch.get_seed_hash() != compute_seed_hash(table_.seed_)) throw std::invalid_argument("seed hash mismatch");
    table_.is_empty_ = false;
-@@ -46,9 +46,9 @@ void theta_union_base<EN, EK, P, S, CS, A>::update(SS&& sketch) {
-     if (hash < union_theta_) {
+@@ -47,9 +47,9 @@ void theta_union_base<EN, EK, P, S, CS,
+     if (hash < union_theta_ && hash < table_.theta_) {
        auto result = table_.find(hash);
        if (!result.second) {
 -        table_.insert(result.first, conditional_forward<SS>(entry));
@@ -47,7 +167,7 @@ index ec8ce56101..ad8075f2ff 100644
        }
      } else {
        if (sketch.is_ordered()) break; // early stop
-@@ -57,10 +57,10 @@ void theta_union_base<EN, EK, P, S, CS, A>::update(SS&& sketch) {
+@@ -58,10 +58,10 @@ void theta_union_base<EN, EK, P, S, CS,
    if (table_.theta_ < union_theta_) union_theta_ = table_.theta_;
  }
  
@@ -61,7 +181,7 @@ index ec8ce56101..ad8075f2ff 100644
    entries.reserve(table_.num_entries_);
    uint64_t theta = std::min(union_theta_, table_.theta_);
    const uint32_t nominal_num = 1 << table_.lg_nom_size_;
-@@ -76,11 +76,11 @@ CS theta_union_base<EN, EK, P, S, CS, A>::get_result(bool ordered) const {
+@@ -77,16 +77,16 @@ CS theta_union_base<EN, EK, P, S, CS, A>
      }
    }
    if (ordered) std::sort(entries.begin(), entries.end(), comparator());
@@ -76,11 +196,17 @@ index ec8ce56101..ad8075f2ff 100644
    return policy_;
  }
  
-diff --git a/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp b/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp
-index 4708d704da..918f884f61 100644
---- a/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp
-+++ b/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp
-@@ -28,9 +28,9 @@ state_(lg_cur_size, lg_nom_size, rf, theta, seed, pass_through_policy(), allocat
+-template<typename EN, typename EK, typename P, typename S, typename CS, typename A>
+-void theta_union_base<EN, EK, P, S, CS, A>::reset() {
++template<typename EN, typename EK, typename P, typename S, typename CompactSketch, typename A>
++void theta_union_base<EN, EK, P, S, CompactSketch, A>::reset() {
+   table_.reset();
+   union_theta_ = table_.theta_;
+ }
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp a/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp
+--- a~/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp	1970-01-01 00:00:00
++++ a/contrib/datasketches-cpp/theta/include/theta_union_impl.hpp	1970-01-01 00:00:00
+@@ -28,9 +28,9 @@ state_(lg_cur_size, lg_nom_size, rf, p,
  {}
  
  template<typename A>
@@ -93,6 +219,3 @@ index 4708d704da..918f884f61 100644
  }
  
  template<typename A>
--- 
-2.40.1
-

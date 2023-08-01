@@ -3,18 +3,13 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Tue, 6 Jun 2023 13:47:14 +1000
 Subject: [PATCH 38/42] 40-no-throw-in-terminate.patch
 
----
- src/Common/Exception.cpp | 42 +++++++++++++++++++++-------------------
- 1 file changed, 22 insertions(+), 20 deletions(-)
-
-diff --git a/src/Common/Exception.cpp b/src/Common/Exception.cpp
-index 1f5ff35ab4..49e5ec90fe 100644
---- a/src/Common/Exception.cpp
-+++ b/src/Common/Exception.cpp
-@@ -317,47 +317,48 @@ std::string getExtraExceptionInfo(const std::exception & e)
- std::string getCurrentExceptionMessage(bool with_stacktrace, bool check_embedded_stacktrace /*= false*/, bool with_extra_info /*= true*/)
+diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/Exception.cpp a/src/Common/Exception.cpp
+--- a~/src/Common/Exception.cpp	1970-01-01 00:00:00
++++ a/src/Common/Exception.cpp	1970-01-01 00:00:00
+@@ -346,48 +346,49 @@ PreformattedMessage getCurrentExceptionM
  {
      WriteBufferFromOwnString stream;
+     std::string_view message_format_string;
 +    void *ex = abi::__cxa_current_primary_exception();
 +    std::exception *se = reinterpret_cast<std::exception *>(ex);
  
@@ -33,6 +28,8 @@ index 1f5ff35ab4..49e5ec90fe 100644
 +        stream << getExceptionMessage(*e, with_stacktrace, check_embedded_stacktrace)
 +               << (with_extra_info ? getExtraExceptionInfo(*e) : "")
                 << " (version " << VERSION_STRING << VERSION_OFFICIAL << ")";
+-        message_format_string = e.tryGetMessageFormatString();
++        message_format_string = e->tryGetMessageFormatString();
      }
 -    catch (const Poco::Exception & e)
 +    else if (pe != nullptr)
@@ -78,16 +75,16 @@ index 1f5ff35ab4..49e5ec90fe 100644
      {
          try
          {
-@@ -370,7 +371,7 @@ std::string getCurrentExceptionMessage(bool with_stacktrace, bool check_embedded
+@@ -400,7 +401,7 @@ PreformattedMessage getCurrentExceptionM
              stream << "Unknown exception. Code: " << ErrorCodes::UNKNOWN_EXCEPTION << ", type: " << name << " (version " << VERSION_STRING << VERSION_OFFICIAL << ")";
          }
          catch (...) {}
 -    }
 +    }*/
  
-     return stream.str();
+     return PreformattedMessage{stream.str(), message_format_string};
  }
-@@ -378,9 +379,10 @@ std::string getCurrentExceptionMessage(bool with_stacktrace, bool check_embedded
+@@ -408,9 +409,10 @@ PreformattedMessage getCurrentExceptionM
  
  int getCurrentExceptionCode()
  {
@@ -99,6 +96,3 @@ index 1f5ff35ab4..49e5ec90fe 100644
      }
      catch (const Exception & e)
      {
--- 
-2.40.1
-

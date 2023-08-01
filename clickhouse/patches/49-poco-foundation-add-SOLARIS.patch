@@ -1,0 +1,51 @@
+From ab39873fd7a3214dfec9efbc664ccc842ed01a0e Mon Sep 17 00:00:00 2001
+From: Andy Fiddaman <illumos@fiddaman.net>
+Date: Thu, 3 Aug 2023 15:29:10 +0000
+Subject: [PATCH 03/13] poco foundation: add SOLARIS
+
+diff -wpruN --no-dereference '--exclude=*.orig' a~/base/poco/Foundation/src/Environment_UNIX.cpp a/base/poco/Foundation/src/Environment_UNIX.cpp
+--- a~/base/poco/Foundation/src/Environment_UNIX.cpp	1970-01-01 00:00:00
++++ a/base/poco/Foundation/src/Environment_UNIX.cpp	1970-01-01 00:00:00
+@@ -281,15 +281,15 @@ void EnvironmentImpl::nodeIdImpl(NodeId&
+ /// #include <sys/ioctl.h>
+ #if defined(sun) || defined(__sun)
+ #include <sys/sockio.h>
++#include <netdb.h>
++#include <net/if.h>
++#include <net/if_arp.h>
+ #endif
+ /// #include <sys/socket.h>
+ /// #include <sys/types.h>
+ /// #include <netinet/in.h>
+ /// #include <net/if.h>
+ /// #include <arpa/inet.h>
+-/// #include <netdb.h>
+-/// #include <net/if.h>
+-/// #include <net/if_arp.h>
+ /// #include <unistd.h>
+ 
+ 
+diff -wpruN --no-dereference '--exclude=*.orig' a~/base/poco/Foundation/src/NamedEvent_UNIX.cpp a/base/poco/Foundation/src/NamedEvent_UNIX.cpp
+--- a~/base/poco/Foundation/src/NamedEvent_UNIX.cpp	1970-01-01 00:00:00
++++ a/base/poco/Foundation/src/NamedEvent_UNIX.cpp	1970-01-01 00:00:00
+@@ -31,7 +31,7 @@
+ namespace Poco {
+ 
+ 
+-#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_ANDROID) || (POCO_OS == POCO_OS_CYGWIN) || (POCO_OS == POCO_OS_FREE_BSD)
++#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_ANDROID) || (POCO_OS == POCO_OS_CYGWIN) || (POCO_OS == POCO_OS_FREE_BSD) || (POCO_OS == POCO_OS_SOLARIS)
+ 	union semun
+ 	{
+ 		int                 val;
+diff -wpruN --no-dereference '--exclude=*.orig' a~/base/poco/Foundation/src/NamedMutex_UNIX.cpp a/base/poco/Foundation/src/NamedMutex_UNIX.cpp
+--- a~/base/poco/Foundation/src/NamedMutex_UNIX.cpp	1970-01-01 00:00:00
++++ a/base/poco/Foundation/src/NamedMutex_UNIX.cpp	1970-01-01 00:00:00
+@@ -31,7 +31,7 @@
+ namespace Poco {
+ 
+ 
+-#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_ANDROID) || (POCO_OS == POCO_OS_CYGWIN) || (POCO_OS == POCO_OS_FREE_BSD)
++#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_ANDROID) || (POCO_OS == POCO_OS_CYGWIN) || (POCO_OS == POCO_OS_FREE_BSD) || (POCO_OS == POCO_OS_SOLARIS)
+ 	union semun
+ 	{
+ 		int                 val;

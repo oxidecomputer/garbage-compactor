@@ -3,32 +3,10 @@ From: Alex Wilson <alex@cooperi.net>
 Date: Tue, 30 May 2023 13:11:10 +1000
 Subject: [PATCH 24/42] 26-sunos-xlocale.patch
 
----
- contrib/libcxx-cmake/CMakeLists.txt            | 6 ++++++
- contrib/libcxx/src/support/solaris/xlocale.cpp | 3 ++-
- 2 files changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/contrib/libcxx-cmake/CMakeLists.txt b/contrib/libcxx-cmake/CMakeLists.txt
-index a501c4df64..8bc3f53de9 100644
---- a/contrib/libcxx-cmake/CMakeLists.txt
-+++ b/contrib/libcxx-cmake/CMakeLists.txt
-@@ -51,6 +51,12 @@ set(SRCS
- "${LIBCXX_SOURCE_DIR}/src/vector.cpp"
- )
- 
-+if (OS_SUNOS)
-+    set (SRCS ${SRCS}
-+        "${LIBCXX_SOURCE_DIR}/src/support/solaris/xlocale.cpp"
-+    )
-+endif()
-+
- add_library(cxx ${SRCS})
- set_target_properties(cxx PROPERTIES FOLDER "contrib/libcxx-cmake")
- 
-diff --git a/contrib/libcxx/src/support/solaris/xlocale.cpp b/contrib/libcxx/src/support/solaris/xlocale.cpp
-index d25adcd21d..2e13391c3c 100644
---- a/contrib/libcxx/src/support/solaris/xlocale.cpp
-+++ b/contrib/libcxx/src/support/solaris/xlocale.cpp
+diff a/contrib/llvm-project-cmake/CMakeLists.txt.orig b/contrib/llvm-project-cmake/CMakeLists.txt
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project/libcxx/src/support/solaris/xlocale.cpp a/contrib/llvm-project/libcxx/src/support/solaris/xlocale.cpp
+--- a~/contrib/llvm-project/libcxx/src/support/solaris/xlocale.cpp	1970-01-01 00:00:00
++++ a/contrib/llvm-project/libcxx/src/support/solaris/xlocale.cpp	1970-01-01 00:00:00
 @@ -11,7 +11,8 @@
  #include "__support/solaris/xlocale.h"
  #include <stdarg.h>
@@ -39,6 +17,19 @@ index d25adcd21d..2e13391c3c 100644
  
  extern "C" {
  
--- 
-2.40.1
-
+diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project-cmake/CMakeLists.txt a/contrib/llvm-project-cmake/CMakeLists.txt
+--- a~/contrib/llvm-project-cmake/CMakeLists.txt	1970-01-01 00:00:00
++++ a/contrib/llvm-project-cmake/CMakeLists.txt	1970-01-01 00:00:00
+@@ -64,6 +64,12 @@ set (REQUIRED_LLVM_LIBRARIES
+ #     list(APPEND REQUIRED_LLVM_LIBRARIES LLVMAArch64Info LLVMAArch64Desc LLVMAArch64CodeGen)
+ # endif ()
+ 
++if (OS_SUNOS)
++    set (SRCS ${SRCS}
++        "${LIBCXX_SOURCE_DIR}/src/support/solaris/xlocale.cpp"
++    )
++endif()
++
+ set (CMAKE_INSTALL_RPATH "ON") # Do not adjust RPATH in llvm, since then it will not be able to find libcxx/libcxxabi/libunwind
+ set (LLVM_COMPILER_CHECKED 1 CACHE INTERNAL "") # Skip internal compiler selection
+ set (LLVM_ENABLE_EH 1 CACHE INTERNAL "") # With exception handling
