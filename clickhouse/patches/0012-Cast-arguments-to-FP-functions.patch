@@ -1,0 +1,92 @@
+From 45dbae82b7e305e3ab77108d0eb88ccc03539d73 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:45:51 +0000
+Subject: [PATCH 12/52] Cast arguments to FP functions
+
+---
+ src/AggregateFunctions/QuantileExact.h         | 12 ++++++------
+ src/Functions/PerformanceAdaptors.h            |  2 +-
+ src/Storages/MergeTree/SimpleMergeSelector.cpp |  4 ++--
+ 3 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/src/AggregateFunctions/QuantileExact.h b/src/AggregateFunctions/QuantileExact.h
+index c67621a..01a3ea5 100644
+--- a/src/AggregateFunctions/QuantileExact.h
++++ b/src/AggregateFunctions/QuantileExact.h
+@@ -275,11 +275,11 @@ struct QuantileExactLow : public QuantileExactBase<Value, QuantileExactLow<Value
+                 auto s = array.size();
+                 if (s % 2 == 1)
+                 {
+-                    n = static_cast<size_t>(floor(s / 2));
++                    n = static_cast<size_t>(static_cast<double>(floor(static_cast<double>(s / 2))));
+                 }
+                 else
+                 {
+-                    n = static_cast<size_t>((floor(s / 2)) - 1);
++                    n = static_cast<size_t>((static_cast<double>(floor(static_cast<double>(s / 2)))) - 1);
+                 }
+             }
+             else
+@@ -311,11 +311,11 @@ struct QuantileExactLow : public QuantileExactBase<Value, QuantileExactLow<Value
+                     auto s = array.size();
+                     if (s % 2 == 1)
+                     {
+-                        n = static_cast<size_t>(floor(s / 2));
++                        n = static_cast<size_t>(static_cast<double>(floor(static_cast<double>(s / 2))));
+                     }
+                     else
+                     {
+-                        n = static_cast<size_t>(floor((s / 2) - 1));
++                        n = static_cast<size_t>(static_cast<double>(floor(static_cast<double>(s / 2) - 1)));
+                     }
+                 }
+                 else
+@@ -355,7 +355,7 @@ struct QuantileExactHigh : public QuantileExactBase<Value, QuantileExactHigh<Val
+             if (level == 0.5)
+             {
+                 auto s = array.size();
+-                n = static_cast<size_t>(floor(s / 2));
++                n = static_cast<size_t>(static_cast<double>(floor(static_cast<double>(s / 2))));
+             }
+             else
+             {
+@@ -383,7 +383,7 @@ struct QuantileExactHigh : public QuantileExactBase<Value, QuantileExactHigh<Val
+                 if (level == 0.5)
+                 {
+                     auto s = array.size();
+-                    n = static_cast<size_t>(floor(s / 2));
++                    n = static_cast<size_t>(static_cast<double>(floor(static_cast<double>(s / 2))));
+                 }
+                 else
+                 {
+diff --git a/src/Functions/PerformanceAdaptors.h b/src/Functions/PerformanceAdaptors.h
+index ef2c788..d1f2bd1 100644
+--- a/src/Functions/PerformanceAdaptors.h
++++ b/src/Functions/PerformanceAdaptors.h
+@@ -99,7 +99,7 @@ namespace detail
+             ///  when there is no statistical significant difference between them.
+             double sigma() const
+             {
+-                return mean() / sqrt(adjustedCount());
++                return mean() / sqrt(static_cast<double>(adjustedCount()));
+             }
+ 
+             void run()
+diff --git a/src/Storages/MergeTree/SimpleMergeSelector.cpp b/src/Storages/MergeTree/SimpleMergeSelector.cpp
+index af3373f..cd116fe 100644
+--- a/src/Storages/MergeTree/SimpleMergeSelector.cpp
++++ b/src/Storages/MergeTree/SimpleMergeSelector.cpp
+@@ -210,8 +210,8 @@ SimpleMergeSelector::PartsRange SimpleMergeSelector::select(
+     Estimator estimator;
+ 
+     /// Precompute logarithm of settings boundaries, because log function is quite expensive in terms of performance
+-    const double min_size_to_lower_base_log = log(1 + settings.min_size_to_lower_base);
+-    const double max_size_to_lower_base_log = log(1 + settings.max_size_to_lower_base);
++    const double min_size_to_lower_base_log = log(static_cast<double>(1 + settings.min_size_to_lower_base));
++    const double max_size_to_lower_base_log = log(static_cast<double>(1 + settings.max_size_to_lower_base));
+ 
+     for (const auto & part_range : parts_ranges)
+         selectWithinPartition(part_range, max_total_size_to_merge, estimator, settings, min_size_to_lower_base_log, max_size_to_lower_base_log);
+-- 
+2.40.1
+

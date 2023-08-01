@@ -1,0 +1,25 @@
+From d13ecbfae445736c3ed1eefe221769714bdad9d5 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:47:39 +0000
+Subject: [PATCH 03/52] Disable thread safety analysis
+
+---
+ cmake/warnings.cmake | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/cmake/warnings.cmake b/cmake/warnings.cmake
+index 5d116b1..0114b84 100644
+--- a/cmake/warnings.cmake
++++ b/cmake/warnings.cmake
+@@ -44,6 +44,8 @@ if (COMPILER_CLANG)
+     no_warning(weak-template-vtables)
+     no_warning(weak-vtables)
+     no_warning(thread-safety-negative) # experimental flag, too many false positives
++    no_warning(thread-safety-analysis) # experimental flag, too many false positives
++    no_warning(thread-safety-attributes) # experimental flag, too many false positives
+     no_warning(enum-constexpr-conversion) # breaks magic-enum library in clang-16
+     no_warning(unsafe-buffer-usage) # too aggressive
+     # TODO Enable conversion, sign-conversion, double-promotion warnings.
+-- 
+2.40.1
+

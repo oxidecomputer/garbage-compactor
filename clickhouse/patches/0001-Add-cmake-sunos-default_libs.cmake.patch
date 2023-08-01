@@ -1,0 +1,63 @@
+From 4dd8409f9f991ee8a0cb2d1cbbbcdc8d305db273 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:46:30 +0000
+Subject: [PATCH 01/52] Add cmake/sunos/default_libs.cmake
+
+---
+ CMakeLists.txt                 |  2 ++
+ cmake/sunos/default_libs.cmake | 30 ++++++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
+ create mode 100644 cmake/sunos/default_libs.cmake
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ce615c1..4569fd8 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -405,6 +405,8 @@ elseif (OS_DARWIN)
+     include(cmake/darwin/default_libs.cmake)
+ elseif (OS_FREEBSD)
+     include(cmake/freebsd/default_libs.cmake)
++elseif (OS_SUNOS)
++    include(cmake/sunos/default_libs.cmake)
+ else()
+     link_libraries(global-group)
+ endif ()
+diff --git a/cmake/sunos/default_libs.cmake b/cmake/sunos/default_libs.cmake
+new file mode 100644
+index 0000000..82a6113
+--- /dev/null
++++ b/cmake/sunos/default_libs.cmake
+@@ -0,0 +1,30 @@
++set (DEFAULT_LIBS "-nodefaultlibs")
++
++if (NOT COMPILER_CLANG)
++    message (FATAL_ERROR "illumos build is supported only for Clang")
++endif ()
++
++set (BUILTINS_LIBRARY "-lgcc_s")
++
++set (DEFAULT_LIBS "${DEFAULT_LIBS} ${BUILTINS_LIBRARY} ${COVERAGE_OPTION} -lc -lm -lsocket -lnsl -lsendfile -lproc")
++
++message(STATUS "Default libraries: ${DEFAULT_LIBS}")
++
++set(CMAKE_CXX_STANDARD_LIBRARIES ${DEFAULT_LIBS})
++set(CMAKE_C_STANDARD_LIBRARIES ${DEFAULT_LIBS})
++
++set(CMAKE_HAVE_LIBC_PTHREAD ON)
++find_package(Threads REQUIRED)
++
++include (cmake/unwind.cmake)
++include (cmake/cxx.cmake)
++
++target_link_libraries(global-group INTERFACE
++    $<TARGET_PROPERTY:global-libs,INTERFACE_LINK_LIBRARIES>
++)
++
++# FIXME: remove when all contribs will get custom cmake lists
++install(
++    TARGETS global-group global-libs
++    EXPORT global
++)
+-- 
+2.40.1
+

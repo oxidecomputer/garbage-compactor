@@ -1,0 +1,27 @@
+From a185ef782e2d6e2d3ea28b03ff016538192be9f2 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:45:32 +0000
+Subject: [PATCH 07/52] Add -lsocket and -lnsl to poco link
+
+---
+ base/poco/Net/CMakeLists.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/base/poco/Net/CMakeLists.txt b/base/poco/Net/CMakeLists.txt
+index 792045c..50ffbdf 100644
+--- a/base/poco/Net/CMakeLists.txt
++++ b/base/poco/Net/CMakeLists.txt
+@@ -9,6 +9,10 @@ elseif (OS_DARWIN OR OS_FREEBSD)
+     target_compile_definitions (_poco_net PUBLIC POCO_HAVE_FD_POLL)
+ endif ()
+ 
++if (OS_SUNOS)
++    target_link_libraries (_poco_net PUBLIC socket nsl)
++endif ()
++
+ # TODO: remove these warning exclusions
+ target_compile_options (_poco_net
+     PRIVATE
+-- 
+2.40.1
+

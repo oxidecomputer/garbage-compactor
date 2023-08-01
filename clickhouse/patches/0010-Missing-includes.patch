@@ -1,0 +1,319 @@
+From 64c69cb25c8d366a0c81a4c5523dafcb985fc594 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:48:00 +0000
+Subject: [PATCH 10/52] Missing includes
+
+---
+ base/base/bit_cast.h                                            | 1 +
+ base/base/iostream_debug_helpers.h                              | 2 ++
+ programs/copier/ShardPartition.h                                | 1 +
+ programs/copier/ShardPartitionPiece.h                           | 1 +
+ src/Access/AccessBackup.h                                       | 1 +
+ src/Access/Common/AccessFlags.h                                 | 1 +
+ src/Backups/BackupStatus.h                                      | 1 +
+ src/Backups/IBackupCoordination.h                               | 2 ++
+ src/Backups/IRestoreCoordination.h                              | 2 ++
+ src/Backups/RestoreCoordinationLocal.h                          | 1 +
+ src/Common/CaresPTRResolver.cpp                                 | 1 +
+ src/Common/RemoteHostFilter.h                                   | 1 +
+ src/Common/ZooKeeper/ZooKeeper.h                                | 1 +
+ src/Disks/DiskType.cpp                                          | 1 +
+ .../DiskObjectStorageRemoteMetadataRestoreHelper.cpp            | 2 ++
+ src/Disks/ObjectStorages/DiskObjectStorageTransaction.cpp       | 1 +
+ src/Formats/BSONTypes.h                                         | 1 +
+ src/IO/ISchedulerNode.h                                         | 1 +
+ src/Loggers/OwnSplitChannel.h                                   | 1 +
+ src/Storages/MergeTree/IPartMetadataManager.h                   | 1 +
+ src/Storages/NATS/NATSConnection.cpp                            | 2 ++
+ src/Storages/NATS/NATSHandler.cpp                               | 2 ++
+ src/Storages/NATS/NATSHandler.h                                 | 1 +
+ src/Storages/StorageLogSettings.h                               | 1 +
+ 24 files changed, 30 insertions(+)
+
+diff --git a/base/base/bit_cast.h b/base/base/bit_cast.h
+index 5373ead..8036b3f 100644
+--- a/base/base/bit_cast.h
++++ b/base/base/bit_cast.h
+@@ -3,6 +3,7 @@
+ #include <cstring>
+ #include <algorithm>
+ #include <type_traits>
++#include <bit>
+ 
+ 
+ /** Returns value `from` converted to type `To` while retaining bit representation.
+diff --git a/base/base/iostream_debug_helpers.h b/base/base/iostream_debug_helpers.h
+index db974c9..0f07210 100644
+--- a/base/base/iostream_debug_helpers.h
++++ b/base/base/iostream_debug_helpers.h
+@@ -7,6 +7,8 @@
+ #include <iomanip>
+ #include <iostream>
+ #include <magic_enum.hpp>
++#include <cstring>
++#include <memory>
+ 
+ /** Usage:
+   *
+diff --git a/programs/copier/ShardPartition.h b/programs/copier/ShardPartition.h
+index 2457213..13bf58d 100644
+--- a/programs/copier/ShardPartition.h
++++ b/programs/copier/ShardPartition.h
+@@ -4,6 +4,7 @@
+ 
+ #include <base/types.h>
+ 
++#include <vector>
+ #include <map>
+ 
+ namespace DB
+diff --git a/programs/copier/ShardPartitionPiece.h b/programs/copier/ShardPartitionPiece.h
+index aba378d..e4ea7b6 100644
+--- a/programs/copier/ShardPartitionPiece.h
++++ b/programs/copier/ShardPartitionPiece.h
+@@ -1,5 +1,6 @@
+ #pragma once
+ 
++#include <vector>
+ #include <base/types.h>
+ 
+ namespace DB
+diff --git a/src/Access/AccessBackup.h b/src/Access/AccessBackup.h
+index 99f22b6..559668f 100644
+--- a/src/Access/AccessBackup.h
++++ b/src/Access/AccessBackup.h
+@@ -3,6 +3,7 @@
+ #include <Core/UUID.h>
+ #include <unordered_map>
+ #include <unordered_set>
++#include <memory>
+ 
+ 
+ namespace DB
+diff --git a/src/Access/Common/AccessFlags.h b/src/Access/Common/AccessFlags.h
+index 270ee1c..c9672da 100644
+--- a/src/Access/Common/AccessFlags.h
++++ b/src/Access/Common/AccessFlags.h
+@@ -4,6 +4,7 @@
+ #include <bitset>
+ #include <cstring>
+ #include <vector>
++#include <unordered_map>
+ 
+ 
+ namespace DB
+diff --git a/src/Backups/BackupStatus.h b/src/Backups/BackupStatus.h
+index 0afe6ef..6575fc1 100644
+--- a/src/Backups/BackupStatus.h
++++ b/src/Backups/BackupStatus.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <base/types.h>
++#include <vector>
+ 
+ 
+ namespace DB
+diff --git a/src/Backups/IBackupCoordination.h b/src/Backups/IBackupCoordination.h
+index 75d9202..79cc592 100644
+--- a/src/Backups/IBackupCoordination.h
++++ b/src/Backups/IBackupCoordination.h
+@@ -1,6 +1,8 @@
+ #pragma once
+ 
+ #include <Core/Types.h>
++#include <chrono>
++#include <atomic>
+ 
+ 
+ namespace DB
+diff --git a/src/Backups/IRestoreCoordination.h b/src/Backups/IRestoreCoordination.h
+index 2f9e8d1..b36f89f 100644
+--- a/src/Backups/IRestoreCoordination.h
++++ b/src/Backups/IRestoreCoordination.h
+@@ -1,6 +1,8 @@
+ #pragma once
+ 
+ #include <Core/Types.h>
++#include <atomic>
++#include <chrono>
+ 
+ 
+ namespace DB
+diff --git a/src/Backups/RestoreCoordinationLocal.h b/src/Backups/RestoreCoordinationLocal.h
+index bbe76cd..baffe79 100644
+--- a/src/Backups/RestoreCoordinationLocal.h
++++ b/src/Backups/RestoreCoordinationLocal.h
+@@ -4,6 +4,7 @@
+ #include <mutex>
+ #include <set>
+ #include <unordered_set>
++#include <atomic>
+ 
+ namespace Poco { class Logger; }
+ 
+diff --git a/src/Common/CaresPTRResolver.cpp b/src/Common/CaresPTRResolver.cpp
+index bf61e94..4c4a451 100644
+--- a/src/Common/CaresPTRResolver.cpp
++++ b/src/Common/CaresPTRResolver.cpp
+@@ -1,6 +1,7 @@
+ #include "CaresPTRResolver.h"
+ #include <arpa/inet.h>
+ #include <sys/select.h>
++#include <sys/poll.h>
+ #include <Common/Exception.h>
+ #include <Common/logger_useful.h>
+ #include "ares.h"
+diff --git a/src/Common/RemoteHostFilter.h b/src/Common/RemoteHostFilter.h
+index 2b91306..2c4ebcc 100644
+--- a/src/Common/RemoteHostFilter.h
++++ b/src/Common/RemoteHostFilter.h
+@@ -3,6 +3,7 @@
+ #include <string>
+ #include <vector>
+ #include <mutex>
++#include <atomic>
+ #include <unordered_set>
+ #include <base/defines.h>
+ 
+diff --git a/src/Common/ZooKeeper/ZooKeeper.h b/src/Common/ZooKeeper/ZooKeeper.h
+index acd6750..d85be7b 100644
+--- a/src/Common/ZooKeeper/ZooKeeper.h
++++ b/src/Common/ZooKeeper/ZooKeeper.h
+@@ -18,6 +18,7 @@
+ #include <Common/thread_local_rng.h>
+ #include <unistd.h>
+ #include <random>
++#include <variant>
+ 
+ 
+ namespace ProfileEvents
+diff --git a/src/Disks/DiskType.cpp b/src/Disks/DiskType.cpp
+index 92979ab..d6959fc 100644
+--- a/src/Disks/DiskType.cpp
++++ b/src/Disks/DiskType.cpp
+@@ -1,4 +1,5 @@
+ #include "DiskType.h"
++#include <tuple>
+ 
+ namespace DB
+ {
+diff --git a/src/Disks/ObjectStorages/DiskObjectStorageRemoteMetadataRestoreHelper.cpp b/src/Disks/ObjectStorages/DiskObjectStorageRemoteMetadataRestoreHelper.cpp
+index 5c897ae..5054381 100644
+--- a/src/Disks/ObjectStorages/DiskObjectStorageRemoteMetadataRestoreHelper.cpp
++++ b/src/Disks/ObjectStorages/DiskObjectStorageRemoteMetadataRestoreHelper.cpp
+@@ -9,6 +9,8 @@
+ #include <Common/checkStackSize.h>
+ #include <Common/logger_useful.h>
+ 
++#include <bitset>
++
+ namespace DB
+ {
+ 
+diff --git a/src/Disks/ObjectStorages/DiskObjectStorageTransaction.cpp b/src/Disks/ObjectStorages/DiskObjectStorageTransaction.cpp
+index c0f6fbd..3a9a851 100644
+--- a/src/Disks/ObjectStorages/DiskObjectStorageTransaction.cpp
++++ b/src/Disks/ObjectStorages/DiskObjectStorageTransaction.cpp
+@@ -2,6 +2,7 @@
+ #include <Disks/ObjectStorages/DiskObjectStorage.h>
+ #include <Common/checkStackSize.h>
+ #include <ranges>
++#include <bitset>
+ #include <Common/logger_useful.h>
+ #include <Common/Exception.h>
+ 
+diff --git a/src/Formats/BSONTypes.h b/src/Formats/BSONTypes.h
+index 14a3e9d..7009bdb 100644
+--- a/src/Formats/BSONTypes.h
++++ b/src/Formats/BSONTypes.h
+@@ -2,6 +2,7 @@
+ 
+ #include <cstdint>
+ #include <string>
++#include <numeric>
+ 
+ namespace DB
+ {
+diff --git a/src/IO/ISchedulerNode.h b/src/IO/ISchedulerNode.h
+index edb6692..7dc0b6a 100644
+--- a/src/IO/ISchedulerNode.h
++++ b/src/IO/ISchedulerNode.h
+@@ -13,6 +13,7 @@
+ #include <functional>
+ #include <memory>
+ #include <mutex>
++#include <condition_variable>
+ 
+ 
+ namespace DB
+diff --git a/src/Loggers/OwnSplitChannel.h b/src/Loggers/OwnSplitChannel.h
+index 80305c1..ff4ebcc 100644
+--- a/src/Loggers/OwnSplitChannel.h
++++ b/src/Loggers/OwnSplitChannel.h
+@@ -3,6 +3,7 @@
+ #include <vector>
+ #include <map>
+ #include <mutex>
++#include <memory>
+ #include <Poco/AutoPtr.h>
+ #include <Poco/Channel.h>
+ #include "ExtendedLogChannel.h"
+diff --git a/src/Storages/MergeTree/IPartMetadataManager.h b/src/Storages/MergeTree/IPartMetadataManager.h
+index d9e97d9..5eda3ca 100644
+--- a/src/Storages/MergeTree/IPartMetadataManager.h
++++ b/src/Storages/MergeTree/IPartMetadataManager.h
+@@ -3,6 +3,7 @@
+ #include <unordered_map>
+ #include <city.h>
+ #include <base/types.h>
++#include <memory>
+ 
+ namespace DB
+ {
+diff --git a/src/Storages/NATS/NATSConnection.cpp b/src/Storages/NATS/NATSConnection.cpp
+index 70b3599..7418897 100644
+--- a/src/Storages/NATS/NATSConnection.cpp
++++ b/src/Storages/NATS/NATSConnection.cpp
+@@ -1,3 +1,5 @@
++#include <string.h>
++#include <cstring>
+ #include "NATSConnection.h"
+ 
+ #include <IO/WriteHelpers.h>
+diff --git a/src/Storages/NATS/NATSHandler.cpp b/src/Storages/NATS/NATSHandler.cpp
+index 7006e56..6f1cb72 100644
+--- a/src/Storages/NATS/NATSHandler.cpp
++++ b/src/Storages/NATS/NATSHandler.cpp
+@@ -1,3 +1,5 @@
++#include <string.h>
++#include <cstring>
+ #include <Storages/NATS/NATSHandler.h>
+ #include <adapters/libuv.h>
+ #include <Common/Exception.h>
+diff --git a/src/Storages/NATS/NATSHandler.h b/src/Storages/NATS/NATSHandler.h
+index e3894c8..8e08c90 100644
+--- a/src/Storages/NATS/NATSHandler.h
++++ b/src/Storages/NATS/NATSHandler.h
+@@ -1,5 +1,6 @@
+ #pragma once
+ 
++#include <cstdlib>
+ #include <uv.h>
+ #include <memory>
+ #include <mutex>
+diff --git a/src/Storages/StorageLogSettings.h b/src/Storages/StorageLogSettings.h
+index fa8bb28..5293969 100644
+--- a/src/Storages/StorageLogSettings.h
++++ b/src/Storages/StorageLogSettings.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <base/types.h>
++#include <memory>
+ 
+ namespace DB
+ {
+-- 
+2.40.1
+

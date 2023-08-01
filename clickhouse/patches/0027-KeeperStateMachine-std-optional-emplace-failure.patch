@@ -1,0 +1,26 @@
+From f8298d3ae729169fe30bca1fd518568442f47fcd Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:48:16 +0000
+Subject: [PATCH 27/52] KeeperStateMachine: std::optional emplace() failure
+
+See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
+---
+ src/Coordination/KeeperStateMachine.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Coordination/KeeperStateMachine.cpp b/src/Coordination/KeeperStateMachine.cpp
+index f13f741..a797ab2 100644
+--- a/src/Coordination/KeeperStateMachine.cpp
++++ b/src/Coordination/KeeperStateMachine.cpp
+@@ -187,7 +187,7 @@ KeeperStorage::RequestForSession KeeperStateMachine::parseRequest(nuraft::buffer
+ 
+     if (!buffer.eof())
+     {
+-        request_for_session.digest.emplace();
++        request_for_session.digest = KeeperStorage::Digest();
+         readIntBinary(request_for_session.digest->version, buffer);
+         if (request_for_session.digest->version != KeeperStorage::DigestVersion::NO_DIGEST)
+             readIntBinary(request_for_session.digest->value, buffer);
+-- 
+2.40.1
+

@@ -1,0 +1,63 @@
+From e8cb0cd82812f508288c32d3d12ae91fbe3ef5cf Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:47:36 +0000
+Subject: [PATCH 32/52] poco foundation: add illumos support
+
+---
+ base/poco/Foundation/src/Environment_UNIX.cpp | 6 +++---
+ base/poco/Foundation/src/NamedEvent_UNIX.cpp  | 2 +-
+ base/poco/Foundation/src/NamedMutex_UNIX.cpp  | 2 +-
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+
+diff --git a/base/poco/Foundation/src/Environment_UNIX.cpp b/base/poco/Foundation/src/Environment_UNIX.cpp
+index 202e5d8..faabb37 100644
+--- a/base/poco/Foundation/src/Environment_UNIX.cpp
++++ b/base/poco/Foundation/src/Environment_UNIX.cpp
+@@ -281,15 +281,15 @@ void EnvironmentImpl::nodeIdImpl(NodeId& id)
+ /// #include <sys/ioctl.h>
+ #if defined(sun) || defined(__sun)
+ #include <sys/sockio.h>
++#include <netdb.h>
++#include <net/if.h>
++#include <net/if_arp.h>
+ #endif
+ /// #include <sys/socket.h>
+ /// #include <sys/types.h>
+ /// #include <netinet/in.h>
+ /// #include <net/if.h>
+ /// #include <arpa/inet.h>
+-/// #include <netdb.h>
+-/// #include <net/if.h>
+-/// #include <net/if_arp.h>
+ /// #include <unistd.h>
+ 
+ 
+diff --git a/base/poco/Foundation/src/NamedEvent_UNIX.cpp b/base/poco/Foundation/src/NamedEvent_UNIX.cpp
+index 978e6e0..3cda410 100644
+--- a/base/poco/Foundation/src/NamedEvent_UNIX.cpp
++++ b/base/poco/Foundation/src/NamedEvent_UNIX.cpp
+@@ -31,7 +31,7 @@
+ namespace Poco {
+ 
+ 
+-#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_ANDROID) || (POCO_OS == POCO_OS_CYGWIN) || (POCO_OS == POCO_OS_FREE_BSD)
++#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_ANDROID) || (POCO_OS == POCO_OS_CYGWIN) || (POCO_OS == POCO_OS_FREE_BSD) || (POCO_OS == POCO_OS_SOLARIS)
+ 	union semun
+ 	{
+ 		int                 val;
+diff --git a/base/poco/Foundation/src/NamedMutex_UNIX.cpp b/base/poco/Foundation/src/NamedMutex_UNIX.cpp
+index 6cfa136..d53d54d 100644
+--- a/base/poco/Foundation/src/NamedMutex_UNIX.cpp
++++ b/base/poco/Foundation/src/NamedMutex_UNIX.cpp
+@@ -31,7 +31,7 @@
+ namespace Poco {
+ 
+ 
+-#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_ANDROID) || (POCO_OS == POCO_OS_CYGWIN) || (POCO_OS == POCO_OS_FREE_BSD)
++#if (POCO_OS == POCO_OS_LINUX) || (POCO_OS == POCO_OS_ANDROID) || (POCO_OS == POCO_OS_CYGWIN) || (POCO_OS == POCO_OS_FREE_BSD) || (POCO_OS == POCO_OS_SOLARIS)
+ 	union semun
+ 	{
+ 		int                 val;
+-- 
+2.40.1
+

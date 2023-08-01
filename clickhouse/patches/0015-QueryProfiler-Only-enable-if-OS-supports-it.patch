@@ -1,0 +1,34 @@
+From 7dcec083bb997b3f73cae32be88d0864678a5fbd Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 12:38:20 +0000
+Subject: [PATCH 15/52] QueryProfiler: Only enable if OS supports it
+
+---
+ src/Common/QueryProfiler.cpp | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/Common/QueryProfiler.cpp b/src/Common/QueryProfiler.cpp
+index e1af3ad..40f9bc3 100644
+--- a/src/Common/QueryProfiler.cpp
++++ b/src/Common/QueryProfiler.cpp
+@@ -104,7 +104,7 @@ QueryProfilerBase<ProfilerImpl>::QueryProfilerBase(UInt64 thread_id, int clock_t
+     UNUSED(pause_signal);
+ 
+     throw Exception(ErrorCodes::NOT_IMPLEMENTED, "QueryProfiler cannot work with stock libunwind");
+-#else
++#elif defined(SIGEV_THREAD_ID)
+     /// Sanity check.
+     if (!hasPHDRCache())
+         throw Exception(ErrorCodes::NOT_IMPLEMENTED, "QueryProfiler cannot be used without PHDR cache, that is not available for TSan build");
+@@ -172,6 +172,8 @@ QueryProfilerBase<ProfilerImpl>::QueryProfilerBase(UInt64 thread_id, int clock_t
+         tryCleanup();
+         throw;
+     }
++#else
++    throw Exception(ErrorCodes::CANNOT_CREATE_TIMER, "OS does not support QueryProfiler");
+ #endif
+ }
+ 
+-- 
+2.40.1
+

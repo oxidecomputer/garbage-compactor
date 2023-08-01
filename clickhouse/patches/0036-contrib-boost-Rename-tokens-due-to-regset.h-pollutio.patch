@@ -1,0 +1,52 @@
+From 7be08cfe2e61c1d8b71fb0291d1bd1d612f4f3d4 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 12:43:38 +0000
+Subject: [PATCH 36/52] contrib/boost: Rename tokens due to regset.h pollution
+
+---
+ .../geometry/strategies/line_interpolate/cartesian.hpp    | 6 +++---
+ .../geometry/strategies/line_interpolate/spherical.hpp    | 8 ++++----
+ 2 files changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp b/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp
+index d00b473..e1f52f7 100644
+--- a/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp
++++ b/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp
+@@ -56,10 +56,10 @@ struct default_strategy<Geometry, cartesian_tag>
+ };
+ 
+ 
+-template <typename CT, typename DS>
+-struct strategy_converter<strategy::line_interpolate::cartesian<CT, DS> >
++template <typename CT, typename DST>
++struct strategy_converter<strategy::line_interpolate::cartesian<CT, DST> >
+ {
+-    static auto get(strategy::line_interpolate::cartesian<CT, DS> const&)
++    static auto get(strategy::line_interpolate::cartesian<CT, DST> const&)
+     {
+         return strategies::line_interpolate::cartesian<CT>();
+     }
+diff --git a/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp b/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp
+index 6b083bb..4ad6681 100644
+--- a/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp
++++ b/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp
+@@ -72,12 +72,12 @@ struct default_strategy<Geometry, spherical_equatorial_tag>
+ };
+ 
+ 
+-template <typename CT, typename DS>
+-struct strategy_converter<strategy::line_interpolate::spherical<CT, DS> >
++template <typename CT, typename DST>
++struct strategy_converter<strategy::line_interpolate::spherical<CT, DST> >
+ {
+-    static auto get(strategy::line_interpolate::spherical<CT, DS> const& s)
++    static auto get(strategy::line_interpolate::spherical<CT, DST> const& s)
+     {
+-        typedef typename strategy::line_interpolate::spherical<CT, DS>::radius_type radius_type;
++        typedef typename strategy::line_interpolate::spherical<CT, DST>::radius_type radius_type;
+         return strategies::line_interpolate::spherical<radius_type, CT>(s.radius());
+     }
+ };
+-- 
+2.40.1
+
