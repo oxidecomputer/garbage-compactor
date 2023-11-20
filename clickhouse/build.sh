@@ -28,11 +28,11 @@ for pkg in cmake ninja; do
 done
 
 NAM='clickhouse'
-VER="23.3.8.21"
+VER="23.3.17.13"
 FILE="clickhouse-src-bundle-v$VER-lts.tar.gz"
 S3="https://oxide-clickhouse-build.s3.us-west-2.amazonaws.com"
 URL="$S3/$FILE"
-SHA256='5efe05de89c5be31c00e921cef3fad95e7a13b28e36d043216862b68d496f3d9'
+SHA256='42fa2149452f2f7a6fcf7ef718c37eb04ffcb18556f20c07ce02a1a28ec19d3e'
 CLANGVER=17
 
 #
