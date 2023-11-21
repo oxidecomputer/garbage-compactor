@@ -6,7 +6,7 @@ Subject: [PATCH 02/13] c-ares: add solaris
 diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/c-ares-cmake/CMakeLists.txt a/contrib/c-ares-cmake/CMakeLists.txt
 --- a~/contrib/c-ares-cmake/CMakeLists.txt	1970-01-01 00:00:00
 +++ a/contrib/c-ares-cmake/CMakeLists.txt	1970-01-01 00:00:00
-@@ -85,6 +85,8 @@ elseif (OS_DARWIN)
+@@ -86,6 +86,8 @@ elseif (OS_DARWIN)
      target_compile_definitions(_c-ares PRIVATE -D_DARWIN_C_SOURCE)
  elseif (OS_FREEBSD)
      target_include_directories(_c-ares SYSTEM PUBLIC "${ClickHouse_SOURCE_DIR}/contrib/c-ares-cmake/freebsd")

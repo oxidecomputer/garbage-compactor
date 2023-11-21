@@ -29,7 +29,7 @@ diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Core/ColumnNumbers.h a/sr
 diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Functions/makeDate.cpp a/src/Functions/makeDate.cpp
 --- a~/src/Functions/makeDate.cpp	1970-01-01 00:00:00
 +++ a/src/Functions/makeDate.cpp	1970-01-01 00:00:00
-@@ -16,6 +16,8 @@
+@@ -17,6 +17,8 @@
  
  #include <array>
  
@@ -41,7 +41,7 @@ diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Functions/makeDate.cpp a/
 diff -wpruN --no-dereference '--exclude=*.orig' a~/src/IO/ISchedulerNode.h a/src/IO/ISchedulerNode.h
 --- a~/src/IO/ISchedulerNode.h	1970-01-01 00:00:00
 +++ a/src/IO/ISchedulerNode.h	1970-01-01 00:00:00
-@@ -55,7 +55,7 @@ struct SchedulerNodeInfo
+@@ -56,7 +56,7 @@ struct SchedulerNodeInfo
  
      void setWeight(double value)
      {

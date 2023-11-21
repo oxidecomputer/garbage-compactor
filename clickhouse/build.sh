@@ -18,22 +18,24 @@ mkdir -p "$STAMPS"
 SRC="$ROOT/work/src"
 mkdir -p "$SRC"
 
+CLANGVER=17
+GCCVER=13
+
 #
 # Check build environment
 #
-for pkg in cmake ninja; do
+for pkg in cmake ninja clang-$CLANGVER gcc$GCCVER; do
 	if ! pkg info -q $pkg; then
 		fatal "need $pkg"
 	fi
 done
 
 NAM='clickhouse'
-VER="23.3.17.13"
+VER="23.8.7.24"
 FILE="clickhouse-src-bundle-v$VER-lts.tar.gz"
 S3="https://oxide-clickhouse-build.s3.us-west-2.amazonaws.com"
 URL="$S3/$FILE"
-SHA256='42fa2149452f2f7a6fcf7ef718c37eb04ffcb18556f20c07ce02a1a28ec19d3e'
-CLANGVER=17
+SHA256='e90f3c9381d782c153f21726849710362d6fb0c5e2bbd4f45d32b140e9463cb4'
 
 #
 # Download ClickHouse sources

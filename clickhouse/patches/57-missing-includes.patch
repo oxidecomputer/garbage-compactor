@@ -58,17 +58,6 @@ diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Access/AccessBackup.h a/s
  
  
  namespace DB
-diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Access/Common/AccessFlags.h a/src/Access/Common/AccessFlags.h
---- a~/src/Access/Common/AccessFlags.h	1970-01-01 00:00:00
-+++ a/src/Access/Common/AccessFlags.h	1970-01-01 00:00:00
-@@ -4,6 +4,7 @@
- #include <bitset>
- #include <cstring>
- #include <vector>
-+#include <unordered_map>
- 
- 
- namespace DB
 diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Backups/BackupStatus.h a/src/Backups/BackupStatus.h
 --- a~/src/Backups/BackupStatus.h	1970-01-01 00:00:00
 +++ a/src/Backups/BackupStatus.h	1970-01-01 00:00:00

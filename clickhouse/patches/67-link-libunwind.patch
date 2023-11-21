@@ -15,15 +15,3 @@ diff -wpruN --no-dereference '--exclude=*.orig' a~/cmake/sunos/default_libs.cmak
  
  message(STATUS "Default libraries: ${DEFAULT_LIBS}")
  
-diff -wpruN --no-dereference '--exclude=*.orig' a~/CMakeLists.txt a/CMakeLists.txt
---- a~/CMakeLists.txt	1970-01-01 00:00:00
-+++ a/CMakeLists.txt	1970-01-01 00:00:00
-@@ -156,7 +156,7 @@ elseif(GLIBC_COMPATIBILITY)
- endif ()
- 
- # Make sure the final executable has symbols exported
--set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
-+#set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -rdynamic")
- 
- if (OS_DARWIN)
-     # The `-all_load` flag forces loading of all symbols from all libraries,

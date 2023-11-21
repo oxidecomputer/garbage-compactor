@@ -6,17 +6,17 @@ Subject: [PATCH 27/42] 29-sunos-common.patch
 diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/QueryProfiler.cpp a/src/Common/QueryProfiler.cpp
 --- a~/src/Common/QueryProfiler.cpp	1970-01-01 00:00:00
 +++ a/src/Common/QueryProfiler.cpp	1970-01-01 00:00:00
-@@ -104,7 +104,7 @@ QueryProfilerBase<ProfilerImpl>::QueryPr
+@@ -216,7 +216,7 @@ QueryProfilerBase<ProfilerImpl>::QueryPr
      UNUSED(pause_signal);
  
-     throw Exception(ErrorCodes::NOT_IMPLEMENTED, "QueryProfiler cannot work with stock libunwind");
+     throw Exception(ErrorCodes::NOT_IMPLEMENTED, "QueryProfiler cannot work on OSX");
 -#else
 +#elif defined(SIGEV_THREAD_ID)
      /// Sanity check.
      if (!hasPHDRCache())
          throw Exception(ErrorCodes::NOT_IMPLEMENTED, "QueryProfiler cannot be used without PHDR cache, that is not available for TSan build");
-@@ -172,6 +172,8 @@ QueryProfilerBase<ProfilerImpl>::QueryPr
-         tryCleanup();
+@@ -245,6 +245,8 @@ QueryProfilerBase<ProfilerImpl>::QueryPr
+         timer.cleanup();
          throw;
      }
 +#else

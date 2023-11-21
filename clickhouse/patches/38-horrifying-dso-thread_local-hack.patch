@@ -6,7 +6,7 @@ Subject: [PATCH 36/42] 38-horrifying-dso-thread_local-hack.patch
 diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/ThreadStatus.cpp a/src/Common/ThreadStatus.cpp
 --- a~/src/Common/ThreadStatus.cpp	1970-01-01 00:00:00
 +++ a/src/Common/ThreadStatus.cpp	1970-01-01 00:00:00
-@@ -10,6 +10,10 @@
+@@ -12,6 +12,10 @@
  #include <csignal>
  #include <sys/mman.h>
  

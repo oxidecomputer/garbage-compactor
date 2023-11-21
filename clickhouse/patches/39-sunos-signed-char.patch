@@ -21,7 +21,7 @@ diff -wpruN --no-dereference '--exclude=*.orig' a~/base/base/types.h a/base/base
 diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Core/SettingsEnums.h a/src/Core/SettingsEnums.h
 --- a~/src/Core/SettingsEnums.h	1970-01-01 00:00:00
 +++ a/src/Core/SettingsEnums.h	1970-01-01 00:00:00
-@@ -90,7 +90,7 @@ DECLARE_SETTING_ENUM(LogsLevel)
+@@ -93,7 +93,7 @@ DECLARE_SETTING_ENUM(LogsLevel)
  
  
  // Make it signed for compatibility with DataTypeEnum8
@@ -33,7 +33,7 @@ diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Core/SettingsEnums.h a/sr
 diff -wpruN --no-dereference '--exclude=*.orig' a~/src/DataTypes/DataTypeEnum.cpp a/src/DataTypes/DataTypeEnum.cpp
 --- a~/src/DataTypes/DataTypeEnum.cpp	1970-01-01 00:00:00
 +++ a/src/DataTypes/DataTypeEnum.cpp	1970-01-01 00:00:00
-@@ -55,7 +55,7 @@ std::string DataTypeEnum<Type>::generate
+@@ -78,7 +78,7 @@ std::string DataTypeEnum<Type>::generate
  
          writeQuotedString(name_and_value.first, out);
          writeString(" = ", out);

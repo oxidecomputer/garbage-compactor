@@ -6,7 +6,7 @@ Subject: [PATCH 35/42] 37-rlimit_nproc-is-a-linuxism.patch
 diff -wpruN --no-dereference '--exclude=*.orig' a~/programs/server/Server.cpp a/programs/server/Server.cpp
 --- a~/programs/server/Server.cpp	1970-01-01 00:00:00
 +++ a/programs/server/Server.cpp	1970-01-01 00:00:00
-@@ -1004,6 +1004,7 @@ try
+@@ -938,6 +938,7 @@ try
          }
      }
  
@@ -14,7 +14,7 @@ diff -wpruN --no-dereference '--exclude=*.orig' a~/programs/server/Server.cpp a/
      /// Try to increase limit on number of threads.
      {
          rlimit rlim;
-@@ -1035,6 +1036,7 @@ try
+@@ -969,6 +970,7 @@ try
              global_context->addWarningMessage("Maximum number of threads is lower than 30000. There could be problems with handling a lot of simultaneous queries.");
          }
      }

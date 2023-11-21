@@ -6,15 +6,15 @@ Subject: [PATCH 16/42] 17-IBridge.patch
 diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Bridge/IBridge.cpp a/src/Bridge/IBridge.cpp
 --- a~/src/Bridge/IBridge.cpp	1970-01-01 00:00:00
 +++ a/src/Bridge/IBridge.cpp	1970-01-01 00:00:00
-@@ -171,6 +171,7 @@ void IBridge::initialize(Application & s
+@@ -167,6 +167,7 @@ void IBridge::initialize(Application & s
      keep_alive_timeout = config().getUInt64("keep-alive-timeout", 10);
-     http_max_field_value_size = config().getUInt64("http-max-field-value-size", 1048576);
+     http_max_field_value_size = config().getUInt64("http-max-field-value-size", 128 * 1024);
  
 +#ifndef OS_SUNOS
      struct rlimit limit;
      const UInt64 gb = 1024 * 1024 * 1024;
  
-@@ -195,6 +196,7 @@ void IBridge::initialize(Application & s
+@@ -191,6 +192,7 @@ void IBridge::initialize(Application & s
      {
          LOG_WARNING(log, "Failed to set OOM score, error: {}", e.what());
      }

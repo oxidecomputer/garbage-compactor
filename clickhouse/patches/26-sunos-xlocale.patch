@@ -20,9 +20,9 @@ diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project/libcxx/s
 diff -wpruN --no-dereference '--exclude=*.orig' a~/contrib/llvm-project-cmake/CMakeLists.txt a/contrib/llvm-project-cmake/CMakeLists.txt
 --- a~/contrib/llvm-project-cmake/CMakeLists.txt	1970-01-01 00:00:00
 +++ a/contrib/llvm-project-cmake/CMakeLists.txt	1970-01-01 00:00:00
-@@ -64,6 +64,12 @@ set (REQUIRED_LLVM_LIBRARIES
- #     list(APPEND REQUIRED_LLVM_LIBRARIES LLVMAArch64Info LLVMAArch64Desc LLVMAArch64CodeGen)
- # endif ()
+@@ -75,6 +75,12 @@ endif ()
+ 
+ message (STATUS "LLVM TARGETS TO BUILD ${LLVM_TARGETS_TO_BUILD}")
  
 +if (OS_SUNOS)
 +    set (SRCS ${SRCS}

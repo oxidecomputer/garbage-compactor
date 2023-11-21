@@ -6,7 +6,7 @@ Subject: [PATCH 42/42] 44-sunos-memory-stats.patch
 diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/AsynchronousMetrics.cpp a/src/Common/AsynchronousMetrics.cpp
 --- a~/src/Common/AsynchronousMetrics.cpp	1970-01-01 00:00:00
 +++ a/src/Common/AsynchronousMetrics.cpp	1970-01-01 00:00:00
-@@ -548,7 +548,7 @@ void AsynchronousMetrics::update(TimePoi
+@@ -566,7 +566,7 @@ void AsynchronousMetrics::update(TimePoi
          "The difference in time the thread for calculation of the asynchronous metrics was scheduled to wake up and the time it was in fact, woken up."
          " A proxy-indicator of overall system latency and responsiveness." };
  
@@ -15,7 +15,7 @@ diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/AsynchronousMetric
      MemoryStatisticsOS::Data memory_statistics_data = memory_stat.get();
  #endif
  
-@@ -578,7 +578,7 @@ void AsynchronousMetrics::update(TimePoi
+@@ -596,7 +596,7 @@ void AsynchronousMetrics::update(TimePoi
  #endif
  
      /// Process process memory usage according to OS
@@ -24,7 +24,7 @@ diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Common/AsynchronousMetric
      {
          MemoryStatisticsOS::Data & data = memory_statistics_data;
  
-@@ -588,18 +588,20 @@ void AsynchronousMetrics::update(TimePoi
+@@ -606,18 +606,20 @@ void AsynchronousMetrics::update(TimePoi
              " The large values of this metric are totally normal, and makes only technical sense."};
          new_values["MemoryResident"] = { data.resident,
              "The amount of physical memory used by the server process, in bytes." };

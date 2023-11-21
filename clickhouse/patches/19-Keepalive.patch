@@ -6,7 +6,7 @@ Subject: [PATCH 17/42] 19-Keepalive.patch
 diff -wpruN --no-dereference '--exclude=*.orig' a~/src/Client/Connection.cpp a/src/Client/Connection.cpp
 --- a~/src/Client/Connection.cpp	1970-01-01 00:00:00
 +++ a/src/Client/Connection.cpp	1970-01-01 00:00:00
-@@ -152,13 +152,21 @@ void Connection::connect(const Connectio
+@@ -171,13 +171,21 @@ void Connection::connect(const Connectio
          if (tcp_keep_alive_timeout_in_sec)
          {
              socket->setKeepAlive(true);

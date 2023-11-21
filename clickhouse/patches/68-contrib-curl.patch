@@ -1,0 +1,18 @@
+commit 30f683885317144c18e9bee2cf37003ad9d1c5c6
+Author: Andy Fiddaman <illumos@fiddaman.net>
+Date:   Tue Nov 21 12:26:34 2023 +0000
+
+    curl
+
+diff --git a/contrib/curl-cmake/curl_config.h b/contrib/curl-cmake/curl_config.h
+index f56ba3eccd..c9905c1c9e 100644
+--- a/contrib/curl-cmake/curl_config.h
++++ b/contrib/curl-cmake/curl_config.h
+@@ -50,3 +50,7 @@
+ #define ENABLE_IPV6
+ #define USE_OPENSSL
+ #define USE_THREADS_POSIX
++
++#define HAVE_POSIX_STRERROR_R 1
++#define HAVE_STRERROR_R 1
++
