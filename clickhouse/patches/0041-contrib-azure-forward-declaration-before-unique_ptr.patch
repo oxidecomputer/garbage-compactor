@@ -1,0 +1,44 @@
+From 8bbe23e3ecdb61d488481bd38840ab828513affe Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Thu, 23 Nov 2023 17:09:36 +0000
+Subject: [PATCH 41/61] contrib/azure: forward declaration before unique_ptr
+
+---
+ .../azure-storage-common/src/xml_wrapper.cpp       | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/contrib/azure/sdk/storage/azure-storage-common/src/xml_wrapper.cpp b/contrib/azure/sdk/storage/azure-storage-common/src/xml_wrapper.cpp
+index 49da184982..d9dae74a22 100644
+--- a/contrib/azure/sdk/storage/azure-storage-common/src/xml_wrapper.cpp
++++ b/contrib/azure/sdk/storage/azure-storage-common/src/xml_wrapper.cpp
+@@ -404,13 +404,6 @@ namespace Azure { namespace Storage { namespace _internal {
+     std::call_once(flag, [] { xmlCleanupParser(); });
+   }
+ 
+-  XmlReader::XmlReader(XmlReader&& other) noexcept { *this = std::move(other); }
+-  XmlReader& XmlReader::operator=(XmlReader&& other) noexcept
+-  {
+-    m_context = std::move(other.m_context);
+-    return *this;
+-  }
+-
+   using ReaderPtr = std::unique_ptr<xmlTextReader, decltype(&xmlFreeTextReader)>;
+   struct XmlReader::XmlReaderContext
+   {
+@@ -422,6 +415,13 @@ namespace Azure { namespace Storage { namespace _internal {
+     bool readingEmptyTag = false;
+   };
+ 
++  XmlReader::XmlReader(XmlReader&& other) noexcept { *this = std::move(other); }
++  XmlReader& XmlReader::operator=(XmlReader&& other) noexcept
++  {
++    m_context = std::move(other.m_context);
++    return *this;
++  }
++
+   XmlReader::XmlReader(const char* data, size_t length)
+   {
+     XmlGlobalInitialize();
+-- 
+2.40.1
+

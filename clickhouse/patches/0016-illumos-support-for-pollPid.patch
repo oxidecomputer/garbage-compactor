@@ -1,14 +1,14 @@
-From 80fac403ec2db8de3406dbefd53857a6ed733129 Mon Sep 17 00:00:00 2001
+From 53bbb150e618551996264b30872586ec102f668e Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 12:39:46 +0000
-Subject: [PATCH 16/52] illumos support for pollPid
+Subject: [PATCH 16/61] illumos support for pollPid
 
 ---
  src/Common/waitForPid.cpp | 22 ++++++++++++++++++++++
  1 file changed, 22 insertions(+)
 
 diff --git a/src/Common/waitForPid.cpp b/src/Common/waitForPid.cpp
-index 05e90f9..0b90102 100644
+index 0ec1081135..539ec7a819 100644
 --- a/src/Common/waitForPid.cpp
 +++ b/src/Common/waitForPid.cpp
 @@ -153,6 +153,28 @@ static PollPidResult pollPid(pid_t pid, int timeout_in_ms)

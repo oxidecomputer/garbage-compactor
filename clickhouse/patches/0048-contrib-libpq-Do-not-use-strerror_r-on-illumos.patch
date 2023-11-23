@@ -1,7 +1,7 @@
-From 0c354759fb603280a1cd4c08bb0896862599c584 Mon Sep 17 00:00:00 2001
+From 6a085dee5bba9441e87297a480813a3d73d5f493 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:06 +0000
-Subject: [PATCH 39/52] contrib/libpq: Do not use strerror_r on illumos
+Subject: [PATCH 48/61] contrib/libpq: Do not use strerror_r on illumos
 
 The code expects GNU strerror_r() which is different to the illumos one.
 strerror() is thread-safe so safe to use as a replacement, which is
@@ -17,7 +17,7 @@ what pg_strerror_r() does.
  7 files changed, 14 insertions(+), 12 deletions(-)
 
 diff --git a/contrib/libpq/fe-auth.c b/contrib/libpq/fe-auth.c
-index e806264..f29b86f 100644
+index e8062647e6..f29b86f96c 100644
 --- a/contrib/libpq/fe-auth.c
 +++ b/contrib/libpq/fe-auth.c
 @@ -732,7 +732,7 @@ pg_local_sendauth(PGconn *conn)
@@ -39,7 +39,7 @@ index e806264..f29b86f 100644
  			appendPQExpBuffer(errorMessage,
  							  libpq_gettext("local user with ID %d does not exist\n"),
 diff --git a/contrib/libpq/fe-connect.c b/contrib/libpq/fe-connect.c
-index fc65e49..a5807d8 100644
+index fc65e490ef..a5807d8501 100644
 --- a/contrib/libpq/fe-connect.c
 +++ b/contrib/libpq/fe-connect.c
 @@ -2838,7 +2838,7 @@ keep_going:						/* We will come back to here until there is
@@ -61,7 +61,7 @@ index fc65e49..a5807d8 100644
  							appendPQExpBuffer(&conn->errorMessage,
  											  libpq_gettext("local user with ID %d does not exist\n"),
 diff --git a/contrib/libpq/fe-lobj.c b/contrib/libpq/fe-lobj.c
-index ffd9926..9c3a618 100644
+index ffd9926dc4..9c3a618a5f 100644
 --- a/contrib/libpq/fe-lobj.c
 +++ b/contrib/libpq/fe-lobj.c
 @@ -676,7 +676,7 @@ lo_import_internal(PGconn *conn, const char *filename, Oid oid)
@@ -110,7 +110,7 @@ index ffd9926..9c3a618 100644
  	}
  
 diff --git a/contrib/libpq/fe-secure-openssl.c b/contrib/libpq/fe-secure-openssl.c
-index 497777b..fbbb22a 100644
+index 497777bd4c..fbbb22a56a 100644
 --- a/contrib/libpq/fe-secure-openssl.c
 +++ b/contrib/libpq/fe-secure-openssl.c
 @@ -1029,7 +1029,7 @@ initialize_SSL(PGconn *conn)
@@ -123,7 +123,7 @@ index 497777b..fbbb22a 100644
  			return -1;
  		}
 diff --git a/contrib/libpq/include/port.h b/contrib/libpq/include/port.h
-index 82f63de..2b27c65 100644
+index 82f63de325..2b27c650dc 100644
 --- a/contrib/libpq/include/port.h
 +++ b/contrib/libpq/include/port.h
 @@ -230,7 +230,9 @@ extern char *pg_strerror(int errnum);
@@ -137,7 +137,7 @@ index 82f63de..2b27c65 100644
  
  /* Wrap strsignal(), or provide our own version if necessary */
 diff --git a/contrib/libpq/libpq-int.h b/contrib/libpq/libpq-int.h
-index 6b7fd2c..aa848b5 100644
+index 6b7fd2c267..aa848b5fa2 100644
 --- a/contrib/libpq/libpq-int.h
 +++ b/contrib/libpq/libpq-int.h
 @@ -850,7 +850,7 @@ extern char *libpq_ngettext(const char *msgid, const char *msgid_plural, unsigne
@@ -150,7 +150,7 @@ index 6b7fd2c..aa848b5 100644
  #endif
  
 diff --git a/contrib/libpq/port/snprintf.c b/contrib/libpq/port/snprintf.c
-index c0a452d..95eddd1 100644
+index c0a452da0f..95eddd1a64 100644
 --- a/contrib/libpq/port/snprintf.c
 +++ b/contrib/libpq/port/snprintf.c
 @@ -707,7 +707,7 @@ nextch2:

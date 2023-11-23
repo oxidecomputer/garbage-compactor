@@ -1,7 +1,7 @@
-From 7be08cfe2e61c1d8b71fb0291d1bd1d612f4f3d4 Mon Sep 17 00:00:00 2001
+From 1ebd5e8e5500ecaf6a54c4fb122ab1f9dc57639e Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 12:43:38 +0000
-Subject: [PATCH 36/52] contrib/boost: Rename tokens due to regset.h pollution
+Subject: [PATCH 42/61] contrib/boost: Rename tokens due to regset.h pollution
 
 ---
  .../geometry/strategies/line_interpolate/cartesian.hpp    | 6 +++---
@@ -9,7 +9,7 @@ Subject: [PATCH 36/52] contrib/boost: Rename tokens due to regset.h pollution
  2 files changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp b/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp
-index d00b473..e1f52f7 100644
+index d00b473089..e1f52f797d 100644
 --- a/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp
 +++ b/contrib/boost/boost/geometry/strategies/line_interpolate/cartesian.hpp
 @@ -56,10 +56,10 @@ struct default_strategy<Geometry, cartesian_tag>
@@ -27,7 +27,7 @@ index d00b473..e1f52f7 100644
          return strategies::line_interpolate::cartesian<CT>();
      }
 diff --git a/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp b/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp
-index 6b083bb..4ad6681 100644
+index 6b083bb313..4ad668158e 100644
 --- a/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp
 +++ b/contrib/boost/boost/geometry/strategies/line_interpolate/spherical.hpp
 @@ -72,12 +72,12 @@ struct default_strategy<Geometry, spherical_equatorial_tag>

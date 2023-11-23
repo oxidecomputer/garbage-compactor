@@ -1,0 +1,55 @@
+From 410b339bb31f2d47f11dee7fc560b42c37954c4d Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Sun, 26 Nov 2023 11:16:39 +0000
+Subject: [PATCH 33/61] config-processor: missing files in link
+
+This needs more investigation. Without this patch, we see link errors
+identical to those reported in
+    https://github.com/ClickHouse/ClickHouse/issues/53565
+The fix there was to use `lld` as the linker, but the underlying
+cause was not determined in that issue.
+
+Undefined                       first referenced
+ symbol                             in file
+DB::ICompressionCodec::compress(char const*, unsigned int, char*) const
+src/Common/Config/libclickhouse_common_config.a(ConfigProcessor.cpp.o)
+DB::ICompressionCodec::readDecompressedBlockSize(char const*)
+src/Common/Config/libclickhouse_common_config.a(ConfigProcessor.cpp.o)
+DB::toEncryptionMethod(std::__cxx11::basic_string<char, std::char_traits<char>,
+std::allocator<char> > const&)
+src/Common/Config/libclickhouse_common_config.a(ConfigProcessor.cpp.o)
+DB::CompressionCodecEncrypted::Configuration::load(Poco::Util::AbstractConfiguration
+const&, std::__cxx11::basic_string<char, std::char_traits<char>,
+std::allocator<char> > const&)
+src/Common/Config/libclickhouse_common_config.a(ConfigProcessor.cpp.o)
+DB::ICompressionCodec::decompress(char const*, unsigned int, char*) const
+src/Common/Config/libclickhouse_common_config.a(ConfigProcessor.cpp.o)
+vtable for DB::ICompressionCodec
+src/Common/Config/libclickhouse_common_config.a(ConfigProcessor.cpp.o)
+DB::CompressionCodecEncrypted::Configuration::instance()
+src/Common/Config/libclickhouse_common_config.a(ConfigProcessor.cpp.o)
+DB::CompressionCodecEncrypted::CompressionCodecEncrypted(DB::EncryptionMethod)
+src/Common/Config/libclickhouse_common_config.a(ConfigProcessor.cpp.o)
+---
+ utils/config-processor/CMakeLists.txt | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
+
+diff --git a/utils/config-processor/CMakeLists.txt b/utils/config-processor/CMakeLists.txt
+index 80c3535ef4..37b73bf9af 100644
+--- a/utils/config-processor/CMakeLists.txt
++++ b/utils/config-processor/CMakeLists.txt
+@@ -1,2 +1,10 @@
+-clickhouse_add_executable (config-processor config-processor.cpp)
++set(SRCS config-processor.cpp)
++if (OS_SUNOS)
++    list(APPEND SRCS
++        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/Compression/ICompressionCodec.cpp
++        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/Compression/CompressionCodecEncrypted.cpp
++        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/Server/ServerType.cpp
++    )
++endif ()
++clickhouse_add_executable (config-processor ${SRCS})
+ target_link_libraries(config-processor PRIVATE dbms)
+-- 
+2.40.1
+

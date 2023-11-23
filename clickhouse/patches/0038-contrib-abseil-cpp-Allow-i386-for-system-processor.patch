@@ -1,14 +1,14 @@
-From b72c17829b13b8008c99e80a03057ed2b08c5eed Mon Sep 17 00:00:00 2001
+From 5a2b7841a7ad581f93a403e659466b743894d859 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:46:27 +0000
-Subject: [PATCH 33/52] contrib/abseil-cpp: Allow "i386" for system processor
+Subject: [PATCH 38/61] contrib/abseil-cpp: Allow "i386" for system processor
 
 ---
  contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake b/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
-index 942ce90..398413a 100644
+index 942ce90a4d..398413a8ee 100644
 --- a/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
 +++ b/contrib/abseil-cpp/absl/copts/AbseilConfigureCopts.cmake
 @@ -12,7 +12,7 @@ else()

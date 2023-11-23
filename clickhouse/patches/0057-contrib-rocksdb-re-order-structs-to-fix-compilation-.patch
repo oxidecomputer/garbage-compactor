@@ -1,7 +1,7 @@
-From fd254c2a1b769f3f7abfc1388193b0be246e5bf5 Mon Sep 17 00:00:00 2001
+From 0440f74175a41437135195689b02f82d2cddfab0 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:45 +0000
-Subject: [PATCH 48/52] contrib/rocksdb: re-order structs to fix compilation
+Subject: [PATCH 57/61] contrib/rocksdb: re-order structs to fix compilation
  under C++23
 
 Without this shuffling around, compilation fails due to
@@ -13,7 +13,7 @@ forward declarations.
  3 files changed, 413 insertions(+), 412 deletions(-)
 
 diff --git a/contrib/rocksdb/table/block_based/block_based_table_builder.cc b/contrib/rocksdb/table/block_based/block_based_table_builder.cc
-index bb8cfa1..751b1b9 100644
+index bb8cfa14d6..751b1b903e 100644
 --- a/contrib/rocksdb/table/block_based/block_based_table_builder.cc
 +++ b/contrib/rocksdb/table/block_based/block_based_table_builder.cc
 @@ -246,304 +246,6 @@ class BlockBasedTableBuilder::BlockBasedTablePropertiesCollector
@@ -776,7 +776,7 @@ index bb8cfa1..751b1b9 100644
  
  BlockBasedTableBuilder::BlockBasedTableBuilder(
 diff --git a/contrib/rocksdb/utilities/trace/file_trace_reader_writer.h b/contrib/rocksdb/utilities/trace/file_trace_reader_writer.h
-index a9eafa5..bf9d718 100644
+index a9eafa5af1..bf9d718654 100644
 --- a/contrib/rocksdb/utilities/trace/file_trace_reader_writer.h
 +++ b/contrib/rocksdb/utilities/trace/file_trace_reader_writer.h
 @@ -6,7 +6,7 @@
@@ -789,7 +789,7 @@ index a9eafa5..bf9d718 100644
  
  class RandomAccessFileReader;
 diff --git a/contrib/rocksdb/utilities/write_batch_with_index/write_batch_with_index_internal.h b/contrib/rocksdb/utilities/write_batch_with_index/write_batch_with_index_internal.h
-index b336014..e019718 100644
+index b3360140bf..e019718fd6 100644
 --- a/contrib/rocksdb/utilities/write_batch_with_index/write_batch_with_index_internal.h
 +++ b/contrib/rocksdb/utilities/write_batch_with_index/write_batch_with_index_internal.h
 @@ -27,54 +27,6 @@ class WBWIIteratorImpl;

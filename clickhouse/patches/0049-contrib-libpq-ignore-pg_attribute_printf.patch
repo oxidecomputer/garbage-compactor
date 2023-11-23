@@ -1,14 +1,14 @@
-From b1d905b64e5caff0264cb99c3eb5ca68bf34fb54 Mon Sep 17 00:00:00 2001
+From 57e6dcaa6b02b3e827eabc27e806eb696ebbd512 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:46:54 +0000
-Subject: [PATCH 40/52] contrib/libpq: ignore pg_attribute_printf
+Subject: [PATCH 49/61] contrib/libpq: ignore pg_attribute_printf
 
 ---
  contrib/libpq/include/port.h | 3 +++
  1 file changed, 3 insertions(+)
 
 diff --git a/contrib/libpq/include/port.h b/contrib/libpq/include/port.h
-index 2b27c65..cf789d5 100644
+index 2b27c650dc..cf789d55a5 100644
 --- a/contrib/libpq/include/port.h
 +++ b/contrib/libpq/include/port.h
 @@ -195,6 +195,9 @@ extern unsigned char pg_ascii_tolower(unsigned char ch);

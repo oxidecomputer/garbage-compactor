@@ -1,17 +1,17 @@
-From cd066424c6ce7dcf6143b7ef3ecfdde218440d8f Mon Sep 17 00:00:00 2001
+From c0eb3ea1f0a3c11fc8ce6e1c1b235b8d46f4a69c Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:12 +0000
-Subject: [PATCH 18/52] Do not try to increase the thread limit via /proc
+Subject: [PATCH 18/61] Do not try to increase the thread limit via /proc
 
 ---
  programs/server/Server.cpp | 2 ++
  1 file changed, 2 insertions(+)
 
 diff --git a/programs/server/Server.cpp b/programs/server/Server.cpp
-index 4305408..11156da 100644
+index 6f94e483e2..457cfb9e0a 100644
 --- a/programs/server/Server.cpp
 +++ b/programs/server/Server.cpp
-@@ -1004,6 +1004,7 @@ try
+@@ -938,6 +938,7 @@ try
          }
      }
  
@@ -19,7 +19,7 @@ index 4305408..11156da 100644
      /// Try to increase limit on number of threads.
      {
          rlimit rlim;
-@@ -1035,6 +1036,7 @@ try
+@@ -969,6 +970,7 @@ try
              global_context->addWarningMessage("Maximum number of threads is lower than 30000. There could be problems with handling a lot of simultaneous queries.");
          }
      }

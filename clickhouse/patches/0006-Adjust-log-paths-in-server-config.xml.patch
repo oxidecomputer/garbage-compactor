@@ -1,14 +1,14 @@
-From 29dec7f59378adbe45c0ecc1057aae2ad0109d23 Mon Sep 17 00:00:00 2001
+From 51fca60c4844bb6247ad5cbae8995a85922a48d6 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:45:38 +0000
-Subject: [PATCH 06/52] Adjust log paths in server config.xml
+Subject: [PATCH 06/61] Adjust log paths in server config.xml
 
 ---
  programs/server/config.xml | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/programs/server/config.xml b/programs/server/config.xml
-index cfcd2ff..7fc3789 100644
+index 07052441a0..6f10c552e4 100644
 --- a/programs/server/config.xml
 +++ b/programs/server/config.xml
 @@ -22,8 +22,8 @@

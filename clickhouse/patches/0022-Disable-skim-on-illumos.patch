@@ -1,14 +1,14 @@
-From 516de9600e10e4d19f0c38d81295ad8ca9accdd9 Mon Sep 17 00:00:00 2001
+From d00bb6ce7d1bff70d8785cd455230843c95acb93 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:51 +0000
-Subject: [PATCH 22/52] Disable 'skim' on illumos
+Subject: [PATCH 22/61] Disable 'skim' on illumos
 
 ---
  rust/skim/CMakeLists.txt | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/rust/skim/CMakeLists.txt b/rust/skim/CMakeLists.txt
-index 1e7a43a..f23677b 100644
+index 1e7a43aba7..f23677b65f 100644
 --- a/rust/skim/CMakeLists.txt
 +++ b/rust/skim/CMakeLists.txt
 @@ -1,4 +1,4 @@

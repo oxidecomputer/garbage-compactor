@@ -1,17 +1,17 @@
-From f836c8ab67d3ae527436dc7e2d76c4e61d0f7ac1 Mon Sep 17 00:00:00 2001
+From f5fa1b3c85ed4f834fa473d5d9324ac659f4bb95 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:46:18 +0000
-Subject: [PATCH 14/52] More granular configuration of TCP keepalives
+Subject: [PATCH 14/61] More granular configuration of TCP keepalives
 
 ---
  src/Client/Connection.cpp | 34 ++++++++++++++++++++++++++++------
  1 file changed, 28 insertions(+), 6 deletions(-)
 
 diff --git a/src/Client/Connection.cpp b/src/Client/Connection.cpp
-index 6643a94..e4491ee 100644
+index d1b3388b2f..216f04bc28 100644
 --- a/src/Client/Connection.cpp
 +++ b/src/Client/Connection.cpp
-@@ -152,13 +152,35 @@ void Connection::connect(const ConnectionTimeouts & timeouts)
+@@ -171,13 +171,35 @@ void Connection::connect(const ConnectionTimeouts & timeouts)
          if (tcp_keep_alive_timeout_in_sec)
          {
              socket->setKeepAlive(true);

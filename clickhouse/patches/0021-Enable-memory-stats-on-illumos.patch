@@ -1,7 +1,7 @@
-From a7a736cccce0673d186b027f2258f1014025a985 Mon Sep 17 00:00:00 2001
+From 5b736a9892e590afd865791da1a58999e6254b13 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:24 +0000
-Subject: [PATCH 21/52] Enable memory stats on illumos
+Subject: [PATCH 21/61] Enable memory stats on illumos
 
 ---
  src/Common/AsynchronousMetrics.cpp |  8 +++--
@@ -11,10 +11,10 @@ Subject: [PATCH 21/52] Enable memory stats on illumos
  4 files changed, 60 insertions(+), 6 deletions(-)
 
 diff --git a/src/Common/AsynchronousMetrics.cpp b/src/Common/AsynchronousMetrics.cpp
-index 99073d7..4f4d007 100644
+index 36c87010fa..f162796a7f 100644
 --- a/src/Common/AsynchronousMetrics.cpp
 +++ b/src/Common/AsynchronousMetrics.cpp
-@@ -548,7 +548,7 @@ void AsynchronousMetrics::update(TimePoint update_time)
+@@ -566,7 +566,7 @@ void AsynchronousMetrics::update(TimePoint update_time)
          "The difference in time the thread for calculation of the asynchronous metrics was scheduled to wake up and the time it was in fact, woken up."
          " A proxy-indicator of overall system latency and responsiveness." };
  
@@ -23,7 +23,7 @@ index 99073d7..4f4d007 100644
      MemoryStatisticsOS::Data memory_statistics_data = memory_stat.get();
  #endif
  
-@@ -578,7 +578,7 @@ void AsynchronousMetrics::update(TimePoint update_time)
+@@ -596,7 +596,7 @@ void AsynchronousMetrics::update(TimePoint update_time)
  #endif
  
      /// Process process memory usage according to OS
@@ -32,7 +32,7 @@ index 99073d7..4f4d007 100644
      {
          MemoryStatisticsOS::Data & data = memory_statistics_data;
  
-@@ -588,18 +588,20 @@ void AsynchronousMetrics::update(TimePoint update_time)
+@@ -606,18 +606,20 @@ void AsynchronousMetrics::update(TimePoint update_time)
              " The large values of this metric are totally normal, and makes only technical sense."};
          new_values["MemoryResident"] = { data.resident,
              "The amount of physical memory used by the server process, in bytes." };
@@ -55,7 +55,7 @@ index 99073d7..4f4d007 100644
          /// We must update the value of total_memory_tracker periodically.
          /// Otherwise it might be calculated incorrectly - it can include a "drift" of memory amount.
 diff --git a/src/Common/AsynchronousMetrics.h b/src/Common/AsynchronousMetrics.h
-index d104b87..4a79088 100644
+index e3b5142553..e46b7f227d 100644
 --- a/src/Common/AsynchronousMetrics.h
 +++ b/src/Common/AsynchronousMetrics.h
 @@ -95,7 +95,7 @@ private:
@@ -68,7 +68,7 @@ index d104b87..4a79088 100644
  #endif
  
 diff --git a/src/Common/MemoryStatisticsOS.cpp b/src/Common/MemoryStatisticsOS.cpp
-index f2d2ab5..c3c0413 100644
+index f2d2ab5fea..c3c041322c 100644
 --- a/src/Common/MemoryStatisticsOS.cpp
 +++ b/src/Common/MemoryStatisticsOS.cpp
 @@ -1,7 +1,8 @@
@@ -144,7 +144,7 @@ index f2d2ab5..c3c0413 100644
  
  #endif
 diff --git a/src/Common/MemoryStatisticsOS.h b/src/Common/MemoryStatisticsOS.h
-index 8eb6c87..ffd1e4a 100644
+index 8eb6c871a9..ffd1e4a9aa 100644
 --- a/src/Common/MemoryStatisticsOS.h
 +++ b/src/Common/MemoryStatisticsOS.h
 @@ -1,5 +1,5 @@

@@ -1,7 +1,7 @@
-From 419ebae112903505694d4d116ccae18d265dc2c4 Mon Sep 17 00:00:00 2001
+From 558d177364000986f83132bd5746072abb6aed84 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:48:19 +0000
-Subject: [PATCH 28/52] KeeperStorage: need to explicitly specify operator
+Subject: [PATCH 28/61] KeeperStorage: need to explicitly specify operator
  return type
 
 ---
@@ -9,10 +9,10 @@ Subject: [PATCH 28/52] KeeperStorage: need to explicitly specify operator
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/Coordination/KeeperStorage.h b/src/Coordination/KeeperStorage.h
-index cfacdfc..67c3309 100644
+index 844cbf85c1..6ac389e5f9 100644
 --- a/src/Coordination/KeeperStorage.h
 +++ b/src/Coordination/KeeperStorage.h
-@@ -280,7 +280,7 @@ public:
+@@ -281,7 +281,7 @@ public:
  
          struct Hash
          {

@@ -1,14 +1,14 @@
-From 3898a6be5dc203b35a588e74ad8ca4ed24042799 Mon Sep 17 00:00:00 2001
+From 3443a21d76e694bc19860138f9162dcaab2f0e36 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 12:49:22 +0000
-Subject: [PATCH 17/52] Use statvfs on illumos
+Subject: [PATCH 17/61] Use statvfs on illumos
 
 ---
  utils/self-extracting-executable/decompressor.cpp | 13 +++++++++++++
  1 file changed, 13 insertions(+)
 
 diff --git a/utils/self-extracting-executable/decompressor.cpp b/utils/self-extracting-executable/decompressor.cpp
-index d41b9b1..61e7d1c 100644
+index 91f4bea5a5..27f4729779 100644
 --- a/utils/self-extracting-executable/decompressor.cpp
 +++ b/utils/self-extracting-executable/decompressor.cpp
 @@ -2,6 +2,8 @@

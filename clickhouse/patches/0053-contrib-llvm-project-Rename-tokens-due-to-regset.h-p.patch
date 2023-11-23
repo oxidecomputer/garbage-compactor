@@ -1,7 +1,7 @@
-From b6a36c2a215df06e1579de05dd1df6bc6070f66b Mon Sep 17 00:00:00 2001
+From edd59f9c57f45e4195fdbfdb7a54dee5ceaf72da Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 12:43:50 +0000
-Subject: [PATCH 44/52] contrib/llvm-project: Rename tokens due to regset.h
+Subject: [PATCH 53/61] contrib/llvm-project: Rename tokens due to regset.h
  pollution
 
 ---
@@ -10,7 +10,7 @@ Subject: [PATCH 44/52] contrib/llvm-project: Rename tokens due to regset.h
  2 files changed, 11 insertions(+), 11 deletions(-)
 
 diff --git a/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h b/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h
-index e34702b..3421a9a 100644
+index e34702bdbb..3421a9a794 100644
 --- a/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h
 +++ b/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h
 @@ -735,9 +735,9 @@ public:
@@ -26,7 +26,7 @@ index e34702b..3421a9a 100644
  
      assert(this->isRangeInStorage(S, E) && "Range to erase is out of bounds.");
 diff --git a/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h b/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h
-index db1d031..66244c5 100644
+index db1d031a06..66244c5f9c 100644
 --- a/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h
 +++ b/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h
 @@ -563,18 +563,18 @@ private:

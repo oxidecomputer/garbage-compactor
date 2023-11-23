@@ -1,14 +1,14 @@
-From d13ecbfae445736c3ed1eefe221769714bdad9d5 Mon Sep 17 00:00:00 2001
+From c392a44481112a450e7deb42715bee9c62b52155 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:39 +0000
-Subject: [PATCH 03/52] Disable thread safety analysis
+Subject: [PATCH 03/61] Disable thread safety analysis
 
 ---
  cmake/warnings.cmake | 2 ++
  1 file changed, 2 insertions(+)
 
 diff --git a/cmake/warnings.cmake b/cmake/warnings.cmake
-index 5d116b1..0114b84 100644
+index 00fa32a6b7..49f07f8ba9 100644
 --- a/cmake/warnings.cmake
 +++ b/cmake/warnings.cmake
 @@ -44,6 +44,8 @@ if (COMPILER_CLANG)

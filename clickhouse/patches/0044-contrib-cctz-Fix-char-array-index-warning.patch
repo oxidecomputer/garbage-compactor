@@ -1,0 +1,25 @@
+From 966a88272cd71b83273fd5efab800093de3083c4 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Thu, 23 Nov 2023 17:10:04 +0000
+Subject: [PATCH 44/61] contrib/cctz: Fix char array index warning
+
+---
+ contrib/cctz/include/cctz/civil_time_detail.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/cctz/include/cctz/civil_time_detail.h b/contrib/cctz/include/cctz/civil_time_detail.h
+index 2dab6640df..96f7e85afc 100644
+--- a/contrib/cctz/include/cctz/civil_time_detail.h
++++ b/contrib/cctz/include/cctz/civil_time_detail.h
+@@ -95,7 +95,7 @@ CONSTEXPR_F int days_per_month(year_t y, month_t m) noexcept {
+   CONSTEXPR_D int k_days_per_month[1 + 12] = {
+       -1, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31  // non leap year
+   };
+-  return k_days_per_month[m] + (m == 2 && is_leap_year(y));
++  return k_days_per_month[static_cast<unsigned char>(m)] + (m == 2 && is_leap_year(y));
+ }
+ 
+ CONSTEXPR_F fields n_day(year_t y, month_t m, diff_t d, diff_t cd,
+-- 
+2.40.1
+

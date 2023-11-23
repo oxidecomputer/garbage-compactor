@@ -1,7 +1,7 @@
-From 7b07ab49ff0a93bff17f450795ce8d80011ca5b6 Mon Sep 17 00:00:00 2001
+From e825490c3e41dbae47b44ebea27c9b43caf5c864 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:18 +0000
-Subject: [PATCH 19/52] `char` is signed on illumos
+Subject: [PATCH 19/61] `char` is signed on illumos
 
 ---
  base/base/types.h                   | 4 ++++
@@ -12,7 +12,7 @@ Subject: [PATCH 19/52] `char` is signed on illumos
  5 files changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/base/base/types.h b/base/base/types.h
-index 5825c8a..7c09be8 100644
+index 5825c8ae7a..7c09be87f8 100644
 --- a/base/base/types.h
 +++ b/base/base/types.h
 @@ -3,7 +3,11 @@
@@ -28,10 +28,10 @@ index 5825c8a..7c09be8 100644
  using Int32 = int32_t;
  using Int64 = int64_t;
 diff --git a/src/Core/SettingsEnums.h b/src/Core/SettingsEnums.h
-index 3ae7bfa..8bd3a28 100644
+index 034e4c8c88..46a2cff518 100644
 --- a/src/Core/SettingsEnums.h
 +++ b/src/Core/SettingsEnums.h
-@@ -90,7 +90,7 @@ DECLARE_SETTING_ENUM(LogsLevel)
+@@ -93,7 +93,7 @@ DECLARE_SETTING_ENUM(LogsLevel)
  
  
  // Make it signed for compatibility with DataTypeEnum8
@@ -41,10 +41,10 @@ index 3ae7bfa..8bd3a28 100644
      QUERY_START = 1,
      QUERY_FINISH = 2,
 diff --git a/src/DataTypes/DataTypeEnum.cpp b/src/DataTypes/DataTypeEnum.cpp
-index 3c3ac2a..a18b8a1 100644
+index 1750ae785b..90c45dea90 100644
 --- a/src/DataTypes/DataTypeEnum.cpp
 +++ b/src/DataTypes/DataTypeEnum.cpp
-@@ -55,7 +55,7 @@ std::string DataTypeEnum<Type>::generateName(const Values & values)
+@@ -78,7 +78,7 @@ std::string DataTypeEnum<Type>::generateName(const Values & values)
  
          writeQuotedString(name_and_value.first, out);
          writeString(" = ", out);
@@ -54,7 +54,7 @@ index 3c3ac2a..a18b8a1 100644
  
      writeChar(')', out);
 diff --git a/src/Functions/divide/divide.cpp b/src/Functions/divide/divide.cpp
-index cf2cd35..879fcc7 100644
+index cf2cd354a7..879fcc76b3 100644
 --- a/src/Functions/divide/divide.cpp
 +++ b/src/Functions/divide/divide.cpp
 @@ -50,8 +50,10 @@ template void divideImpl<int64_t, int64_t, int64_t>(const int64_t * __restrict,
@@ -69,7 +69,7 @@ index cf2cd35..879fcc7 100644
  template void divideImpl<int32_t, int8_t, int32_t>(const int32_t * __restrict, int8_t, int32_t * __restrict, size_t);
 +template void divideImpl<int32_t, signed char, int32_t>(const int32_t * __restrict, signed char, int32_t * __restrict, size_t);
 diff --git a/src/Functions/divide/divideImpl.cpp b/src/Functions/divide/divideImpl.cpp
-index 966d577..adf50fd 100644
+index 966d5777c1..adf50fde9f 100644
 --- a/src/Functions/divide/divideImpl.cpp
 +++ b/src/Functions/divide/divideImpl.cpp
 @@ -63,10 +63,12 @@ template void divideImpl<int64_t, int64_t, int64_t>(const int64_t * __restrict,

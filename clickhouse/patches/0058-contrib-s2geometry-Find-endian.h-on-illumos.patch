@@ -1,14 +1,14 @@
-From 118546ef4c65d45406a908d1e84018d939b136cf Mon Sep 17 00:00:00 2001
+From 1a42f1ee3a0545935a95c1ab549801221aae1661 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:46:03 +0000
-Subject: [PATCH 49/52] contrib/s2geometry: Find endian.h on illumos
+Subject: [PATCH 58/61] contrib/s2geometry: Find endian.h on illumos
 
 ---
  contrib/s2geometry/src/s2/base/port.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/contrib/s2geometry/src/s2/base/port.h b/contrib/s2geometry/src/s2/base/port.h
-index 0efaba8..f814891 100644
+index 0efaba8424..f814891219 100644
 --- a/contrib/s2geometry/src/s2/base/port.h
 +++ b/contrib/s2geometry/src/s2/base/port.h
 @@ -149,7 +149,7 @@
