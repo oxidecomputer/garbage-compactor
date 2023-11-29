@@ -1,14 +1,14 @@
-From ba381586b7faac50f54c574057c7b5e9b812d012 Mon Sep 17 00:00:00 2001
+From 008515a600c7fca1dea0fa2a4c55f6cc23581233 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:48 +0000
-Subject: [PATCH 51/52] contrib/s2geometry: using std::ldexp
+Subject: [PATCH 60/61] contrib/s2geometry: using std::ldexp
 
 ---
  contrib/s2geometry/src/s2/s2edge_crossings.cc | 1 +
  1 file changed, 1 insertion(+)
 
 diff --git a/contrib/s2geometry/src/s2/s2edge_crossings.cc b/contrib/s2geometry/src/s2/s2edge_crossings.cc
-index a6ef6de..8e4f525 100644
+index a6ef6de6c7..8e4f525af9 100644
 --- a/contrib/s2geometry/src/s2/s2edge_crossings.cc
 +++ b/contrib/s2geometry/src/s2/s2edge_crossings.cc
 @@ -43,6 +43,7 @@ using s2pred::rounding_epsilon;

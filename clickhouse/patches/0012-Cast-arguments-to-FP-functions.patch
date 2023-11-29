@@ -1,7 +1,7 @@
-From 45dbae82b7e305e3ab77108d0eb88ccc03539d73 Mon Sep 17 00:00:00 2001
+From a0979d26c3e26846495fc3a2056ea6b509fb5b46 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:45:51 +0000
-Subject: [PATCH 12/52] Cast arguments to FP functions
+Subject: [PATCH 12/61] Cast arguments to FP functions
 
 ---
  src/AggregateFunctions/QuantileExact.h         | 12 ++++++------
@@ -10,10 +10,10 @@ Subject: [PATCH 12/52] Cast arguments to FP functions
  3 files changed, 9 insertions(+), 9 deletions(-)
 
 diff --git a/src/AggregateFunctions/QuantileExact.h b/src/AggregateFunctions/QuantileExact.h
-index c67621a..01a3ea5 100644
+index a92d1979ba..32d6fb3b6d 100644
 --- a/src/AggregateFunctions/QuantileExact.h
 +++ b/src/AggregateFunctions/QuantileExact.h
-@@ -275,11 +275,11 @@ struct QuantileExactLow : public QuantileExactBase<Value, QuantileExactLow<Value
+@@ -276,11 +276,11 @@ struct QuantileExactLow : public QuantileExactBase<Value, QuantileExactLow<Value
                  auto s = array.size();
                  if (s % 2 == 1)
                  {
@@ -27,7 +27,7 @@ index c67621a..01a3ea5 100644
                  }
              }
              else
-@@ -311,11 +311,11 @@ struct QuantileExactLow : public QuantileExactBase<Value, QuantileExactLow<Value
+@@ -312,11 +312,11 @@ struct QuantileExactLow : public QuantileExactBase<Value, QuantileExactLow<Value
                      auto s = array.size();
                      if (s % 2 == 1)
                      {
@@ -41,7 +41,7 @@ index c67621a..01a3ea5 100644
                      }
                  }
                  else
-@@ -355,7 +355,7 @@ struct QuantileExactHigh : public QuantileExactBase<Value, QuantileExactHigh<Val
+@@ -356,7 +356,7 @@ struct QuantileExactHigh : public QuantileExactBase<Value, QuantileExactHigh<Val
              if (level == 0.5)
              {
                  auto s = array.size();
@@ -50,7 +50,7 @@ index c67621a..01a3ea5 100644
              }
              else
              {
-@@ -383,7 +383,7 @@ struct QuantileExactHigh : public QuantileExactBase<Value, QuantileExactHigh<Val
+@@ -384,7 +384,7 @@ struct QuantileExactHigh : public QuantileExactBase<Value, QuantileExactHigh<Val
                  if (level == 0.5)
                  {
                      auto s = array.size();
@@ -60,7 +60,7 @@ index c67621a..01a3ea5 100644
                  else
                  {
 diff --git a/src/Functions/PerformanceAdaptors.h b/src/Functions/PerformanceAdaptors.h
-index ef2c788..d1f2bd1 100644
+index ef2c788bf4..d1f2bd1388 100644
 --- a/src/Functions/PerformanceAdaptors.h
 +++ b/src/Functions/PerformanceAdaptors.h
 @@ -99,7 +99,7 @@ namespace detail
@@ -73,7 +73,7 @@ index ef2c788..d1f2bd1 100644
  
              void run()
 diff --git a/src/Storages/MergeTree/SimpleMergeSelector.cpp b/src/Storages/MergeTree/SimpleMergeSelector.cpp
-index af3373f..cd116fe 100644
+index 7e7539f71d..2a9f1b9bdd 100644
 --- a/src/Storages/MergeTree/SimpleMergeSelector.cpp
 +++ b/src/Storages/MergeTree/SimpleMergeSelector.cpp
 @@ -210,8 +210,8 @@ SimpleMergeSelector::PartsRange SimpleMergeSelector::select(

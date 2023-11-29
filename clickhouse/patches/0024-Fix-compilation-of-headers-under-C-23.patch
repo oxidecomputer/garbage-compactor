@@ -1,7 +1,7 @@
-From 21e109c9e9c7c9ecff8eb74f03284d5ea1bdaaeb Mon Sep 17 00:00:00 2001
+From 3750f16d1ad81221fd621c25e917b178a36caf27 Mon Sep 17 00:00:00 2001
 From: Adrian Vogelsgesang <avogelsgesang@salesforce.com>
 Date: Thu, 4 May 2023 12:20:29 +0000
-Subject: [PATCH 24/52] Fix compilation of headers under C++23
+Subject: [PATCH 24/61] Fix compilation of headers under C++23
 
 `DoubleAPFloat` has a `unique_ptr<APFloat[]>` member. In
 `DoubleAPFloat::operator=` and `DoubleAPFloat::get{First,Second}`,
@@ -29,7 +29,7 @@ Differential Revision: https://reviews.llvm.org/D149854
  2 files changed, 29 insertions(+), 13 deletions(-)
 
 diff --git a/contrib/llvm-project/llvm/include/llvm/ADT/APFloat.h b/contrib/llvm-project/llvm/include/llvm/ADT/APFloat.h
-index cdedb6e..ab1bab2 100644
+index cdedb6ece9..ab1bab2cdc 100644
 --- a/contrib/llvm-project/llvm/include/llvm/ADT/APFloat.h
 +++ b/contrib/llvm-project/llvm/include/llvm/ADT/APFloat.h
 @@ -620,21 +620,14 @@ public:
@@ -88,7 +88,7 @@ index cdedb6e..ab1bab2 100644
  
  #undef APFLOAT_DISPATCH_ON_SEMANTICS
 diff --git a/contrib/llvm-project/llvm/include/llvm/IR/ModuleSummaryIndex.h b/contrib/llvm-project/llvm/include/llvm/IR/ModuleSummaryIndex.h
-index 468773a..d81fbd2 100644
+index 468773ac59..d81fbd2a86 100644
 --- a/contrib/llvm-project/llvm/include/llvm/IR/ModuleSummaryIndex.h
 +++ b/contrib/llvm-project/llvm/include/llvm/IR/ModuleSummaryIndex.h
 @@ -145,7 +145,7 @@ struct alignas(8) GlobalValueSummaryInfo {

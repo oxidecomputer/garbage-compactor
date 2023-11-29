@@ -1,7 +1,7 @@
-From c39d630cc29f68ec8c3c549a47075015bee96293 Mon Sep 17 00:00:00 2001
+From 462873f8cc4421bc78ade6980413d66930d56a1b Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:46:33 +0000
-Subject: [PATCH 41/52] contrib/llvm-project: Disable locale static assertion
+Subject: [PATCH 50/61] contrib/llvm-project: Disable locale static assertion
  that fails on illumos
 
 ---
@@ -9,7 +9,7 @@ Subject: [PATCH 41/52] contrib/llvm-project: Disable locale static assertion
  1 file changed, 2 insertions(+)
 
 diff --git a/contrib/llvm-project/libcxx/include/__locale b/contrib/llvm-project/libcxx/include/__locale
-index 40f9a3f..cdb5f1b 100644
+index 40f9a3ff57..cdb5f1bd84 100644
 --- a/contrib/llvm-project/libcxx/include/__locale
 +++ b/contrib/llvm-project/libcxx/include/__locale
 @@ -549,8 +549,10 @@ public:

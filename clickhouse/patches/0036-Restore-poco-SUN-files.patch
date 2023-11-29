@@ -1,7 +1,7 @@
-From fa383af81561c010c5e25ff829d04a0a34ff6f58 Mon Sep 17 00:00:00 2001
+From ad66051f8669aabd72f4e45fe8939fd2cfe83bcd Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:30 +0000
-Subject: [PATCH 31/52] Restore poco SUN files
+Subject: [PATCH 36/61] Restore poco SUN files
 
 These were accidentally deleted as unused in
 https://github.com/ClickHouse/ClickHouse/commit/44afecf083b2cfa3d77d2e227f
@@ -14,7 +14,7 @@ https://github.com/ClickHouse/ClickHouse/commit/44afecf083b2cfa3d77d2e227f
 
 diff --git a/base/poco/Foundation/include/Poco/FPEnvironment_SUN.h b/base/poco/Foundation/include/Poco/FPEnvironment_SUN.h
 new file mode 100644
-index 0000000..7b31307
+index 0000000000..7b31307e1c
 --- /dev/null
 +++ b/base/poco/Foundation/include/Poco/FPEnvironment_SUN.h
 @@ -0,0 +1,75 @@
@@ -95,7 +95,7 @@ index 0000000..7b31307
 +#endif // Foundation_FPEnvironment_SUN_INCLUDED
 diff --git a/base/poco/Foundation/src/FPEnvironment_SUN.cpp b/base/poco/Foundation/src/FPEnvironment_SUN.cpp
 new file mode 100644
-index 0000000..36ee364
+index 0000000000..36ee36431d
 --- /dev/null
 +++ b/base/poco/Foundation/src/FPEnvironment_SUN.cpp
 @@ -0,0 +1,139 @@

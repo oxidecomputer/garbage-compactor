@@ -1,7 +1,7 @@
-From 58e1506491b1beee54c12f9799bb2e257cecddcb Mon Sep 17 00:00:00 2001
+From d141ba395a0c6160521987efc6bc7930e234e021 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:42 +0000
-Subject: [PATCH 43/52] contrib/llvm-project: Missing brace and prefer
+Subject: [PATCH 52/61] contrib/llvm-project: Missing brace and prefer
  std::llabs
 
 ---
@@ -10,7 +10,7 @@ Subject: [PATCH 43/52] contrib/llvm-project: Missing brace and prefer
  2 files changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/contrib/llvm-project/libcxx/include/__support/solaris/xlocale.h b/contrib/llvm-project/libcxx/include/__support/solaris/xlocale.h
-index 999102a..f9a2376 100644
+index 999102a811..f9a2376628 100644
 --- a/contrib/llvm-project/libcxx/include/__support/solaris/xlocale.h
 +++ b/contrib/llvm-project/libcxx/include/__support/solaris/xlocale.h
 @@ -43,7 +43,7 @@ strtol_l(const char *__nptr, char **__endptr, int __base, locale_t __loc) {
@@ -23,7 +23,7 @@ index 999102a..f9a2376 100644
  }
  
 diff --git a/contrib/llvm-project/libcxxabi/src/demangle/Utility.h b/contrib/llvm-project/libcxxabi/src/demangle/Utility.h
-index db19dca..9131b31 100644
+index db19dcac01..9131b319af 100644
 --- a/contrib/llvm-project/libcxxabi/src/demangle/Utility.h
 +++ b/contrib/llvm-project/libcxxabi/src/demangle/Utility.h
 @@ -134,7 +134,7 @@ public:

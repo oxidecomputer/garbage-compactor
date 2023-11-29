@@ -1,7 +1,7 @@
-From 101edff6960c096644421fad0a1d569bf97f3adb Mon Sep 17 00:00:00 2001
+From f9de67fc7f6d6201cb31d28e99299a37ab0343eb Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:46:42 +0000
-Subject: [PATCH 35/52] contrib/azure: Use arc4random and SIGPIPE on illumos
+Subject: [PATCH 40/61] contrib/azure: Use arc4random and SIGPIPE on illumos
 
 ---
  .../azure/sdk/core/azure-core/src/http/retry_policy.cpp   | 8 +-------
@@ -10,7 +10,7 @@ Subject: [PATCH 35/52] contrib/azure: Use arc4random and SIGPIPE on illumos
  3 files changed, 4 insertions(+), 10 deletions(-)
 
 diff --git a/contrib/azure/sdk/core/azure-core/src/http/retry_policy.cpp b/contrib/azure/sdk/core/azure-core/src/http/retry_policy.cpp
-index 044e0ba..1f9fea6 100644
+index 044e0baf1d..1f9fea6a25 100644
 --- a/contrib/azure/sdk/core/azure-core/src/http/retry_policy.cpp
 +++ b/contrib/azure/sdk/core/azure-core/src/http/retry_policy.cpp
 @@ -61,13 +61,7 @@ std::chrono::milliseconds CalculateExponentialDelay(
@@ -29,7 +29,7 @@ index 044e0ba..1f9fea6 100644
  
    constexpr auto beforeLastBit
 diff --git a/contrib/azure/sdk/core/azure-core/src/http/telemetry_policy.cpp b/contrib/azure/sdk/core/azure-core/src/http/telemetry_policy.cpp
-index 0a012d5..143e9f5 100644
+index 0a012d5efd..143e9f570e 100644
 --- a/contrib/azure/sdk/core/azure-core/src/http/telemetry_policy.cpp
 +++ b/contrib/azure/sdk/core/azure-core/src/http/telemetry_policy.cpp
 @@ -110,7 +110,7 @@ std::string GetOSVersion()
@@ -42,7 +42,7 @@ index 0a012d5..143e9f5 100644
      {
        osVersionInfo << sysInfo.sysname << " " << sysInfo.release << " " << sysInfo.machine << " "
 diff --git a/contrib/cassandra-cmake/CMakeLists.txt b/contrib/cassandra-cmake/CMakeLists.txt
-index 59ff908..5b91dbf 100644
+index 32611e0e15..8ef4d22565 100644
 --- a/contrib/cassandra-cmake/CMakeLists.txt
 +++ b/contrib/cassandra-cmake/CMakeLists.txt
 @@ -90,14 +90,14 @@ configure_file("${CASS_SRC_DIR}/third_party/sparsehash/config.h.cmake" "${CMAKE_

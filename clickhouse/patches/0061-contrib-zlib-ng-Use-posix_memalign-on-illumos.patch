@@ -1,14 +1,14 @@
-From 65515ec1b0ed33b0e43d2f45e04bf2f06173ad44 Mon Sep 17 00:00:00 2001
+From e40589a1aae3a2acb3b016598b0b4e334870ac0c Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:46:00 +0000
-Subject: [PATCH 52/52] contrib/zlib-ng: Use posix_memalign on illumos
+Subject: [PATCH 61/61] contrib/zlib-ng: Use posix_memalign on illumos
 
 ---
  contrib/zlib-ng/zutil_p.h | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/contrib/zlib-ng/zutil_p.h b/contrib/zlib-ng/zutil_p.h
-index 2a748df..fdcb43c 100644
+index 2a748df0c6..fdcb43c6f7 100644
 --- a/contrib/zlib-ng/zutil_p.h
 +++ b/contrib/zlib-ng/zutil_p.h
 @@ -12,13 +12,14 @@

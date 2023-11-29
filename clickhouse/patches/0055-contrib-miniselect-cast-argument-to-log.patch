@@ -1,14 +1,14 @@
-From ca15e708cdcb472a3748c1dfeedf37be450c0e53 Mon Sep 17 00:00:00 2001
+From d2dc0b43d91b70b9a540ffe398ae895e700e6537 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:45:47 +0000
-Subject: [PATCH 46/52] contrib/miniselect: cast argument to log
+Subject: [PATCH 55/61] contrib/miniselect: cast argument to log
 
 ---
  contrib/miniselect/include/miniselect/floyd_rivest_select.h | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/contrib/miniselect/include/miniselect/floyd_rivest_select.h b/contrib/miniselect/include/miniselect/floyd_rivest_select.h
-index e7d5f80..fb643d6 100644
+index e7d5f80f57..fb643d600f 100644
 --- a/contrib/miniselect/include/miniselect/floyd_rivest_select.h
 +++ b/contrib/miniselect/include/miniselect/floyd_rivest_select.h
 @@ -31,7 +31,7 @@ inline void floyd_rivest_select_loop(Iter begin, Diff left, Diff right, Diff k,

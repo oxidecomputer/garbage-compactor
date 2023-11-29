@@ -24,18 +24,26 @@ GCCVER=13
 #
 # Check build environment
 #
-for pkg in cmake ninja clang-$CLANGVER gcc$GCCVER; do
-	if ! pkg info -q $pkg; then
-		fatal "need $pkg"
-	fi
+header 'checking build environment'
+PKGS=(
+	developer/ccache
+	developer/clang-$CLANGVER
+	developer/cmake
+	developer/gcc$GCCVER
+	developer/nasm
+	developer/ninja
+)
+for pkg in ${PKGS[@]}; do
+	info "checking for $pkg"
+	pkg info -q "$pkg" || fatal "need $pkg"
 done
 
 NAM='clickhouse'
-VER="23.3.17.13"
+VER="23.8.7.24"
 FILE="clickhouse-src-bundle-v$VER-lts.tar.gz"
 S3="https://oxide-clickhouse-build.s3.us-west-2.amazonaws.com"
 URL="$S3/$FILE"
-SHA256='42fa2149452f2f7a6fcf7ef718c37eb04ffcb18556f20c07ce02a1a28ec19d3e'
+SHA256='e90f3c9381d782c153f21726849710362d6fb0c5e2bbd4f45d32b140e9463cb4'
 
 #
 # Download ClickHouse sources
@@ -167,8 +175,6 @@ if [[ ! -f "$stamp" ]]; then
 	    -DCMAKE_C_FLAGS="$CFLAGS" \
 	    -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
 	    -DABSL_CXX_STANDARD="20" \
-	    -DENABLE_CCACHE=0 \
-	    -DENABLE_CURL_BUILD=off \
 	    -DENABLE_LDAP=off \
 	    -DENABLE_HDFS=off \
 	    -DENABLE_AMQPCPP=off \

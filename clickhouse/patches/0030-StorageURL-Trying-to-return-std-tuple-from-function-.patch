@@ -1,0 +1,29 @@
+From f34786dd31ea938be299a05025c2d756c9060882 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Thu, 23 Nov 2023 17:12:22 +0000
+Subject: [PATCH 30/61] StorageURL: Trying to return std::tuple from function
+ declared as std::pair
+
+Without this change, the compiler is unable to find a way to convert
+the constructed std::tuple to a std::pair as required by the
+function signature.
+---
+ src/Storages/StorageURL.cpp | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Storages/StorageURL.cpp b/src/Storages/StorageURL.cpp
+index 0764c4e086..a60b21ad2b 100644
+--- a/src/Storages/StorageURL.cpp
++++ b/src/Storages/StorageURL.cpp
+@@ -479,7 +479,7 @@ std::pair<Poco::URI, std::unique_ptr<ReadWriteBufferFromHTTP>> StorageURLSource:
+                 continue;
+             }
+ 
+-            return std::make_tuple(request_uri, std::move(res));
++            return std::make_pair(request_uri, std::move(res));
+         }
+         catch (...)
+         {
+-- 
+2.40.1
+

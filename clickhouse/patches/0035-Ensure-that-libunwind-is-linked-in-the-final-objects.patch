@@ -1,0 +1,24 @@
+From 62f1418f484d083bcf10ff4110e8e7deec2280f3 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:48:25 +0000
+Subject: [PATCH 35/61] Ensure that libunwind is linked in the final objects
+
+---
+ cmake/sunos/default_libs.cmake | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/cmake/sunos/default_libs.cmake b/cmake/sunos/default_libs.cmake
+index 82a6113b05..e3cbb4d027 100644
+--- a/cmake/sunos/default_libs.cmake
++++ b/cmake/sunos/default_libs.cmake
+@@ -7,6 +7,7 @@ endif ()
+ set (BUILTINS_LIBRARY "-lgcc_s")
+ 
+ set (DEFAULT_LIBS "${DEFAULT_LIBS} ${BUILTINS_LIBRARY} ${COVERAGE_OPTION} -lc -lm -lsocket -lnsl -lsendfile -lproc")
++set (DEFAULT_LIBS "${DEFAULT_LIBS} -Lcontrib/libunwind-cmake/ -lunwind")
+ 
+ message(STATUS "Default libraries: ${DEFAULT_LIBS}")
+ 
+-- 
+2.40.1
+

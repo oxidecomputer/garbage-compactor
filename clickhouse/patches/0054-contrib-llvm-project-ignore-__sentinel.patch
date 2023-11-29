@@ -1,7 +1,7 @@
-From 8bb04ba041a422d036ce4c63373b8050c344a62e Mon Sep 17 00:00:00 2001
+From 522215cec37420a3fed4cb19ecb13f75014b90fb Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:03 +0000
-Subject: [PATCH 45/52] contrib/llvm-project: ignore __sentinel
+Subject: [PATCH 54/61] contrib/llvm-project: ignore __sentinel
 
 ---
  contrib/llvm-project/libcxx/include/__ranges/iota_view.h | 3 +++
@@ -9,7 +9,7 @@ Subject: [PATCH 45/52] contrib/llvm-project: ignore __sentinel
  2 files changed, 6 insertions(+)
 
 diff --git a/contrib/llvm-project/libcxx/include/__ranges/iota_view.h b/contrib/llvm-project/libcxx/include/__ranges/iota_view.h
-index e1f03ba..f0239c2 100644
+index e1f03bafa0..f0239c2f69 100644
 --- a/contrib/llvm-project/libcxx/include/__ranges/iota_view.h
 +++ b/contrib/llvm-project/libcxx/include/__ranges/iota_view.h
 @@ -37,6 +37,9 @@
@@ -23,7 +23,7 @@ index e1f03ba..f0239c2 100644
  
  #if _LIBCPP_STD_VER > 17 && !defined(_LIBCPP_HAS_NO_INCOMPLETE_RANGES)
 diff --git a/contrib/llvm-project/libcxx/include/__ranges/join_view.h b/contrib/llvm-project/libcxx/include/__ranges/join_view.h
-index b6fcce9..e7b1113 100644
+index b6fcce95ae..e7b1113c92 100644
 --- a/contrib/llvm-project/libcxx/include/__ranges/join_view.h
 +++ b/contrib/llvm-project/libcxx/include/__ranges/join_view.h
 @@ -33,6 +33,9 @@

@@ -1,7 +1,7 @@
-From a57714c7af9867d34ca312582178a9287d1f19bd Mon Sep 17 00:00:00 2001
+From 21f3d7cd8776e06fe51182550baf79eca942353d Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:46:09 +0000
-Subject: [PATCH 50/52] contrib/s2geometry: use floating-point parameters to
+Subject: [PATCH 59/61] contrib/s2geometry: use floating-point parameters to
  sqrt()
 
 ---
@@ -28,7 +28,7 @@ Subject: [PATCH 50/52] contrib/s2geometry: use floating-point parameters to
  20 files changed, 76 insertions(+), 76 deletions(-)
 
 diff --git a/contrib/s2geometry/src/s2/s2builder.cc b/contrib/s2geometry/src/s2/s2builder.cc
-index 9ca2ca8..ef7c78b 100644
+index 9ca2ca8579..ef7c78b7ec 100644
 --- a/contrib/s2geometry/src/s2/s2builder.cc
 +++ b/contrib/s2geometry/src/s2/s2builder.cc
 @@ -301,7 +301,7 @@ void S2Builder::Init(const Options& options) {
@@ -50,7 +50,7 @@ index 9ca2ca8..ef7c78b 100644
    //
    // Track the memory used by SortInputVertices() before calling it.
 diff --git a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc
-index 4fd712c..70ab414 100644
+index 4fd712c59b..70ab414e2b 100644
 --- a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc
 +++ b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.cc
 @@ -262,12 +262,12 @@ S1Angle IntLatLngSnapFunction::MinSnapRadiusForExponent(int exponent) {
@@ -99,7 +99,7 @@ index 4fd712c..70ab414 100644
  }
  
 diff --git a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h
-index 9d42bc0..87f750d 100644
+index 9d42bc01ee..87f750d9f7 100644
 --- a/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h
 +++ b/contrib/s2geometry/src/s2/s2builderutil_snap_functions.h
 @@ -154,8 +154,8 @@ class S2CellIdSnapFunction : public S2Builder::SnapFunction {
@@ -123,7 +123,7 @@ index 9d42bc0..87f750d 100644
  
    // Returns the minimum exponent such that vertices will not move by more
 diff --git a/contrib/s2geometry/src/s2/s2cap_test.cc b/contrib/s2geometry/src/s2/s2cap_test.cc
-index 8f62b3e..5bd4a65 100644
+index 8f62b3e526..5bd4a65113 100644
 --- a/contrib/s2geometry/src/s2/s2cap_test.cc
 +++ b/contrib/s2geometry/src/s2/s2cap_test.cc
 @@ -227,7 +227,7 @@ TEST(S2Cap, S2CellMethods) {
@@ -136,7 +136,7 @@ index 8f62b3e..5bd4a65 100644
    for (int face = 0; face < 6; ++face) {
      // The cell consisting of the entire face.
 diff --git a/contrib/s2geometry/src/s2/s2edge_crosser.cc b/contrib/s2geometry/src/s2/s2edge_crosser.cc
-index 491d3d8..d8b12e9 100644
+index 491d3d82b5..d8b12e92bb 100644
 --- a/contrib/s2geometry/src/s2/s2edge_crosser.cc
 +++ b/contrib/s2geometry/src/s2/s2edge_crosser.cc
 @@ -55,11 +55,11 @@ inline int S2EdgeCrosserBase<PointRep>::CrossingSignInternal2(
@@ -154,7 +154,7 @@ index 491d3d8..d8b12e9 100644
        (c_->DotProd(b_tangent_) > kError && d.DotProd(b_tangent_) > kError)) {
      return -1;
 diff --git a/contrib/s2geometry/src/s2/s2edge_crossings.cc b/contrib/s2geometry/src/s2/s2edge_crossings.cc
-index 32289d7..a6ef6de 100644
+index 32289d78fd..a6ef6de6c7 100644
 --- a/contrib/s2geometry/src/s2/s2edge_crossings.cc
 +++ b/contrib/s2geometry/src/s2/s2edge_crossings.cc
 @@ -437,7 +437,7 @@ static bool GetIntersectionSimple(const Vector3<T>& a0, const Vector3<T>& a1,
@@ -185,7 +185,7 @@ index 32289d7..a6ef6de 100644
    // ||(X-Y)'-(X-Y)|| <= ||X-Y|| * T_ERR
    constexpr T T_ERR = rounding_epsilon<T>();
 diff --git a/contrib/s2geometry/src/s2/s2edge_distances.cc b/contrib/s2geometry/src/s2/s2edge_distances.cc
-index eeebdbb..5f2756e 100644
+index eeebdbbad5..5f2756ebd2 100644
 --- a/contrib/s2geometry/src/s2/s2edge_distances.cc
 +++ b/contrib/s2geometry/src/s2/s2edge_distances.cc
 @@ -264,9 +264,9 @@ static double GetUpdateMinInteriorDistanceMaxError(S1ChordAngle dist) {
@@ -202,7 +202,7 @@ index eeebdbb..5f2756e 100644
  
  double GetUpdateMinDistanceMaxError(S1ChordAngle dist) {
 diff --git a/contrib/s2geometry/src/s2/s2edge_distances_test.cc b/contrib/s2geometry/src/s2/s2edge_distances_test.cc
-index b4847b7..08934d5 100644
+index b4847b7f06..08934d5f15 100644
 --- a/contrib/s2geometry/src/s2/s2edge_distances_test.cc
 +++ b/contrib/s2geometry/src/s2/s2edge_distances_test.cc
 @@ -316,9 +316,9 @@ TEST(S2, Interpolate) {
@@ -227,7 +227,7 @@ index b4847b7..08934d5 100644
    // One edge is degenerate.
    CheckEdgePairMaxDistance(S2Point(1, 0, 1), S2Point(1, 0, 1),
 diff --git a/contrib/s2geometry/src/s2/s2edge_tessellator.cc b/contrib/s2geometry/src/s2/s2edge_tessellator.cc
-index a5e4906..668efa2 100644
+index a5e490651d..668efa2081 100644
 --- a/contrib/s2geometry/src/s2/s2edge_tessellator.cc
 +++ b/contrib/s2geometry/src/s2/s2edge_tessellator.cc
 @@ -84,13 +84,13 @@ using std::vector;
@@ -256,7 +256,7 @@ index a5e4906..668efa2 100644
  // Note that this function does not need to be evaluated at runtime, it
  // simply affects the calculation of the value x0 where E1(x0) = E2(x0)
 diff --git a/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc b/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc
-index 09802c1..50113a0 100644
+index 09802c110d..50113a0a2b 100644
 --- a/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc
 +++ b/contrib/s2geometry/src/s2/s2edge_tessellator_test.cc
 @@ -355,7 +355,7 @@ void TestEdgeError(const S2::Projection& proj, double t) {
@@ -269,7 +269,7 @@ index 09802c1..50113a0 100644
  
    // Keep track of the average and maximum geometric and parametric errors.
 diff --git a/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc
-index 7054f23..70c1cd9 100644
+index 7054f23e88..70c1cd9c2f 100644
 --- a/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc
 +++ b/contrib/s2geometry/src/s2/s2latlng_rect_bounder.cc
 @@ -64,7 +64,7 @@ void S2LatLngRectBounder::AddInternal(const S2Point& b,
@@ -323,7 +323,7 @@ index 7054f23..70c1cd9 100644
      if (lat_gap1 + lat_gap2 < 1.687e-15) {
        return S2LatLngRect::Full();
 diff --git a/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc b/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc
-index bd17bbc..0ec672f 100644
+index bd17bbca15..0ec672f9b7 100644
 --- a/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc
 +++ b/contrib/s2geometry/src/s2/s2latlng_rect_bounder_test.cc
 @@ -49,7 +49,7 @@ const S2LatLng kRectError = S2LatLngRectBounder::MaxErrorForTests();
@@ -336,7 +336,7 @@ index bd17bbc..0ec672f 100644
        S2LatLngRect(R1Interval(-kCubeLat, kCubeLat),
                     S1Interval(-M_PI_4, M_PI_4)), kRectError));
 diff --git a/contrib/s2geometry/src/s2/s2latlng_test.cc b/contrib/s2geometry/src/s2/s2latlng_test.cc
-index 2c6f809..a656197 100644
+index 2c6f809330..a656197d3a 100644
 --- a/contrib/s2geometry/src/s2/s2latlng_test.cc
 +++ b/contrib/s2geometry/src/s2/s2latlng_test.cc
 @@ -144,7 +144,7 @@ TEST(S2LatLng, TestToString) {
@@ -349,7 +349,7 @@ index 2c6f809..a656197 100644
      {-100, -710, -90, 10},
    };
 diff --git a/contrib/s2geometry/src/s2/s2measures.cc b/contrib/s2geometry/src/s2/s2measures.cc
-index 42e3635..615955c 100644
+index 42e36355a8..615955ccd7 100644
 --- a/contrib/s2geometry/src/s2/s2measures.cc
 +++ b/contrib/s2geometry/src/s2/s2measures.cc
 @@ -80,7 +80,7 @@ double Area(const S2Point& a, const S2Point& b, const S2Point& c) {
@@ -362,7 +362,7 @@ index 42e3635..615955c 100644
    // method if dmin >= k2 * s^5, where k2 is about 1e-2.  Furthermore,
    // if dmin < k2 * s^5, the triangle area is at most k3 * s^4, where
 diff --git a/contrib/s2geometry/src/s2/s2metrics.cc b/contrib/s2geometry/src/s2/s2metrics.cc
-index 0aacfa9..bd83883 100644
+index 0aacfa93ec..bd83883e45 100644
 --- a/contrib/s2geometry/src/s2/s2metrics.cc
 +++ b/contrib/s2geometry/src/s2/s2metrics.cc
 @@ -49,8 +49,8 @@ const LengthMetric kAvgAngleSpan(M_PI / 2);                    // 1.571
@@ -437,7 +437,7 @@ index 0aacfa9..bd83883 100644
  
  }  // namespace S2
 diff --git a/contrib/s2geometry/src/s2/s2polygon.cc b/contrib/s2geometry/src/s2/s2polygon.cc
-index a76cd38..411bd76 100644
+index a76cd385ed..411bd761f1 100644
 --- a/contrib/s2geometry/src/s2/s2polygon.cc
 +++ b/contrib/s2geometry/src/s2/s2polygon.cc
 @@ -1085,7 +1085,7 @@ void S2Polygon::InitToSimplifiedInCell(
@@ -450,7 +450,7 @@ index a76cd38..411bd76 100644
    // The first pass yields a collection of simplified polylines that preserve
    // the original cyclic vertex order.
 diff --git a/contrib/s2geometry/src/s2/s2predicates.cc b/contrib/s2geometry/src/s2/s2predicates.cc
-index 6564dde..86fc63a 100644
+index 6564ddeab2..86fc63a6c3 100644
 --- a/contrib/s2geometry/src/s2/s2predicates.cc
 +++ b/contrib/s2geometry/src/s2/s2predicates.cc
 @@ -71,7 +71,7 @@ int StableSign(const S2Point& a, const S2Point& b, const S2Point& c) {
@@ -571,7 +571,7 @@ index 6564dde..86fc63a 100644
    // If LHS(3) is definitely less than RHS(3), neither site excludes the other.
    T result = abs_lhs3 - sin_d;
 diff --git a/contrib/s2geometry/src/s2/s2predicates.h b/contrib/s2geometry/src/s2/s2predicates.h
-index 89f68a8..7312074 100644
+index 89f68a8d48..7312074ab5 100644
 --- a/contrib/s2geometry/src/s2/s2predicates.h
 +++ b/contrib/s2geometry/src/s2/s2predicates.h
 @@ -271,7 +271,7 @@ inline int TriageSign(const S2Point& a, const S2Point& b,
@@ -593,7 +593,7 @@ index 89f68a8..7312074 100644
    // which is about 3.6548 * e, or 1.8274 * DBL_EPSILON.
    const double kMaxDetError = 1.8274 * DBL_EPSILON;
 diff --git a/contrib/s2geometry/src/s2/s2testing.cc b/contrib/s2geometry/src/s2/s2testing.cc
-index 0820f8e..ad9dece 100644
+index 0820f8efc0..ad9dece44e 100644
 --- a/contrib/s2geometry/src/s2/s2testing.cc
 +++ b/contrib/s2geometry/src/s2/s2testing.cc
 @@ -432,15 +432,15 @@ double S2Testing::Fractal::min_radius_factor() const {
@@ -616,7 +616,7 @@ index 0820f8e..ad9dece 100644
    GetR2VerticesHelper(v1, v2, 0, vertices);
    GetR2VerticesHelper(v2, v0, 0, vertices);
 diff --git a/contrib/s2geometry/src/s2/s2testing_test.cc b/contrib/s2geometry/src/s2/s2testing_test.cc
-index 402a190..824e3e2 100644
+index 402a190535..824e3e2289 100644
 --- a/contrib/s2geometry/src/s2/s2testing_test.cc
 +++ b/contrib/s2geometry/src/s2/s2testing_test.cc
 @@ -85,7 +85,7 @@ void TestFractal(int min_level, int max_level, double dimension) {

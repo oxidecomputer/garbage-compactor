@@ -1,7 +1,7 @@
-From e8cb0cd82812f508288c32d3d12ae91fbe3ef5cf Mon Sep 17 00:00:00 2001
+From 7e67ca854db0c24ff0666a666a57d4e09bbe13c3 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:36 +0000
-Subject: [PATCH 32/52] poco foundation: add illumos support
+Subject: [PATCH 37/61] poco foundation: add illumos support
 
 ---
  base/poco/Foundation/src/Environment_UNIX.cpp | 6 +++---
@@ -10,7 +10,7 @@ Subject: [PATCH 32/52] poco foundation: add illumos support
  3 files changed, 5 insertions(+), 5 deletions(-)
 
 diff --git a/base/poco/Foundation/src/Environment_UNIX.cpp b/base/poco/Foundation/src/Environment_UNIX.cpp
-index 202e5d8..faabb37 100644
+index 202e5d88f8..faabb37477 100644
 --- a/base/poco/Foundation/src/Environment_UNIX.cpp
 +++ b/base/poco/Foundation/src/Environment_UNIX.cpp
 @@ -281,15 +281,15 @@ void EnvironmentImpl::nodeIdImpl(NodeId& id)
@@ -33,7 +33,7 @@ index 202e5d8..faabb37 100644
  
  
 diff --git a/base/poco/Foundation/src/NamedEvent_UNIX.cpp b/base/poco/Foundation/src/NamedEvent_UNIX.cpp
-index 978e6e0..3cda410 100644
+index 978e6e0bc0..3cda4104c7 100644
 --- a/base/poco/Foundation/src/NamedEvent_UNIX.cpp
 +++ b/base/poco/Foundation/src/NamedEvent_UNIX.cpp
 @@ -31,7 +31,7 @@
@@ -46,7 +46,7 @@ index 978e6e0..3cda410 100644
  	{
  		int                 val;
 diff --git a/base/poco/Foundation/src/NamedMutex_UNIX.cpp b/base/poco/Foundation/src/NamedMutex_UNIX.cpp
-index 6cfa136..d53d54d 100644
+index 6cfa1369c9..d53d54d7bb 100644
 --- a/base/poco/Foundation/src/NamedMutex_UNIX.cpp
 +++ b/base/poco/Foundation/src/NamedMutex_UNIX.cpp
 @@ -31,7 +31,7 @@

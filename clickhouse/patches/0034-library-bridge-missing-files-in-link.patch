@@ -1,0 +1,29 @@
+From a066e2a3c7c9526c653ad33aaa92ca0c69ef7b22 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Sun, 26 Nov 2023 11:45:15 +0000
+Subject: [PATCH 34/61] library-bridge: missing files in link
+
+---
+ programs/library-bridge/CMakeLists.txt | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/programs/library-bridge/CMakeLists.txt b/programs/library-bridge/CMakeLists.txt
+index dd0bf67cb6..c516cd968e 100644
+--- a/programs/library-bridge/CMakeLists.txt
++++ b/programs/library-bridge/CMakeLists.txt
+@@ -13,6 +13,12 @@ set (CLICKHOUSE_LIBRARY_BRIDGE_SOURCES
+     library-bridge.cpp
+ )
+ 
++if (OS_SUNOS)
++    list(APPEND CLICKHOUSE_LIBRARY_BRIDGE_SOURCES
++        ${CMAKE_CURRENT_SOURCE_DIR}/../../src/Server/ServerType.cpp
++    )
++endif()
++
+ clickhouse_add_executable(clickhouse-library-bridge ${CLICKHOUSE_LIBRARY_BRIDGE_SOURCES})
+ 
+ target_link_libraries(clickhouse-library-bridge PRIVATE
+-- 
+2.40.1
+

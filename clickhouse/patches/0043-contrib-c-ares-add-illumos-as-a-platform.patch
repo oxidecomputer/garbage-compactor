@@ -1,7 +1,7 @@
-From 714bd1d9c0779e1ad65a6f2e9e16689da99bfd33 Mon Sep 17 00:00:00 2001
+From e55b78d32e1e5de8e1e9c18ce25aed30d5bf4239 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 11:47:33 +0000
-Subject: [PATCH 37/52] contrib/c-ares: add illumos as a platform
+Subject: [PATCH 43/61] contrib/c-ares: add illumos as a platform
 
 ---
  contrib/c-ares-cmake/CMakeLists.txt        |   2 +
@@ -12,10 +12,10 @@ Subject: [PATCH 37/52] contrib/c-ares: add illumos as a platform
  create mode 100644 contrib/c-ares-cmake/solaris/ares_config.h
 
 diff --git a/contrib/c-ares-cmake/CMakeLists.txt b/contrib/c-ares-cmake/CMakeLists.txt
-index 63e145b..188c632 100644
+index 86ab6f9026..daec96ff1b 100644
 --- a/contrib/c-ares-cmake/CMakeLists.txt
 +++ b/contrib/c-ares-cmake/CMakeLists.txt
-@@ -85,6 +85,8 @@ elseif (OS_DARWIN)
+@@ -86,6 +86,8 @@ elseif (OS_DARWIN)
      target_compile_definitions(_c-ares PRIVATE -D_DARWIN_C_SOURCE)
  elseif (OS_FREEBSD)
      target_include_directories(_c-ares SYSTEM PUBLIC "${ClickHouse_SOURCE_DIR}/contrib/c-ares-cmake/freebsd")
@@ -26,7 +26,7 @@ index 63e145b..188c632 100644
  add_library(ch_contrib::c-ares ALIAS _c-ares)
 diff --git a/contrib/c-ares-cmake/solaris/ares_build.h b/contrib/c-ares-cmake/solaris/ares_build.h
 new file mode 100644
-index 0000000..f42b59d
+index 0000000000..f42b59d07b
 --- /dev/null
 +++ b/contrib/c-ares-cmake/solaris/ares_build.h
 @@ -0,0 +1,104 @@
@@ -136,7 +136,7 @@ index 0000000..f42b59d
 +#endif /* __CARES_BUILD_H */
 diff --git a/contrib/c-ares-cmake/solaris/ares_config.h b/contrib/c-ares-cmake/solaris/ares_config.h
 new file mode 100644
-index 0000000..c4ac5e3
+index 0000000000..c4ac5e3896
 --- /dev/null
 +++ b/contrib/c-ares-cmake/solaris/ares_config.h
 @@ -0,0 +1,503 @@

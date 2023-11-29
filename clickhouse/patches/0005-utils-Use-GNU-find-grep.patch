@@ -1,7 +1,7 @@
-From b15184dbff3bc7dc8a8e5d89256780b1f4b71ac9 Mon Sep 17 00:00:00 2001
+From ec84215573c4e71b6deb25b664b7a74eabeaed9a Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
 Date: Wed, 22 Nov 2023 14:09:30 +0000
-Subject: [PATCH 05/52] utils: Use GNU find / grep
+Subject: [PATCH 05/61] utils: Use GNU find / grep
 
 ---
  cmake/tools.cmake                    | 13 +++++++++++++
@@ -9,10 +9,10 @@ Subject: [PATCH 05/52] utils: Use GNU find / grep
  2 files changed, 14 insertions(+), 1 deletion(-)
 
 diff --git a/cmake/tools.cmake b/cmake/tools.cmake
-index 3572134..f69a09c 100644
+index 802907c9dd..e126a9d84e 100644
 --- a/cmake/tools.cmake
 +++ b/cmake/tools.cmake
-@@ -186,3 +186,16 @@ if (OS_DARWIN AND NOT CMAKE_TOOLCHAIN_FILE)
+@@ -161,3 +161,16 @@ if (OS_DARWIN AND NOT CMAKE_TOOLCHAIN_FILE)
          message (FATAL_ERROR "GNU grep not found. You can install it with 'brew install grep'.")
      endif()
  endif ()
@@ -30,7 +30,7 @@ index 3572134..f69a09c 100644
 +    endif()
 +endif ()
 diff --git a/utils/list-licenses/list-licenses.sh b/utils/list-licenses/list-licenses.sh
-index db3eb5e..af20dff 100755
+index cee5cf87a0..8f36e0396e 100755
 --- a/utils/list-licenses/list-licenses.sh
 +++ b/utils/list-licenses/list-licenses.sh
 @@ -1,6 +1,6 @@
