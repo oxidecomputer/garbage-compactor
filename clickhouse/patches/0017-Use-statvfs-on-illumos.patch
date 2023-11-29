@@ -1,0 +1,50 @@
+From 3898a6be5dc203b35a588e74ad8ca4ed24042799 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 12:49:22 +0000
+Subject: [PATCH 17/52] Use statvfs on illumos
+
+---
+ utils/self-extracting-executable/decompressor.cpp | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+diff --git a/utils/self-extracting-executable/decompressor.cpp b/utils/self-extracting-executable/decompressor.cpp
+index d41b9b1..61e7d1c 100644
+--- a/utils/self-extracting-executable/decompressor.cpp
++++ b/utils/self-extracting-executable/decompressor.cpp
+@@ -2,6 +2,8 @@
+ #include <sys/mman.h>
+ #if defined(OS_DARWIN) || defined(OS_FREEBSD)
+ #   include <sys/mount.h>
++#elif defined(OS_SUNOS)
++#   include <sys/statvfs.h>
+ #else
+ #   include <sys/statfs.h>
+ #endif
+@@ -210,6 +212,16 @@ int decompressFiles(int input_fd, char * path, char * name, bool & have_compress
+     }
+ 
+     /// Check free space
++#ifdef OS_SUNOS
++    struct statvfs fs_info;
++    if (0 != fstatvfs(input_fd, &fs_info))
++    {
++        perror("fstatvfs");
++        if (0 != munmap(input, info_in.st_size))
++                perror("munmap");
++        return 1;
++    }
++#else
+     struct statfs fs_info;
+     if (0 != fstatfs(input_fd, &fs_info))
+     {
+@@ -218,6 +230,7 @@ int decompressFiles(int input_fd, char * path, char * name, bool & have_compress
+                 perror("munmap");
+         return 1;
+     }
++#endif
+     if (fs_info.f_blocks * info_in.st_blksize < decompressed_full_size)
+     {
+         std::cerr << "Not enough space for decompression. Have " << fs_info.f_blocks * info_in.st_blksize << ", need " << decompressed_full_size << std::endl;
+-- 
+2.40.1
+

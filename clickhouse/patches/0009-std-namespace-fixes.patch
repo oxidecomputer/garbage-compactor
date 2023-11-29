@@ -1,0 +1,90 @@
+From 4ed9c368168ded121e365cf61b929c62073f4ae5 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:47:57 +0000
+Subject: [PATCH 09/52] std:: namespace fixes
+
+---
+ base/base/preciseExp10.cpp    | 2 ++
+ src/Core/ColumnNumbers.h      | 1 +
+ src/Functions/makeDate.cpp    | 2 ++
+ src/IO/ISchedulerNode.h       | 2 +-
+ src/IO/ReadBuffer.cpp         | 1 +
+ src/IO/SeekableReadBuffer.cpp | 1 +
+ 6 files changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/base/base/preciseExp10.cpp b/base/base/preciseExp10.cpp
+index 1cd660d..a6f1d40 100644
+--- a/base/base/preciseExp10.cpp
++++ b/base/base/preciseExp10.cpp
+@@ -33,6 +33,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ #include <cstdint>
+ #include <cstdio>
+ 
++using std::isnan;
++
+ double preciseExp10(double x)
+ {
+     if (isnan(x)) return NAN;
+diff --git a/src/Core/ColumnNumbers.h b/src/Core/ColumnNumbers.h
+index 5105443..7d09d00 100644
+--- a/src/Core/ColumnNumbers.h
++++ b/src/Core/ColumnNumbers.h
+@@ -3,6 +3,7 @@
+ #include <unordered_set>
+ #include <vector>
+ 
++using std::size_t;
+ 
+ namespace DB
+ {
+diff --git a/src/Functions/makeDate.cpp b/src/Functions/makeDate.cpp
+index 7ebca71..e9be257 100644
+--- a/src/Functions/makeDate.cpp
++++ b/src/Functions/makeDate.cpp
+@@ -16,6 +16,8 @@
+ 
+ #include <array>
+ 
++using std::pow;
++
+ namespace DB
+ {
+ namespace ErrorCodes
+diff --git a/src/IO/ISchedulerNode.h b/src/IO/ISchedulerNode.h
+index 266f1ba..edb6692 100644
+--- a/src/IO/ISchedulerNode.h
++++ b/src/IO/ISchedulerNode.h
+@@ -55,7 +55,7 @@ struct SchedulerNodeInfo
+ 
+     void setWeight(double value)
+     {
+-        if (value <= 0 || !isfinite(value))
++        if (value <= 0 || !std::isfinite(value))
+             throw Exception(
+                 ErrorCodes::INVALID_SCHEDULER_NODE,
+                 "Negative and non-finite node weights are not allowed: {}",
+diff --git a/src/IO/ReadBuffer.cpp b/src/IO/ReadBuffer.cpp
+index bf054d0..ce312df 100644
+--- a/src/IO/ReadBuffer.cpp
++++ b/src/IO/ReadBuffer.cpp
+@@ -1,5 +1,6 @@
+ #include <IO/ReadBuffer.h>
+ 
++using std::nullptr_t;
+ 
+ namespace DB
+ {
+diff --git a/src/IO/SeekableReadBuffer.cpp b/src/IO/SeekableReadBuffer.cpp
+index 99c43d6..ff6b09f 100644
+--- a/src/IO/SeekableReadBuffer.cpp
++++ b/src/IO/SeekableReadBuffer.cpp
+@@ -1,5 +1,6 @@
+ #include <IO/SeekableReadBuffer.h>
+ 
++using std::nullptr_t;
+ 
+ namespace DB
+ {
+-- 
+2.40.1
+

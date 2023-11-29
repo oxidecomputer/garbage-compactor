@@ -1,0 +1,25 @@
+From 90657dfc370ba876c9252f2c7f50e9dceec5fa84 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:46:36 +0000
+Subject: [PATCH 34/52] contrib/abseil-cpp: illumos does not have VDSO support
+
+---
+ contrib/abseil-cpp/absl/debugging/internal/vdso_support.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h b/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h
+index 6562c6c..bc0d7fd 100644
+--- a/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h
++++ b/contrib/abseil-cpp/absl/debugging/internal/vdso_support.h
+@@ -48,7 +48,7 @@
+ 
+ #ifdef ABSL_HAVE_VDSO_SUPPORT
+ #error ABSL_HAVE_VDSO_SUPPORT cannot be directly set
+-#else
++#elif defined(__linux__) || defined(__FreeBSD__)
+ #define ABSL_HAVE_VDSO_SUPPORT 1
+ #endif
+ 
+-- 
+2.40.1
+

@@ -1,0 +1,32 @@
+From f4b4a3011c2b81a55575e72f5e8f2c8642644c6e Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:46:15 +0000
+Subject: [PATCH 13/52] IBridge: Don't set max RSS on illumos
+
+---
+ src/Bridge/IBridge.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/Bridge/IBridge.cpp b/src/Bridge/IBridge.cpp
+index 1ea7757..c145036 100644
+--- a/src/Bridge/IBridge.cpp
++++ b/src/Bridge/IBridge.cpp
+@@ -171,6 +171,7 @@ void IBridge::initialize(Application & self)
+     keep_alive_timeout = config().getUInt64("keep-alive-timeout", 10);
+     http_max_field_value_size = config().getUInt64("http-max-field-value-size", 1048576);
+ 
++#ifndef OS_SUNOS
+     struct rlimit limit;
+     const UInt64 gb = 1024 * 1024 * 1024;
+ 
+@@ -195,6 +196,7 @@ void IBridge::initialize(Application & self)
+     {
+         LOG_WARNING(log, "Failed to set OOM score, error: {}", e.what());
+     }
++#endif /* !OS_SUNOS */
+ 
+     initializeTerminationAndSignalProcessing();
+ 
+-- 
+2.40.1
+

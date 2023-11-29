@@ -1,0 +1,25 @@
+From 7263646fbb11f57c61a3cfe78c3a8a6249e80728 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:48:13 +0000
+Subject: [PATCH 25/52] DependencyGraph: missing overloads
+
+---
+ src/Databases/TablesDependencyGraph.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/Databases/TablesDependencyGraph.h b/src/Databases/TablesDependencyGraph.h
+index e5be59d..83f6228 100644
+--- a/src/Databases/TablesDependencyGraph.h
++++ b/src/Databases/TablesDependencyGraph.h
+@@ -151,6 +151,8 @@ private:
+     {
+         using is_transparent = void;
+         size_t operator()(const NodeSharedPtr & left, const Node * right) const { return left.get() == right; }
++        size_t operator()(const Node * left, const NodeSharedPtr & right) const { return left == right.get(); }
++        size_t operator()(const Node * left, const Node * right) const { return left == right; }
+         size_t operator()(const NodeSharedPtr & left, const NodeSharedPtr & right) const { return left == right; }
+     };
+ 
+-- 
+2.40.1
+

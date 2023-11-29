@@ -1,0 +1,44 @@
+From 744206c91f7fbb398a4be523b15dcd1b210246d4 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:46:06 +0000
+Subject: [PATCH 47/52] contrib/rocksdb: illumos does not have dirent d_type
+ and does have thread_local
+
+---
+ contrib/rocksdb/env/fs_posix.cc            | 2 ++
+ contrib/rocksdb/monitoring/perf_context.cc | 4 ----
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/contrib/rocksdb/env/fs_posix.cc b/contrib/rocksdb/env/fs_posix.cc
+index a3e3608..c57b8db 100644
+--- a/contrib/rocksdb/env/fs_posix.cc
++++ b/contrib/rocksdb/env/fs_posix.cc
+@@ -635,7 +635,9 @@ class PosixFileSystem : public FileSystem {
+       // filter out '.' and '..' directory entries
+       // which appear only on some platforms
+       const bool ignore =
++#ifndef OS_SUNOS
+           entry->d_type == DT_DIR &&
++#endif
+           (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0);
+       if (!ignore) {
+         result->push_back(entry->d_name);
+diff --git a/contrib/rocksdb/monitoring/perf_context.cc b/contrib/rocksdb/monitoring/perf_context.cc
+index a274288..5a30ce2 100644
+--- a/contrib/rocksdb/monitoring/perf_context.cc
++++ b/contrib/rocksdb/monitoring/perf_context.cc
+@@ -14,11 +14,7 @@ namespace ROCKSDB_NAMESPACE {
+ // Put here just to make get_perf_context() simple without ifdef.
+ PerfContext perf_context;
+ #elif defined(ROCKSDB_SUPPORT_THREAD_LOCAL)
+-#if defined(OS_SOLARIS)
+-__thread PerfContext perf_context;
+-#else   // OS_SOLARIS
+ thread_local PerfContext perf_context;
+-#endif  // OS_SOLARIS
+ #else
+ #error "No thread-local support. Disable perf context with -DNPERF_CONTEXT."
+ #endif
+-- 
+2.40.1
+

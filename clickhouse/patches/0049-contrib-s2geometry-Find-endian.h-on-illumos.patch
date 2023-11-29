@@ -1,0 +1,25 @@
+From 118546ef4c65d45406a908d1e84018d939b136cf Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:46:03 +0000
+Subject: [PATCH 49/52] contrib/s2geometry: Find endian.h on illumos
+
+---
+ contrib/s2geometry/src/s2/base/port.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/contrib/s2geometry/src/s2/base/port.h b/contrib/s2geometry/src/s2/base/port.h
+index 0efaba8..f814891 100644
+--- a/contrib/s2geometry/src/s2/base/port.h
++++ b/contrib/s2geometry/src/s2/base/port.h
+@@ -149,7 +149,7 @@
+ // -----------------------------------------------------------------------------
+ 
+ // IS_LITTLE_ENDIAN, IS_BIG_ENDIAN
+-#if defined __linux__ || defined OS_ANDROID || defined(__ANDROID__)
++#if defined __linux__ || defined OS_ANDROID || defined(__ANDROID__) || defined(OS_SUNOS)
+ // TODO(user): http://b/21460321; use one of OS_ANDROID or __ANDROID__.
+ // _BIG_ENDIAN
+ #include <endian.h>
+-- 
+2.40.1
+

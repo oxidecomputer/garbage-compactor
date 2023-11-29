@@ -1,0 +1,26 @@
+From 419ebae112903505694d4d116ccae18d265dc2c4 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:48:19 +0000
+Subject: [PATCH 28/52] KeeperStorage: need to explicitly specify operator
+ return type
+
+---
+ src/Coordination/KeeperStorage.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/Coordination/KeeperStorage.h b/src/Coordination/KeeperStorage.h
+index cfacdfc..67c3309 100644
+--- a/src/Coordination/KeeperStorage.h
++++ b/src/Coordination/KeeperStorage.h
+@@ -280,7 +280,7 @@ public:
+ 
+         struct Hash
+         {
+-            auto operator()(const std::string_view view) const
++            UInt64 operator()(const std::string_view view) const
+             {
+                 SipHash hash;
+                 hash.update(view);
+-- 
+2.40.1
+

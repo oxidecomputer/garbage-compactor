@@ -1,0 +1,22 @@
+From 00b219de4e784d9a372dc079b9b9d6dfbe830433 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:46:24 +0000
+Subject: [PATCH 04/52] Allow "i386" for system processor.
+
+---
+ cmake/arch.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/arch.cmake b/cmake/arch.cmake
+index 5ec05e4..db2bd27 100644
+--- a/cmake/arch.cmake
++++ b/cmake/arch.cmake
+@@ -1,4 +1,4 @@
+-if (CMAKE_SYSTEM_PROCESSOR MATCHES "amd64|x86_64")
++if (CMAKE_SYSTEM_PROCESSOR MATCHES "amd64|x86_64|i386")
+     if (CMAKE_LIBRARY_ARCHITECTURE MATCHES "i386")
+         message (FATAL_ERROR "32bit platforms are not supported")
+     endif ()
+-- 
+2.40.1
+

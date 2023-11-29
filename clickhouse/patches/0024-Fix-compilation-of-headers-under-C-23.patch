@@ -1,0 +1,114 @@
+From 21e109c9e9c7c9ecff8eb74f03284d5ea1bdaaeb Mon Sep 17 00:00:00 2001
+From: Adrian Vogelsgesang <avogelsgesang@salesforce.com>
+Date: Thu, 4 May 2023 12:20:29 +0000
+Subject: [PATCH 24/52] Fix compilation of headers under C++23
+
+`DoubleAPFloat` has a `unique_ptr<APFloat[]>` member. In
+`DoubleAPFloat::operator=` and `DoubleAPFloat::get{First,Second}`,
+the methods of this unique_ptr are getting instantiated. At that
+point `APFloat` is still only a forward declaration.
+
+This triggers undefined behavior. So far, we were probaly just
+lucky and the code compiled fine. However, with C++23
+`std::unique_ptr` became constexpr, and clang (and other compilers) are
+now diagnosing this latent bug as an error.
+
+This commit fixes the issue by moving the function definitions
+out of the class definition of `DoubleAPFloat`, after the declaration
+of `APFloat`.
+
+A similar issue exists in `ModuleSummaryIndex.h`, the fix is pretty
+much identical.
+
+Fixes #59784
+
+Differential Revision: https://reviews.llvm.org/D149854
+---
+ .../llvm/include/llvm/ADT/APFloat.h           | 38 +++++++++++++------
+ .../llvm/include/llvm/IR/ModuleSummaryIndex.h |  4 +-
+ 2 files changed, 29 insertions(+), 13 deletions(-)
+
+diff --git a/contrib/llvm-project/llvm/include/llvm/ADT/APFloat.h b/contrib/llvm-project/llvm/include/llvm/ADT/APFloat.h
+index cdedb6e..ab1bab2 100644
+--- a/contrib/llvm-project/llvm/include/llvm/ADT/APFloat.h
++++ b/contrib/llvm-project/llvm/include/llvm/ADT/APFloat.h
+@@ -620,21 +620,14 @@ public:
+   DoubleAPFloat(DoubleAPFloat &&RHS);
+ 
+   DoubleAPFloat &operator=(const DoubleAPFloat &RHS);
+-
+-  DoubleAPFloat &operator=(DoubleAPFloat &&RHS) {
+-    if (this != &RHS) {
+-      this->~DoubleAPFloat();
+-      new (this) DoubleAPFloat(std::move(RHS));
+-    }
+-    return *this;
+-  }
++  inline DoubleAPFloat &operator=(DoubleAPFloat &&RHS);
+ 
+   bool needsCleanup() const { return Floats != nullptr; }
+ 
+-  APFloat &getFirst() { return Floats[0]; }
+-  const APFloat &getFirst() const { return Floats[0]; }
+-  APFloat &getSecond() { return Floats[1]; }
+-  const APFloat &getSecond() const { return Floats[1]; }
++  inline APFloat &getFirst();
++  inline const APFloat &getFirst() const;
++  inline APFloat &getSecond();
++  inline const APFloat &getSecond() const;
+ 
+   opStatus add(const DoubleAPFloat &RHS, roundingMode RM);
+   opStatus subtract(const DoubleAPFloat &RHS, roundingMode RM);
+@@ -1338,6 +1331,27 @@ inline APFloat maximum(const APFloat &A, const APFloat &B) {
+   return A < B ? B : A;
+ }
+ 
++// We want the following functions to be available in the header for inlining.
++// We cannot define them inline in the class definition of `DoubleAPFloat`
++// because doing so would instantiate `std::unique_ptr<APFloat[]>` before
++// `APFloat` is defined, and that would be undefined behavior.
++namespace detail {
++
++DoubleAPFloat &DoubleAPFloat::operator=(DoubleAPFloat &&RHS) {
++  if (this != &RHS) {
++    this->~DoubleAPFloat();
++    new (this) DoubleAPFloat(std::move(RHS));
++  }
++  return *this;
++}
++
++APFloat &DoubleAPFloat::getFirst() { return Floats[0]; }
++const APFloat &DoubleAPFloat::getFirst() const { return Floats[0]; }
++APFloat &DoubleAPFloat::getSecond() { return Floats[1]; }
++const APFloat &DoubleAPFloat::getSecond() const { return Floats[1]; }
++
++} // namespace detail
++
+ } // namespace llvm
+ 
+ #undef APFLOAT_DISPATCH_ON_SEMANTICS
+diff --git a/contrib/llvm-project/llvm/include/llvm/IR/ModuleSummaryIndex.h b/contrib/llvm-project/llvm/include/llvm/IR/ModuleSummaryIndex.h
+index 468773a..d81fbd2 100644
+--- a/contrib/llvm-project/llvm/include/llvm/IR/ModuleSummaryIndex.h
++++ b/contrib/llvm-project/llvm/include/llvm/IR/ModuleSummaryIndex.h
+@@ -145,7 +145,7 @@ struct alignas(8) GlobalValueSummaryInfo {
+     StringRef Name;
+   } U;
+ 
+-  GlobalValueSummaryInfo(bool HaveGVs) : U(HaveGVs) {}
++  inline GlobalValueSummaryInfo(bool HaveGVs);
+ 
+   /// List of global value summary structures for a particular value held
+   /// in the GlobalValueMap. Requires a vector in the case of multiple
+@@ -444,6 +444,8 @@ public:
+   friend class ModuleSummaryIndex;
+ };
+ 
++GlobalValueSummaryInfo::GlobalValueSummaryInfo(bool HaveGVs) : U(HaveGVs) {}
++
+ /// Alias summary information.
+ class AliasSummary : public GlobalValueSummary {
+   ValueInfo AliaseeValueInfo;
+-- 
+2.40.1
+

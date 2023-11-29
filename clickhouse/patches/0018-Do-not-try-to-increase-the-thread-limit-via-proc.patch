@@ -1,0 +1,32 @@
+From cd066424c6ce7dcf6143b7ef3ecfdde218440d8f Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:47:12 +0000
+Subject: [PATCH 18/52] Do not try to increase the thread limit via /proc
+
+---
+ programs/server/Server.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/programs/server/Server.cpp b/programs/server/Server.cpp
+index 4305408..11156da 100644
+--- a/programs/server/Server.cpp
++++ b/programs/server/Server.cpp
+@@ -1004,6 +1004,7 @@ try
+         }
+     }
+ 
++#if defined(RLIMIT_NPROC)
+     /// Try to increase limit on number of threads.
+     {
+         rlimit rlim;
+@@ -1035,6 +1036,7 @@ try
+             global_context->addWarningMessage("Maximum number of threads is lower than 30000. There could be problems with handling a lot of simultaneous queries.");
+         }
+     }
++#endif
+ 
+     static ServerErrorHandler error_handler;
+     Poco::ErrorHandler::set(&error_handler);
+-- 
+2.40.1
+
