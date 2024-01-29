@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright 2024 Oxide Computer Company
+#
 
 set -o errexit
 set -o pipefail
@@ -60,7 +63,7 @@ header 'extracting artefacts'
 extract_to "$NAM" "$file" "$SRC64" --strip-components=1
 
 #
-# Some softwar ewill try to detect information about the git repository, but
+# Some software will try to detect information about the git repository, but
 # finds garbage-compactor.git, because the source archive we use to build is
 # not, itself, a git repository.
 #

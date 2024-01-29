@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Copyright 2024 Oxide Computer Company
+# Copyright 2023 The University of Queensland
+#
 
 set -o errexit
 set -o pipefail
@@ -61,11 +65,12 @@ header 'extracting artefacts'
 extract_to clickhouse "$file" "$SRC" --strip-components=1
 
 #
-# Maintaining the set of clickhouse patches is somewhat challenging. To make it
-# easier we create a local git repository in the extracted source directory and
-# then apply the patches to the git history. This allows for iterative work on
-# the patches and then the full set can be re-generated using something similar
-# to:
+# Maintaining the set of clickhouse patches is somewhat challenging.  To make
+# it easier we create a local git repository in the extracted source directory
+# and then apply the patches to the git history.  This allows for iterative
+# work on the patches and then the full set can be re-generated using something
+# similar to:
+#
 #     git rm patches/*
 #     git -C work/src format-patch base..
 #     mv work/src/0*.patch patches/
@@ -97,20 +102,28 @@ if [[ ! -f "$stamp" ]]; then
 
 		header "apply patch $f"
 
-		# Attempt to apply the patch as a git mailbox
+		#
+		# Attempt to apply the patch as a git mailbox:
+		#
 		if ! git -C "$SRC" am "$f"; then
+			#
 			# If that fails, apply as a normal patch
-			# `git am` may have modified the tree
+			# "git am" may have modified the tree.
+			#
 			git -C "$SRC" am --abort || true
 			git -C "$SRC" reset --hard HEAD
 			gpatch --directory="$SRC" --batch --forward \
-				--strip=1 < "$f"
-			# Determine the commit message to use
+			    --strip=1 < "$f"
+			#
+			# Determine the commit message to use:
+			#
 			if egrep -sq '^Subject:' "$f"; then
-				subject=$(grep '^Subject:' "$f" \
-				    | tr -s '[[:space:]]' \
-				    | cut -d\  -f2-)
-				# Strip any sequence number
+				subject=$(grep '^Subject:' "$f" |
+				    tr -s '[[:space:]]' |
+				    cut -d\  -f2-)
+				#
+				# Strip any sequence number:
+				#
 				subject=${subject#*]}
 			else
 				subject="Patch ${f##*/}"
@@ -209,7 +222,7 @@ if [[ ! -f "$stamp" ]]; then
 
 	#
 	# The build is massive.  Try to parallelize until we error out, usually
-	# due to space constraints while linking. At that point, continue
+	# due to space constraints while linking.  At that point, continue
 	# serially.
 	#
 	jobs=$njobs
@@ -232,7 +245,7 @@ else
 fi
 
 #
-# Strip the resulting binary. This part is crucial. ClickHouse's binary is
+# Strip the resulting binary.  This part is crucial.  ClickHouse's binary is
 # 3+GiB unstripped.
 #
 rm -f "$CACHE/clickhouse"

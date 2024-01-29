@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright 2024 Oxide Computer Company
+#
 
 unset HARDLINK_TARGETS
 unset BRANCH
