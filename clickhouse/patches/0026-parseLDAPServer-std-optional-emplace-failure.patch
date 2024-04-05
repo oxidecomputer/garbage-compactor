@@ -1,0 +1,38 @@
+From 54d05eeedc3bae27255d1ee8ee851e64a2ea5158 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:48:06 +0000
+Subject: [PATCH 26/61] parseLDAPServer: std::optional emplace() failure
+
+See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
+---
+ src/Access/ExternalAuthenticators.cpp | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/src/Access/ExternalAuthenticators.cpp b/src/Access/ExternalAuthenticators.cpp
+index e4d4d2acd0..f0c893cbcd 100644
+--- a/src/Access/ExternalAuthenticators.cpp
++++ b/src/Access/ExternalAuthenticators.cpp
+@@ -99,15 +99,14 @@ void parseLDAPServer(LDAPClient::Params & params, const Poco::Util::AbstractConf
+         params.bind_dn = auth_dn_prefix + "{user_name}" + auth_dn_suffix;
+     }
+ 
++    // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=101227
+     if (has_user_dn_detection)
+     {
+-        if (!params.user_dn_detection)
+-        {
+-            params.user_dn_detection.emplace();
+-            params.user_dn_detection->attribute = "dn";
+-        }
++	LDAPClient::SearchParams p = LDAPClient::SearchParams();
++	p.attribute = "dn";
++	p = params.user_dn_detection.value_or(p);
+ 
+-        parseLDAPSearchParams(*params.user_dn_detection, config, ldap_server_config + ".user_dn_detection");
++        parseLDAPSearchParams(p, config, ldap_server_config + ".user_dn_detection");
+     }
+ 
+     if (has_verification_cooldown)
+-- 
+2.40.1
+

@@ -1,7 +1,7 @@
 From dccdca20b06c90be3a6bca4bbcafe53684a09fe1 Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Tue, 16 Aug 2022 22:34:53 -0700
-Subject: [PATCH 6/8] illumos: update_drv-based driver reconfiguration does not
+Subject: [PATCH 6/9] illumos: update_drv-based driver reconfiguration does not
  work
 
 ---

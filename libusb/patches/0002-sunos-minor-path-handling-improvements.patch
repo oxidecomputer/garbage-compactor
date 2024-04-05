@@ -1,7 +1,7 @@
 From 69e605a5490919bba93196daf6ab5ba1cf692e40 Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Mon, 27 Dec 2021 16:08:36 -0800
-Subject: [PATCH 2/8] sunos: minor path handling improvements
+Subject: [PATCH 2/9] sunos: minor path handling improvements
 
 ---
  libusb/os/sunos_usb.c | 14 ++++++++++----

@@ -1,0 +1,58 @@
+From f5fa1b3c85ed4f834fa473d5d9324ac659f4bb95 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:46:18 +0000
+Subject: [PATCH 14/61] More granular configuration of TCP keepalives
+
+---
+ src/Client/Connection.cpp | 34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
+
+diff --git a/src/Client/Connection.cpp b/src/Client/Connection.cpp
+index d1b3388b2f..216f04bc28 100644
+--- a/src/Client/Connection.cpp
++++ b/src/Client/Connection.cpp
+@@ -171,13 +171,35 @@ void Connection::connect(const ConnectionTimeouts & timeouts)
+         if (tcp_keep_alive_timeout_in_sec)
+         {
+             socket->setKeepAlive(true);
+-            socket->setOption(IPPROTO_TCP,
+-#if defined(TCP_KEEPALIVE)
+-                TCP_KEEPALIVE
+-#else
+-                TCP_KEEPIDLE  // __APPLE__
++#if defined(TCP_KEEPALIVE_THRESHOLD)
++           /*
++            * On systems that support TCP_KEEPALIVE_THRESHOLD, we can apply
++            * more control over the keepalives and override the default
++            * exponential backoff behaviour.
++            *
++            * Configure the socket to start sending tcp keepalive probes after
++            * the connection has been idle for either half the total keepalive
++            * timeout, or 5 seconds, whichever is larger. The probes are sent
++            * at intervals of either one-sixth of the total keepalive timeout,
++            * but no more frequently that once every 2 seconds. If three
++            * consecutive keepalive probes fail (no response from the other
++            * end), the socket will consider the connection broken.
++            */
++            int thresh = timeouts.tcp_keep_alive_timeout.totalMilliseconds() / 2;
++            if (thresh < 5000)
++                thresh = 5000;
++            int intvl = tcp_keep_alive_timeout_in_sec / 6;
++            if (intvl < 2)
++                intvl = 2;
++
++            socket->setOption(IPPROTO_TCP, TCP_KEEPALIVE_THRESHOLD, thresh);
++            socket->setOption(IPPROTO_TCP, TCP_KEEPINTVL, intvl);
++            socket->setOption(IPPROTO_TCP, TCP_KEEPCNT, 3);
++#elif defined(TCP_KEEPALIVE)
++            socket->setOption(IPPROTO_TCP, TCP_KEEPALIVE, tcp_keep_alive_timeout_in_sec);
++#elif defined(TCP_KEEPIDLE)
++            socket->setOption(IPPROTO_TCP, TCP_KEEPIDLE, tcp_keep_alive_timeout_in_sec);
+ #endif
+-                , tcp_keep_alive_timeout_in_sec);
+         }
+ 
+         in = std::make_shared<ReadBufferFromPocoSocket>(*socket);
+-- 
+2.40.1
+

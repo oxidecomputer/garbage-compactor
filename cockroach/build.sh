@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright 2024 Oxide Computer Company
+#
 
 set -o errexit
 set -o pipefail
@@ -26,12 +29,11 @@ mkdir -p "$WORKAROUND"
 VER='22.2.0'
 COCKROACHDB_CLONE_REF="v$VER"
 
-export PATH="/opt/ooce/node-14/bin:$PATH"
-NODEVER="v14.17.0"
+NODEVER="v16.20.0"
 SYSNODEVER=$( node -v 2>&1 )
 if [[ "$NODEVER" != "$SYSNODEVER" ]]; then
 	fatal "expected node $NODEVER, but found: $SYSNODEVER " \
-	    "(see node-14 package)"
+	    "(see node-16 package)"
 fi
 
 GOVER='1.19.1'

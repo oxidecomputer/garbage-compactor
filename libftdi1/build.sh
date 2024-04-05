@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright 2024 Oxide Computer Company
+#
 
 set -o errexit
 set -o pipefail
@@ -110,6 +113,7 @@ CFLAGS='-m32 -gdwarf-2' \
     --enable-shared=no
 info 'building confuse 32bit...'
 gmake -j8
+info 'installing confuse 32bit...'
 gmake install
 
 cd "$CONFUSE64"
@@ -133,6 +137,7 @@ CFLAGS='-m64 -gdwarf-2 -msave-args' \
     --enable-shared=no
 info 'building confuse 64bit...'
 gmake -j8
+info 'installing confuse 64bit...'
 gmake install
 
 cd "$SRC32"
@@ -213,12 +218,13 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	BRANCH=1.1 make_package "library/$NAM" \
+	CREV=0
+	BRANCH=2.$CREV make_package "library/$NAM" \
 	    'a library for communicating with USB and Bluetooth HID devices' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.1"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

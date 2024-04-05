@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright 2024 Oxide Computer Company
+#
 
 unset HARDLINK_TARGETS
 unset BRANCH
@@ -110,9 +113,11 @@ function make_package {
 	local inputmf="$4"
 	local mf="$WORK/input.mf"
 	local publisher="helios-dev"
-	local branch="${BRANCH:-1.0}"
+	local branch="${BRANCH:-2.0}"
 	local repo="$WORK/repo"
 	local sendargs=()
+	local licdir="$ROOT/licenses"
+	local pubargs=()
 
 	#
 	# Generate the base package manifest:
@@ -180,8 +185,13 @@ function make_package {
 	rm -f "$WORK/final.mf"
 	cat "$WORK/step1.mf" "$WORK/step2.mf.res" > "$WORK/final.mf"
 
+	if [[ -d $licdir ]]; then
+		pubargs+=( '-d' )
+		pubargs+=( "$licdir" )
+	fi
+
 	printf '%% publishing...\n'
-	pkgsend publish -d "$proto" -s "$repo" "$WORK/final.mf"
+	pkgsend publish -d "$proto" "${pubargs[@]}" -s "$repo" "$WORK/final.mf"
 
 	printf '%% ok\n'
 }

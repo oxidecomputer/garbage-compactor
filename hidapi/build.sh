@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright 2024 Oxide Computer Company
+#
 
 set -o errexit
 set -o pipefail
@@ -25,7 +28,7 @@ rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
 NAM='hidapi'
-VER='0.11.0'
+VER='0.13.1'
 URL="https://github.com/libusb/$NAM/archive/refs/tags/$NAM-$VER.tar.gz"
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
@@ -103,7 +106,7 @@ ips)
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.0"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

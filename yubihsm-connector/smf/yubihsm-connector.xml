@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
+<service_bundle type="manifest" name="application-security-yubihsm-connector">
+  <service name="application/security/yubihsm-connector" type="service" version="1">
+    <create_default_instance enabled="false" />
+
+    <dependency name="dep0" grouping="require_all" restart_on="error" 
+      type="service">
+      <service_fmri value="svc:/milestone/multi-user:default" />
+    </dependency>
+
+    <exec_method type="method" name="start" timeout_seconds="10"
+      exec="/lib/svc/method/yubihsm-connector">
+    </exec_method>
+
+    <exec_method type="method" name="stop" exec=":kill" timeout_seconds="60" />
+
+    <property_group name="config" type="application">
+      <propval name="debug" type="boolean" value="false" />
+      <propval name="address" type="astring" value="127.0.0.1" />
+      <propval name="port" type="count" value="12345" />
+    </property_group>
+
+    <property_group name='startd' type='framework'>
+      <propval name='duration' type='astring' value='child' />
+    </property_group>
+
+    <template>
+      <common_name>
+        <loctext xml:lang="C">YubiHSM Connector</loctext>
+      </common_name>
+    </template>
+  </service>
+</service_bundle>

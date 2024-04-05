@@ -1,0 +1,85 @@
+From edd59f9c57f45e4195fdbfdb7a54dee5ceaf72da Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 12:43:50 +0000
+Subject: [PATCH 53/61] contrib/llvm-project: Rename tokens due to regset.h
+ pollution
+
+---
+ .../llvm/include/llvm/ADT/SmallVector.h        |  4 ++--
+ .../llvm/include/llvm/IR/DebugInfoMetadata.h   | 18 +++++++++---------
+ 2 files changed, 11 insertions(+), 11 deletions(-)
+
+diff --git a/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h b/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h
+index e34702bdbb..3421a9a794 100644
+--- a/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h
++++ b/contrib/llvm-project/llvm/include/llvm/ADT/SmallVector.h
+@@ -735,9 +735,9 @@ public:
+     return(N);
+   }
+ 
+-  iterator erase(const_iterator CS, const_iterator CE) {
++  iterator erase(const_iterator CCS, const_iterator CE) {
+     // Just cast away constness because this is a non-const member function.
+-    iterator S = const_cast<iterator>(CS);
++    iterator S = const_cast<iterator>(CCS);
+     iterator E = const_cast<iterator>(CE);
+ 
+     assert(this->isRangeInStorage(S, E) && "Range to erase is out of bounds.");
+diff --git a/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h b/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h
+index db1d031a06..66244c5f9c 100644
+--- a/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h
++++ b/contrib/llvm-project/llvm/include/llvm/IR/DebugInfoMetadata.h
+@@ -563,18 +563,18 @@ private:
+   Optional<MDString *> Source;
+ 
+   DIFile(LLVMContext &C, StorageType Storage,
+-         Optional<ChecksumInfo<MDString *>> CS, Optional<MDString *> Src,
++         Optional<ChecksumInfo<MDString *>> CSI, Optional<MDString *> Src,
+          ArrayRef<Metadata *> Ops);
+   ~DIFile() = default;
+ 
+   static DIFile *getImpl(LLVMContext &Context, StringRef Filename,
+                          StringRef Directory,
+-                         Optional<ChecksumInfo<StringRef>> CS,
++                         Optional<ChecksumInfo<StringRef>> CSI,
+                          Optional<StringRef> Source, StorageType Storage,
+                          bool ShouldCreate = true) {
+     Optional<ChecksumInfo<MDString *>> MDChecksum;
+-    if (CS)
+-      MDChecksum.emplace(CS->Kind, getCanonicalMDString(Context, CS->Value));
++    if (CSI)
++      MDChecksum.emplace(CSI->Kind, getCanonicalMDString(Context, CSI->Value));
+     return getImpl(
+         Context, getCanonicalMDString(Context, Filename),
+         getCanonicalMDString(Context, Directory), MDChecksum,
+@@ -584,7 +584,7 @@ private:
+   }
+   static DIFile *getImpl(LLVMContext &Context, MDString *Filename,
+                          MDString *Directory,
+-                         Optional<ChecksumInfo<MDString *>> CS,
++                         Optional<ChecksumInfo<MDString *>> CSI,
+                          Optional<MDString *> Source, StorageType Storage,
+                          bool ShouldCreate = true);
+ 
+@@ -596,14 +596,14 @@ private:
+ public:
+   DEFINE_MDNODE_GET(DIFile,
+                     (StringRef Filename, StringRef Directory,
+-                     Optional<ChecksumInfo<StringRef>> CS = None,
++                     Optional<ChecksumInfo<StringRef>> CSI = None,
+                      Optional<StringRef> Source = None),
+-                    (Filename, Directory, CS, Source))
++                    (Filename, Directory, CSI, Source))
+   DEFINE_MDNODE_GET(DIFile,
+                     (MDString * Filename, MDString *Directory,
+-                     Optional<ChecksumInfo<MDString *>> CS = None,
++                     Optional<ChecksumInfo<MDString *>> CSI = None,
+                      Optional<MDString *> Source = None),
+-                    (Filename, Directory, CS, Source))
++                    (Filename, Directory, CSI, Source))
+ 
+   TempDIFile clone() const { return cloneImpl(); }
+ 
+-- 
+2.40.1
+

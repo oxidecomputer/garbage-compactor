@@ -1,0 +1,34 @@
+From 1c8e5730f2f32bfc197f3f78bd7f6e3e14223831 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:46:21 +0000
+Subject: [PATCH 02/61] Allow building clickhouse with custom {C,CXX,LD}FLAGS
+
+---
+ PreLoad.cmake | 11 -----------
+ 1 file changed, 11 deletions(-)
+
+diff --git a/PreLoad.cmake b/PreLoad.cmake
+index b456c724cc..9c78b5bc68 100644
+--- a/PreLoad.cmake
++++ b/PreLoad.cmake
+@@ -37,17 +37,6 @@ if (NOT "$ENV{CFLAGS}" STREQUAL ""
+     message("CMAKE_CXX_FLAGS_INIT: ${CMAKE_CXX_FLAGS_INIT}")
+     message("CMAKE_EXE_LINKER_FLAGS_INIT: ${CMAKE_EXE_LINKER_FLAGS_INIT}")
+     message("CMAKE_MODULE_LINKER_FLAGS_INIT: ${CMAKE_MODULE_LINKER_FLAGS_INIT}")
+-
+-    message(FATAL_ERROR "
+-        Some of the variables like CFLAGS, CXXFLAGS, LDFLAGS are not empty.
+-        It is not possible to build ClickHouse with custom flags.
+-        These variables can be set up by previous invocation of some other build tools.
+-        You should cleanup these variables and start over again.
+-
+-        Run the `env` command to check the details.
+-        You will also need to remove the contents of the build directory.
+-
+-        Note: if you don't like this behavior, you can manually edit the cmake files, but please don't complain to developers.")
+ endif()
+ 
+ # Default toolchain - this is needed to avoid dependency on OS files.
+-- 
+2.40.1
+

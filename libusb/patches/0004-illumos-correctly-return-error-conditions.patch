@@ -1,7 +1,7 @@
 From 4b5f5193848808c0d6c730ce37737538e404c218 Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Mon, 27 Dec 2021 16:08:40 -0800
-Subject: [PATCH 4/8] illumos: correctly return error conditions
+Subject: [PATCH 4/9] illumos: correctly return error conditions
 
 ---
  libusb/os/illumos_usb.c | 98 ++++++++++++++++++++++++++++++++---------

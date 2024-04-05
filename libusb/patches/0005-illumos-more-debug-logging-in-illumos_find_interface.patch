@@ -1,7 +1,7 @@
 From dacb8834463f13bf8eca4986757565fe6fee8e44 Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Mon, 14 Feb 2022 12:28:13 -0800
-Subject: [PATCH 5/8] illumos: more debug logging in illumos_find_interface()
+Subject: [PATCH 5/9] illumos: more debug logging in illumos_find_interface()
 
 ---
  libusb/os/illumos_usb.c | 12 +++++++++++-

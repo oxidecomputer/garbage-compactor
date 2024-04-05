@@ -1,0 +1,25 @@
+From da244d21d224f6d89f7d095a32ead0f98f816cd7 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:47:54 +0000
+Subject: [PATCH 23/61] wide_integer invalid conversion
+
+---
+ base/base/wide_integer_impl.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/base/base/wide_integer_impl.h b/base/base/wide_integer_impl.h
+index fc4e9e551c..e3fcd0b9be 100644
+--- a/base/base/wide_integer_impl.h
++++ b/base/base/wide_integer_impl.h
+@@ -575,7 +575,7 @@ private:
+             HalfType a0 = lhs.items[little(0)];
+             HalfType a1 = lhs.items[little(1)];
+ 
+-            HalfType b01 = rhs;
++            HalfType b01 = (HalfType(rhs.items[little(1)]) << 64) + rhs.items[little(0)];
+             uint64_t b0 = b01;
+             uint64_t b1 = 0;
+             HalfType b23 = 0;
+-- 
+2.40.1
+

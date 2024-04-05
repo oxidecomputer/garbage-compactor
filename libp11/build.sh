@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright 2024 Oxide Computer Company
+#
 
 set -o errexit
 set -o pipefail
@@ -76,7 +79,7 @@ MAKE='gmake' \
 CFLAGS='-m32 -gdwarf-2 -D_REENTRANT ' \
     ./configure \
     "${common_args[@]}" \
-    --with-enginesdir=/usr/lib/engines-1.1 \
+    --with-enginesdir=/usr/lib/engines-3 \
     --libdir=/usr/lib
 
 info "make 32bit..."
@@ -92,6 +95,7 @@ MAKE='gmake' \
 CFLAGS='-m64 -gdwarf-2 -msave-args -D_REENTRANT ' \
     ./configure \
     "${common_args[@]}" \
+    --with-enginesdir=/usr/lib/amd64/engines-3 \
     --libdir=/usr/lib/amd64
 
 info "make 64bit..."
@@ -106,8 +110,8 @@ for f in 'libp11.so.3.5.0'; do
 done
 
 for f in 'pkcs11.so'; do
-	"$CTFCONVERT" "$PROTO/usr/lib/amd64/engines-1.1/$f"
-	"$CTFCONVERT" "$PROTO/usr/lib/engines-1.1/$f"
+	"$CTFCONVERT" "$PROTO/usr/lib/amd64/engines-3/$f"
+	"$CTFCONVERT" "$PROTO/usr/lib/engines-3/$f"
 done
 
 cd "$WORK"
@@ -119,12 +123,12 @@ fi
 case "$OUTPUT_TYPE" in
 ips)
 	CREV=0
-	BRANCH="1.$CREV" make_package "library/$NAM" \
+	BRANCH="2.$CREV" make_package "library/$NAM" \
 	    'PKCS#11 wrapper library and OpenSSL engine' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.$CREV"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

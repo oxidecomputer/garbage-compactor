@@ -1,0 +1,906 @@
+From 0440f74175a41437135195689b02f82d2cddfab0 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:47:45 +0000
+Subject: [PATCH 57/61] contrib/rocksdb: re-order structs to fix compilation
+ under C++23
+
+Without this shuffling around, compilation fails due to
+forward declarations.
+---
+ .../block_based/block_based_table_builder.cc  | 727 +++++++++---------
+ .../trace/file_trace_reader_writer.h          |   2 +-
+ .../write_batch_with_index_internal.h         |  96 +--
+ 3 files changed, 413 insertions(+), 412 deletions(-)
+
+diff --git a/contrib/rocksdb/table/block_based/block_based_table_builder.cc b/contrib/rocksdb/table/block_based/block_based_table_builder.cc
+index bb8cfa14d6..751b1b903e 100644
+--- a/contrib/rocksdb/table/block_based/block_based_table_builder.cc
++++ b/contrib/rocksdb/table/block_based/block_based_table_builder.cc
+@@ -246,304 +246,6 @@ class BlockBasedTableBuilder::BlockBasedTablePropertiesCollector
+   bool prefix_filtering_;
+ };
+ 
+-struct BlockBasedTableBuilder::Rep {
+-  const ImmutableOptions ioptions;
+-  const MutableCFOptions moptions;
+-  const BlockBasedTableOptions table_options;
+-  const InternalKeyComparator& internal_comparator;
+-  WritableFileWriter* file;
+-  std::atomic<uint64_t> offset;
+-  size_t alignment;
+-  BlockBuilder data_block;
+-  // Buffers uncompressed data blocks to replay later. Needed when
+-  // compression dictionary is enabled so we can finalize the dictionary before
+-  // compressing any data blocks.
+-  std::vector<std::string> data_block_buffers;
+-  BlockBuilder range_del_block;
+-
+-  InternalKeySliceTransform internal_prefix_transform;
+-  std::unique_ptr<IndexBuilder> index_builder;
+-  PartitionedIndexBuilder* p_index_builder_ = nullptr;
+-
+-  std::string last_key;
+-  const Slice* first_key_in_next_block = nullptr;
+-  CompressionType compression_type;
+-  uint64_t sample_for_compression;
+-  std::atomic<uint64_t> compressible_input_data_bytes;
+-  std::atomic<uint64_t> uncompressible_input_data_bytes;
+-  std::atomic<uint64_t> sampled_input_data_bytes;
+-  std::atomic<uint64_t> sampled_output_slow_data_bytes;
+-  std::atomic<uint64_t> sampled_output_fast_data_bytes;
+-  CompressionOptions compression_opts;
+-  std::unique_ptr<CompressionDict> compression_dict;
+-  std::vector<std::unique_ptr<CompressionContext>> compression_ctxs;
+-  std::vector<std::unique_ptr<UncompressionContext>> verify_ctxs;
+-  std::unique_ptr<UncompressionDict> verify_dict;
+-
+-  size_t data_begin_offset = 0;
+-
+-  TableProperties props;
+-
+-  // States of the builder.
+-  //
+-  // - `kBuffered`: This is the initial state where zero or more data blocks are
+-  //   accumulated uncompressed in-memory. From this state, call
+-  //   `EnterUnbuffered()` to finalize the compression dictionary if enabled,
+-  //   compress/write out any buffered blocks, and proceed to the `kUnbuffered`
+-  //   state.
+-  //
+-  // - `kUnbuffered`: This is the state when compression dictionary is finalized
+-  //   either because it wasn't enabled in the first place or it's been created
+-  //   from sampling previously buffered data. In this state, blocks are simply
+-  //   compressed/written out as they fill up. From this state, call `Finish()`
+-  //   to complete the file (write meta-blocks, etc.), or `Abandon()` to delete
+-  //   the partially created file.
+-  //
+-  // - `kClosed`: This indicates either `Finish()` or `Abandon()` has been
+-  //   called, so the table builder is no longer usable. We must be in this
+-  //   state by the time the destructor runs.
+-  enum class State {
+-    kBuffered,
+-    kUnbuffered,
+-    kClosed,
+-  };
+-  State state;
+-  // `kBuffered` state is allowed only as long as the buffering of uncompressed
+-  // data blocks (see `data_block_buffers`) does not exceed `buffer_limit`.
+-  uint64_t buffer_limit;
+-
+-  const bool use_delta_encoding_for_index_values;
+-  std::unique_ptr<FilterBlockBuilder> filter_builder;
+-  char cache_key_prefix[BlockBasedTable::kMaxCacheKeyPrefixSize];
+-  size_t cache_key_prefix_size;
+-  char compressed_cache_key_prefix[BlockBasedTable::kMaxCacheKeyPrefixSize];
+-  size_t compressed_cache_key_prefix_size;
+-
+-  BlockHandle pending_handle;  // Handle to add to index block
+-
+-  std::string compressed_output;
+-  std::unique_ptr<FlushBlockPolicy> flush_block_policy;
+-  uint32_t column_family_id;
+-  std::string column_family_name;
+-  uint64_t creation_time = 0;
+-  uint64_t oldest_key_time = 0;
+-  uint64_t file_creation_time = 0;
+-
+-  // DB IDs
+-  const std::string db_id;
+-  const std::string db_session_id;
+-  std::string db_host_id;
+-
+-  std::vector<std::unique_ptr<IntTblPropCollector>> table_properties_collectors;
+-
+-  std::unique_ptr<ParallelCompressionRep> pc_rep;
+-
+-  uint64_t get_offset() { return offset.load(std::memory_order_relaxed); }
+-  void set_offset(uint64_t o) { offset.store(o, std::memory_order_relaxed); }
+-
+-  bool IsParallelCompressionEnabled() const {
+-    return compression_opts.parallel_threads > 1;
+-  }
+-
+-  Status GetStatus() {
+-    // We need to make modifications of status visible when status_ok is set
+-    // to false, and this is ensured by status_mutex, so no special memory
+-    // order for status_ok is required.
+-    if (status_ok.load(std::memory_order_relaxed)) {
+-      return Status::OK();
+-    } else {
+-      return CopyStatus();
+-    }
+-  }
+-
+-  Status CopyStatus() {
+-    std::lock_guard<std::mutex> lock(status_mutex);
+-    return status;
+-  }
+-
+-  IOStatus GetIOStatus() {
+-    // We need to make modifications of io_status visible when status_ok is set
+-    // to false, and this is ensured by io_status_mutex, so no special memory
+-    // order for io_status_ok is required.
+-    if (io_status_ok.load(std::memory_order_relaxed)) {
+-      return IOStatus::OK();
+-    } else {
+-      return CopyIOStatus();
+-    }
+-  }
+-
+-  IOStatus CopyIOStatus() {
+-    std::lock_guard<std::mutex> lock(io_status_mutex);
+-    return io_status;
+-  }
+-
+-  // Never erase an existing status that is not OK.
+-  void SetStatus(Status s) {
+-    if (!s.ok() && status_ok.load(std::memory_order_relaxed)) {
+-      // Locking is an overkill for non compression_opts.parallel_threads
+-      // case but since it's unlikely that s is not OK, we take this cost
+-      // to be simplicity.
+-      std::lock_guard<std::mutex> lock(status_mutex);
+-      status = s;
+-      status_ok.store(false, std::memory_order_relaxed);
+-    }
+-  }
+-
+-  // Never erase an existing I/O status that is not OK.
+-  void SetIOStatus(IOStatus ios) {
+-    if (!ios.ok() && io_status_ok.load(std::memory_order_relaxed)) {
+-      // Locking is an overkill for non compression_opts.parallel_threads
+-      // case but since it's unlikely that s is not OK, we take this cost
+-      // to be simplicity.
+-      std::lock_guard<std::mutex> lock(io_status_mutex);
+-      io_status = ios;
+-      io_status_ok.store(false, std::memory_order_relaxed);
+-    }
+-  }
+-
+-  Rep(const BlockBasedTableOptions& table_opt, const TableBuilderOptions& tbo,
+-      WritableFileWriter* f)
+-      : ioptions(tbo.ioptions),
+-        moptions(tbo.moptions),
+-        table_options(table_opt),
+-        internal_comparator(tbo.internal_comparator),
+-        file(f),
+-        offset(0),
+-        alignment(table_options.block_align
+-                      ? std::min(table_options.block_size, kDefaultPageSize)
+-                      : 0),
+-        data_block(table_options.block_restart_interval,
+-                   table_options.use_delta_encoding,
+-                   false /* use_value_delta_encoding */,
+-                   tbo.internal_comparator.user_comparator()
+-                           ->CanKeysWithDifferentByteContentsBeEqual()
+-                       ? BlockBasedTableOptions::kDataBlockBinarySearch
+-                       : table_options.data_block_index_type,
+-                   table_options.data_block_hash_table_util_ratio),
+-        range_del_block(1 /* block_restart_interval */),
+-        internal_prefix_transform(tbo.moptions.prefix_extractor.get()),
+-        compression_type(tbo.compression_type),
+-        sample_for_compression(tbo.moptions.sample_for_compression),
+-        compressible_input_data_bytes(0),
+-        uncompressible_input_data_bytes(0),
+-        sampled_input_data_bytes(0),
+-        sampled_output_slow_data_bytes(0),
+-        sampled_output_fast_data_bytes(0),
+-        compression_opts(tbo.compression_opts),
+-        compression_dict(),
+-        compression_ctxs(tbo.compression_opts.parallel_threads),
+-        verify_ctxs(tbo.compression_opts.parallel_threads),
+-        verify_dict(),
+-        state((tbo.compression_opts.max_dict_bytes > 0) ? State::kBuffered
+-                                                        : State::kUnbuffered),
+-        use_delta_encoding_for_index_values(table_opt.format_version >= 4 &&
+-                                            !table_opt.block_align),
+-        cache_key_prefix_size(0),
+-        compressed_cache_key_prefix_size(0),
+-        flush_block_policy(
+-            table_options.flush_block_policy_factory->NewFlushBlockPolicy(
+-                table_options, data_block)),
+-        column_family_id(tbo.column_family_id),
+-        column_family_name(tbo.column_family_name),
+-        creation_time(tbo.creation_time),
+-        oldest_key_time(tbo.oldest_key_time),
+-        file_creation_time(tbo.file_creation_time),
+-        db_id(tbo.db_id),
+-        db_session_id(tbo.db_session_id),
+-        db_host_id(ioptions.db_host_id),
+-        status_ok(true),
+-        io_status_ok(true) {
+-    if (tbo.target_file_size == 0) {
+-      buffer_limit = compression_opts.max_dict_buffer_bytes;
+-    } else if (compression_opts.max_dict_buffer_bytes == 0) {
+-      buffer_limit = tbo.target_file_size;
+-    } else {
+-      buffer_limit = std::min(tbo.target_file_size,
+-                              compression_opts.max_dict_buffer_bytes);
+-    }
+-    for (uint32_t i = 0; i < compression_opts.parallel_threads; i++) {
+-      compression_ctxs[i].reset(new CompressionContext(compression_type));
+-    }
+-    if (table_options.index_type ==
+-        BlockBasedTableOptions::kTwoLevelIndexSearch) {
+-      p_index_builder_ = PartitionedIndexBuilder::CreateIndexBuilder(
+-          &internal_comparator, use_delta_encoding_for_index_values,
+-          table_options);
+-      index_builder.reset(p_index_builder_);
+-    } else {
+-      index_builder.reset(IndexBuilder::CreateIndexBuilder(
+-          table_options.index_type, &internal_comparator,
+-          &this->internal_prefix_transform, use_delta_encoding_for_index_values,
+-          table_options));
+-    }
+-    if (ioptions.optimize_filters_for_hits && tbo.is_bottommost) {
+-      // Apply optimize_filters_for_hits setting here when applicable by
+-      // skipping filter generation
+-      filter_builder.reset();
+-    } else if (tbo.skip_filters) {
+-      // For SstFileWriter skip_filters
+-      filter_builder.reset();
+-    } else if (!table_options.filter_policy) {
+-      // Null filter_policy -> no filter
+-      filter_builder.reset();
+-    } else {
+-      FilterBuildingContext filter_context(table_options);
+-
+-      filter_context.info_log = ioptions.logger;
+-      filter_context.column_family_name = tbo.column_family_name;
+-      filter_context.reason = tbo.reason;
+-
+-      // Only populate other fields if known to be in LSM rather than
+-      // generating external SST file
+-      if (tbo.reason != TableFileCreationReason::kMisc) {
+-        filter_context.compaction_style = ioptions.compaction_style;
+-        filter_context.num_levels = ioptions.num_levels;
+-        filter_context.level_at_creation = tbo.level_at_creation;
+-        filter_context.is_bottommost = tbo.is_bottommost;
+-        assert(filter_context.level_at_creation < filter_context.num_levels);
+-      }
+-
+-      filter_builder.reset(CreateFilterBlockBuilder(
+-          ioptions, moptions, filter_context,
+-          use_delta_encoding_for_index_values, p_index_builder_));
+-    }
+-
+-    assert(tbo.int_tbl_prop_collector_factories);
+-    for (auto& factory : *tbo.int_tbl_prop_collector_factories) {
+-      assert(factory);
+-
+-      table_properties_collectors.emplace_back(
+-          factory->CreateIntTblPropCollector(column_family_id));
+-    }
+-    table_properties_collectors.emplace_back(
+-        new BlockBasedTablePropertiesCollector(
+-            table_options.index_type, table_options.whole_key_filtering,
+-            moptions.prefix_extractor != nullptr));
+-    if (table_options.verify_compression) {
+-      for (uint32_t i = 0; i < compression_opts.parallel_threads; i++) {
+-        verify_ctxs[i].reset(new UncompressionContext(compression_type));
+-      }
+-    }
+-
+-    if (!ReifyDbHostIdProperty(ioptions.env, &db_host_id).ok()) {
+-      ROCKS_LOG_INFO(ioptions.logger, "db_host_id property will not be set");
+-    }
+-  }
+-
+-  Rep(const Rep&) = delete;
+-  Rep& operator=(const Rep&) = delete;
+-
+- private:
+-  // Synchronize status & io_status accesses across threads from main thread,
+-  // compression thread and write thread in parallel compression.
+-  std::mutex status_mutex;
+-  std::atomic<bool> status_ok;
+-  Status status;
+-  std::mutex io_status_mutex;
+-  std::atomic<bool> io_status_ok;
+-  IOStatus io_status;
+-};
+-
+ struct BlockBasedTableBuilder::ParallelCompressionRep {
+   // Keys is a wrapper of vector of strings avoiding
+   // releasing string memories during vector clear()
+@@ -767,89 +469,388 @@ struct BlockBasedTableBuilder::ParallelCompressionRep {
+     }
+   }
+ 
+-  ~ParallelCompressionRep() { block_rep_pool.finish(); }
++  ~ParallelCompressionRep() { block_rep_pool.finish(); }
++
++  // Make a block prepared to be emitted to compression thread
++  // Used in non-buffered mode
++  BlockRep* PrepareBlock(CompressionType compression_type,
++                         const Slice* first_key_in_next_block,
++                         BlockBuilder* data_block) {
++    BlockRep* block_rep =
++        PrepareBlockInternal(compression_type, first_key_in_next_block);
++    assert(block_rep != nullptr);
++    data_block->SwapAndReset(*(block_rep->data));
++    block_rep->contents = *(block_rep->data);
++    std::swap(block_rep->keys, curr_block_keys);
++    curr_block_keys->Clear();
++    return block_rep;
++  }
++
++  // Used in EnterUnbuffered
++  BlockRep* PrepareBlock(CompressionType compression_type,
++                         const Slice* first_key_in_next_block,
++                         std::string* data_block,
++                         std::vector<std::string>* keys) {
++    BlockRep* block_rep =
++        PrepareBlockInternal(compression_type, first_key_in_next_block);
++    assert(block_rep != nullptr);
++    std::swap(*(block_rep->data), *data_block);
++    block_rep->contents = *(block_rep->data);
++    block_rep->keys->SwapAssign(*keys);
++    return block_rep;
++  }
++
++  // Emit a block to compression thread
++  void EmitBlock(BlockRep* block_rep) {
++    assert(block_rep != nullptr);
++    assert(block_rep->status.ok());
++    if (!write_queue.push(block_rep->slot.get())) {
++      return;
++    }
++    if (!compress_queue.push(block_rep)) {
++      return;
++    }
++
++    if (!first_block_processed.load(std::memory_order_relaxed)) {
++      std::unique_lock<std::mutex> lock(first_block_mutex);
++      first_block_cond.wait(lock, [this] {
++        return first_block_processed.load(std::memory_order_relaxed);
++      });
++    }
++  }
++
++  // Reap a block from compression thread
++  void ReapBlock(BlockRep* block_rep) {
++    assert(block_rep != nullptr);
++    block_rep->compressed_data->clear();
++    block_rep_pool.push(block_rep);
++
++    if (!first_block_processed.load(std::memory_order_relaxed)) {
++      std::lock_guard<std::mutex> lock(first_block_mutex);
++      first_block_processed.store(true, std::memory_order_relaxed);
++      first_block_cond.notify_one();
++    }
++  }
++
++ private:
++  BlockRep* PrepareBlockInternal(CompressionType compression_type,
++                                 const Slice* first_key_in_next_block) {
++    BlockRep* block_rep = nullptr;
++    block_rep_pool.pop(block_rep);
++    assert(block_rep != nullptr);
++
++    assert(block_rep->data);
++
++    block_rep->compression_type = compression_type;
++
++    if (first_key_in_next_block == nullptr) {
++      block_rep->first_key_in_next_block.reset(nullptr);
++    } else {
++      block_rep->first_key_in_next_block->assign(
++          first_key_in_next_block->data(), first_key_in_next_block->size());
++    }
++
++    return block_rep;
++  }
++};
++
++
++struct BlockBasedTableBuilder::Rep {
++  const ImmutableOptions ioptions;
++  const MutableCFOptions moptions;
++  const BlockBasedTableOptions table_options;
++  const InternalKeyComparator& internal_comparator;
++  WritableFileWriter* file;
++  std::atomic<uint64_t> offset;
++  size_t alignment;
++  BlockBuilder data_block;
++  // Buffers uncompressed data blocks to replay later. Needed when
++  // compression dictionary is enabled so we can finalize the dictionary before
++  // compressing any data blocks.
++  std::vector<std::string> data_block_buffers;
++  BlockBuilder range_del_block;
++
++  InternalKeySliceTransform internal_prefix_transform;
++  std::unique_ptr<IndexBuilder> index_builder;
++  PartitionedIndexBuilder* p_index_builder_ = nullptr;
++
++  std::string last_key;
++  const Slice* first_key_in_next_block = nullptr;
++  CompressionType compression_type;
++  uint64_t sample_for_compression;
++  std::atomic<uint64_t> compressible_input_data_bytes;
++  std::atomic<uint64_t> uncompressible_input_data_bytes;
++  std::atomic<uint64_t> sampled_input_data_bytes;
++  std::atomic<uint64_t> sampled_output_slow_data_bytes;
++  std::atomic<uint64_t> sampled_output_fast_data_bytes;
++  CompressionOptions compression_opts;
++  std::unique_ptr<CompressionDict> compression_dict;
++  std::vector<std::unique_ptr<CompressionContext>> compression_ctxs;
++  std::vector<std::unique_ptr<UncompressionContext>> verify_ctxs;
++  std::unique_ptr<UncompressionDict> verify_dict;
++
++  size_t data_begin_offset = 0;
++
++  TableProperties props;
++
++  // States of the builder.
++  //
++  // - `kBuffered`: This is the initial state where zero or more data blocks are
++  //   accumulated uncompressed in-memory. From this state, call
++  //   `EnterUnbuffered()` to finalize the compression dictionary if enabled,
++  //   compress/write out any buffered blocks, and proceed to the `kUnbuffered`
++  //   state.
++  //
++  // - `kUnbuffered`: This is the state when compression dictionary is finalized
++  //   either because it wasn't enabled in the first place or it's been created
++  //   from sampling previously buffered data. In this state, blocks are simply
++  //   compressed/written out as they fill up. From this state, call `Finish()`
++  //   to complete the file (write meta-blocks, etc.), or `Abandon()` to delete
++  //   the partially created file.
++  //
++  // - `kClosed`: This indicates either `Finish()` or `Abandon()` has been
++  //   called, so the table builder is no longer usable. We must be in this
++  //   state by the time the destructor runs.
++  enum class State {
++    kBuffered,
++    kUnbuffered,
++    kClosed,
++  };
++  State state;
++  // `kBuffered` state is allowed only as long as the buffering of uncompressed
++  // data blocks (see `data_block_buffers`) does not exceed `buffer_limit`.
++  uint64_t buffer_limit;
++
++  const bool use_delta_encoding_for_index_values;
++  std::unique_ptr<FilterBlockBuilder> filter_builder;
++  char cache_key_prefix[BlockBasedTable::kMaxCacheKeyPrefixSize];
++  size_t cache_key_prefix_size;
++  char compressed_cache_key_prefix[BlockBasedTable::kMaxCacheKeyPrefixSize];
++  size_t compressed_cache_key_prefix_size;
++
++  BlockHandle pending_handle;  // Handle to add to index block
++
++  std::string compressed_output;
++  std::unique_ptr<FlushBlockPolicy> flush_block_policy;
++  uint32_t column_family_id;
++  std::string column_family_name;
++  uint64_t creation_time = 0;
++  uint64_t oldest_key_time = 0;
++  uint64_t file_creation_time = 0;
++
++  // DB IDs
++  const std::string db_id;
++  const std::string db_session_id;
++  std::string db_host_id;
++
++  std::vector<std::unique_ptr<IntTblPropCollector>> table_properties_collectors;
++
++  std::unique_ptr<ParallelCompressionRep> pc_rep;
++
++  uint64_t get_offset() { return offset.load(std::memory_order_relaxed); }
++  void set_offset(uint64_t o) { offset.store(o, std::memory_order_relaxed); }
++
++  bool IsParallelCompressionEnabled() const {
++    return compression_opts.parallel_threads > 1;
++  }
++
++  Status GetStatus() {
++    // We need to make modifications of status visible when status_ok is set
++    // to false, and this is ensured by status_mutex, so no special memory
++    // order for status_ok is required.
++    if (status_ok.load(std::memory_order_relaxed)) {
++      return Status::OK();
++    } else {
++      return CopyStatus();
++    }
++  }
++
++  Status CopyStatus() {
++    std::lock_guard<std::mutex> lock(status_mutex);
++    return status;
++  }
+ 
+-  // Make a block prepared to be emitted to compression thread
+-  // Used in non-buffered mode
+-  BlockRep* PrepareBlock(CompressionType compression_type,
+-                         const Slice* first_key_in_next_block,
+-                         BlockBuilder* data_block) {
+-    BlockRep* block_rep =
+-        PrepareBlockInternal(compression_type, first_key_in_next_block);
+-    assert(block_rep != nullptr);
+-    data_block->SwapAndReset(*(block_rep->data));
+-    block_rep->contents = *(block_rep->data);
+-    std::swap(block_rep->keys, curr_block_keys);
+-    curr_block_keys->Clear();
+-    return block_rep;
++  IOStatus GetIOStatus() {
++    // We need to make modifications of io_status visible when status_ok is set
++    // to false, and this is ensured by io_status_mutex, so no special memory
++    // order for io_status_ok is required.
++    if (io_status_ok.load(std::memory_order_relaxed)) {
++      return IOStatus::OK();
++    } else {
++      return CopyIOStatus();
++    }
+   }
+ 
+-  // Used in EnterUnbuffered
+-  BlockRep* PrepareBlock(CompressionType compression_type,
+-                         const Slice* first_key_in_next_block,
+-                         std::string* data_block,
+-                         std::vector<std::string>* keys) {
+-    BlockRep* block_rep =
+-        PrepareBlockInternal(compression_type, first_key_in_next_block);
+-    assert(block_rep != nullptr);
+-    std::swap(*(block_rep->data), *data_block);
+-    block_rep->contents = *(block_rep->data);
+-    block_rep->keys->SwapAssign(*keys);
+-    return block_rep;
++  IOStatus CopyIOStatus() {
++    std::lock_guard<std::mutex> lock(io_status_mutex);
++    return io_status;
+   }
+ 
+-  // Emit a block to compression thread
+-  void EmitBlock(BlockRep* block_rep) {
+-    assert(block_rep != nullptr);
+-    assert(block_rep->status.ok());
+-    if (!write_queue.push(block_rep->slot.get())) {
+-      return;
+-    }
+-    if (!compress_queue.push(block_rep)) {
+-      return;
++  // Never erase an existing status that is not OK.
++  void SetStatus(Status s) {
++    if (!s.ok() && status_ok.load(std::memory_order_relaxed)) {
++      // Locking is an overkill for non compression_opts.parallel_threads
++      // case but since it's unlikely that s is not OK, we take this cost
++      // to be simplicity.
++      std::lock_guard<std::mutex> lock(status_mutex);
++      status = s;
++      status_ok.store(false, std::memory_order_relaxed);
+     }
++  }
+ 
+-    if (!first_block_processed.load(std::memory_order_relaxed)) {
+-      std::unique_lock<std::mutex> lock(first_block_mutex);
+-      first_block_cond.wait(lock, [this] {
+-        return first_block_processed.load(std::memory_order_relaxed);
+-      });
++  // Never erase an existing I/O status that is not OK.
++  void SetIOStatus(IOStatus ios) {
++    if (!ios.ok() && io_status_ok.load(std::memory_order_relaxed)) {
++      // Locking is an overkill for non compression_opts.parallel_threads
++      // case but since it's unlikely that s is not OK, we take this cost
++      // to be simplicity.
++      std::lock_guard<std::mutex> lock(io_status_mutex);
++      io_status = ios;
++      io_status_ok.store(false, std::memory_order_relaxed);
+     }
+   }
+ 
+-  // Reap a block from compression thread
+-  void ReapBlock(BlockRep* block_rep) {
+-    assert(block_rep != nullptr);
+-    block_rep->compressed_data->clear();
+-    block_rep_pool.push(block_rep);
+-
+-    if (!first_block_processed.load(std::memory_order_relaxed)) {
+-      std::lock_guard<std::mutex> lock(first_block_mutex);
+-      first_block_processed.store(true, std::memory_order_relaxed);
+-      first_block_cond.notify_one();
++  Rep(const BlockBasedTableOptions& table_opt, const TableBuilderOptions& tbo,
++      WritableFileWriter* f)
++      : ioptions(tbo.ioptions),
++        moptions(tbo.moptions),
++        table_options(table_opt),
++        internal_comparator(tbo.internal_comparator),
++        file(f),
++        offset(0),
++        alignment(table_options.block_align
++                      ? std::min(table_options.block_size, kDefaultPageSize)
++                      : 0),
++        data_block(table_options.block_restart_interval,
++                   table_options.use_delta_encoding,
++                   false /* use_value_delta_encoding */,
++                   tbo.internal_comparator.user_comparator()
++                           ->CanKeysWithDifferentByteContentsBeEqual()
++                       ? BlockBasedTableOptions::kDataBlockBinarySearch
++                       : table_options.data_block_index_type,
++                   table_options.data_block_hash_table_util_ratio),
++        range_del_block(1 /* block_restart_interval */),
++        internal_prefix_transform(tbo.moptions.prefix_extractor.get()),
++        compression_type(tbo.compression_type),
++        sample_for_compression(tbo.moptions.sample_for_compression),
++        compressible_input_data_bytes(0),
++        uncompressible_input_data_bytes(0),
++        sampled_input_data_bytes(0),
++        sampled_output_slow_data_bytes(0),
++        sampled_output_fast_data_bytes(0),
++        compression_opts(tbo.compression_opts),
++        compression_dict(),
++        compression_ctxs(tbo.compression_opts.parallel_threads),
++        verify_ctxs(tbo.compression_opts.parallel_threads),
++        verify_dict(),
++        state((tbo.compression_opts.max_dict_bytes > 0) ? State::kBuffered
++                                                        : State::kUnbuffered),
++        use_delta_encoding_for_index_values(table_opt.format_version >= 4 &&
++                                            !table_opt.block_align),
++        cache_key_prefix_size(0),
++        compressed_cache_key_prefix_size(0),
++        flush_block_policy(
++            table_options.flush_block_policy_factory->NewFlushBlockPolicy(
++                table_options, data_block)),
++        column_family_id(tbo.column_family_id),
++        column_family_name(tbo.column_family_name),
++        creation_time(tbo.creation_time),
++        oldest_key_time(tbo.oldest_key_time),
++        file_creation_time(tbo.file_creation_time),
++        db_id(tbo.db_id),
++        db_session_id(tbo.db_session_id),
++        db_host_id(ioptions.db_host_id),
++        status_ok(true),
++        io_status_ok(true) {
++    if (tbo.target_file_size == 0) {
++      buffer_limit = compression_opts.max_dict_buffer_bytes;
++    } else if (compression_opts.max_dict_buffer_bytes == 0) {
++      buffer_limit = tbo.target_file_size;
++    } else {
++      buffer_limit = std::min(tbo.target_file_size,
++                              compression_opts.max_dict_buffer_bytes);
+     }
+-  }
++    for (uint32_t i = 0; i < compression_opts.parallel_threads; i++) {
++      compression_ctxs[i].reset(new CompressionContext(compression_type));
++    }
++    if (table_options.index_type ==
++        BlockBasedTableOptions::kTwoLevelIndexSearch) {
++      p_index_builder_ = PartitionedIndexBuilder::CreateIndexBuilder(
++          &internal_comparator, use_delta_encoding_for_index_values,
++          table_options);
++      index_builder.reset(p_index_builder_);
++    } else {
++      index_builder.reset(IndexBuilder::CreateIndexBuilder(
++          table_options.index_type, &internal_comparator,
++          &this->internal_prefix_transform, use_delta_encoding_for_index_values,
++          table_options));
++    }
++    if (ioptions.optimize_filters_for_hits && tbo.is_bottommost) {
++      // Apply optimize_filters_for_hits setting here when applicable by
++      // skipping filter generation
++      filter_builder.reset();
++    } else if (tbo.skip_filters) {
++      // For SstFileWriter skip_filters
++      filter_builder.reset();
++    } else if (!table_options.filter_policy) {
++      // Null filter_policy -> no filter
++      filter_builder.reset();
++    } else {
++      FilterBuildingContext filter_context(table_options);
+ 
+- private:
+-  BlockRep* PrepareBlockInternal(CompressionType compression_type,
+-                                 const Slice* first_key_in_next_block) {
+-    BlockRep* block_rep = nullptr;
+-    block_rep_pool.pop(block_rep);
+-    assert(block_rep != nullptr);
++      filter_context.info_log = ioptions.logger;
++      filter_context.column_family_name = tbo.column_family_name;
++      filter_context.reason = tbo.reason;
+ 
+-    assert(block_rep->data);
++      // Only populate other fields if known to be in LSM rather than
++      // generating external SST file
++      if (tbo.reason != TableFileCreationReason::kMisc) {
++        filter_context.compaction_style = ioptions.compaction_style;
++        filter_context.num_levels = ioptions.num_levels;
++        filter_context.level_at_creation = tbo.level_at_creation;
++        filter_context.is_bottommost = tbo.is_bottommost;
++        assert(filter_context.level_at_creation < filter_context.num_levels);
++      }
+ 
+-    block_rep->compression_type = compression_type;
++      filter_builder.reset(CreateFilterBlockBuilder(
++          ioptions, moptions, filter_context,
++          use_delta_encoding_for_index_values, p_index_builder_));
++    }
+ 
+-    if (first_key_in_next_block == nullptr) {
+-      block_rep->first_key_in_next_block.reset(nullptr);
+-    } else {
+-      block_rep->first_key_in_next_block->assign(
+-          first_key_in_next_block->data(), first_key_in_next_block->size());
++    assert(tbo.int_tbl_prop_collector_factories);
++    for (auto& factory : *tbo.int_tbl_prop_collector_factories) {
++      assert(factory);
++
++      table_properties_collectors.emplace_back(
++          factory->CreateIntTblPropCollector(column_family_id));
++    }
++    table_properties_collectors.emplace_back(
++        new BlockBasedTablePropertiesCollector(
++            table_options.index_type, table_options.whole_key_filtering,
++            moptions.prefix_extractor != nullptr));
++    if (table_options.verify_compression) {
++      for (uint32_t i = 0; i < compression_opts.parallel_threads; i++) {
++        verify_ctxs[i].reset(new UncompressionContext(compression_type));
++      }
+     }
+ 
+-    return block_rep;
++    if (!ReifyDbHostIdProperty(ioptions.env, &db_host_id).ok()) {
++      ROCKS_LOG_INFO(ioptions.logger, "db_host_id property will not be set");
++    }
+   }
++
++  Rep(const Rep&) = delete;
++  Rep& operator=(const Rep&) = delete;
++
++ private:
++  // Synchronize status & io_status accesses across threads from main thread,
++  // compression thread and write thread in parallel compression.
++  std::mutex status_mutex;
++  std::atomic<bool> status_ok;
++  Status status;
++  std::mutex io_status_mutex;
++  std::atomic<bool> io_status_ok;
++  IOStatus io_status;
+ };
+ 
+ BlockBasedTableBuilder::BlockBasedTableBuilder(
+diff --git a/contrib/rocksdb/utilities/trace/file_trace_reader_writer.h b/contrib/rocksdb/utilities/trace/file_trace_reader_writer.h
+index a9eafa5af1..bf9d718654 100644
+--- a/contrib/rocksdb/utilities/trace/file_trace_reader_writer.h
++++ b/contrib/rocksdb/utilities/trace/file_trace_reader_writer.h
+@@ -6,7 +6,7 @@
+ #pragma once
+ 
+ #include "rocksdb/trace_reader_writer.h"
+-
++#include "file/writable_file_writer.h"
+ namespace ROCKSDB_NAMESPACE {
+ 
+ class RandomAccessFileReader;
+diff --git a/contrib/rocksdb/utilities/write_batch_with_index/write_batch_with_index_internal.h b/contrib/rocksdb/utilities/write_batch_with_index/write_batch_with_index_internal.h
+index b3360140bf..e019718fd6 100644
+--- a/contrib/rocksdb/utilities/write_batch_with_index/write_batch_with_index_internal.h
++++ b/contrib/rocksdb/utilities/write_batch_with_index/write_batch_with_index_internal.h
+@@ -27,54 +27,6 @@ class WBWIIteratorImpl;
+ class WriteBatchWithIndexInternal;
+ struct Options;
+ 
+-// when direction == forward
+-// * current_at_base_ <=> base_iterator > delta_iterator
+-// when direction == backwards
+-// * current_at_base_ <=> base_iterator < delta_iterator
+-// always:
+-// * equal_keys_ <=> base_iterator == delta_iterator
+-class BaseDeltaIterator : public Iterator {
+- public:
+-  BaseDeltaIterator(ColumnFamilyHandle* column_family, Iterator* base_iterator,
+-                    WBWIIteratorImpl* delta_iterator,
+-                    const Comparator* comparator,
+-                    const ReadOptions* read_options = nullptr);
+-
+-  ~BaseDeltaIterator() override {}
+-
+-  bool Valid() const override;
+-  void SeekToFirst() override;
+-  void SeekToLast() override;
+-  void Seek(const Slice& k) override;
+-  void SeekForPrev(const Slice& k) override;
+-  void Next() override;
+-  void Prev() override;
+-  Slice key() const override;
+-  Slice value() const override;
+-  Status status() const override;
+-  void Invalidate(Status s);
+-
+- private:
+-  void AssertInvariants();
+-  void Advance();
+-  void AdvanceDelta();
+-  void AdvanceBase();
+-  bool BaseValid() const;
+-  bool DeltaValid() const;
+-  void UpdateCurrent();
+-
+-  std::unique_ptr<WriteBatchWithIndexInternal> wbwii_;
+-  bool forward_;
+-  bool current_at_base_;
+-  bool equal_keys_;
+-  mutable Status status_;
+-  std::unique_ptr<Iterator> base_iterator_;
+-  std::unique_ptr<WBWIIteratorImpl> delta_iterator_;
+-  const Comparator* comparator_;  // not owned
+-  const Slice* iterate_upper_bound_;
+-  mutable PinnableSlice merge_result_;
+-};
+-
+ // Key used by skip list, as the binary searchable index of WriteBatchWithIndex.
+ struct WriteBatchIndexEntry {
+   WriteBatchIndexEntry(size_t o, uint32_t c, size_t ko, size_t ksz)
+@@ -323,5 +275,53 @@ class WriteBatchWithIndexInternal {
+   MergeContext merge_context_;
+ };
+ 
++// when direction == forward
++// * current_at_base_ <=> base_iterator > delta_iterator
++// when direction == backwards
++// * current_at_base_ <=> base_iterator < delta_iterator
++// always:
++// * equal_keys_ <=> base_iterator == delta_iterator
++class BaseDeltaIterator : public Iterator {
++ public:
++  BaseDeltaIterator(ColumnFamilyHandle* column_family, Iterator* base_iterator,
++                    WBWIIteratorImpl* delta_iterator,
++                    const Comparator* comparator,
++                    const ReadOptions* read_options = nullptr);
++
++  ~BaseDeltaIterator() override {}
++
++  bool Valid() const override;
++  void SeekToFirst() override;
++  void SeekToLast() override;
++  void Seek(const Slice& k) override;
++  void SeekForPrev(const Slice& k) override;
++  void Next() override;
++  void Prev() override;
++  Slice key() const override;
++  Slice value() const override;
++  Status status() const override;
++  void Invalidate(Status s);
++
++ private:
++  void AssertInvariants();
++  void Advance();
++  void AdvanceDelta();
++  void AdvanceBase();
++  bool BaseValid() const;
++  bool DeltaValid() const;
++  void UpdateCurrent();
++
++  std::unique_ptr<WriteBatchWithIndexInternal> wbwii_;
++  bool forward_;
++  bool current_at_base_;
++  bool equal_keys_;
++  mutable Status status_;
++  std::unique_ptr<Iterator> base_iterator_;
++  std::unique_ptr<WBWIIteratorImpl> delta_iterator_;
++  const Comparator* comparator_;  // not owned
++  const Slice* iterate_upper_bound_;
++  mutable PinnableSlice merge_result_;
++};
++
+ }  // namespace ROCKSDB_NAMESPACE
+ #endif  // !ROCKSDB_LITE
+-- 
+2.40.1
+

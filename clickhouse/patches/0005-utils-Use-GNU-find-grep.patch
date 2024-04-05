@@ -1,0 +1,46 @@
+From ec84215573c4e71b6deb25b664b7a74eabeaed9a Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 14:09:30 +0000
+Subject: [PATCH 05/61] utils: Use GNU find / grep
+
+---
+ cmake/tools.cmake                    | 13 +++++++++++++
+ utils/list-licenses/list-licenses.sh |  2 +-
+ 2 files changed, 14 insertions(+), 1 deletion(-)
+
+diff --git a/cmake/tools.cmake b/cmake/tools.cmake
+index 802907c9dd..e126a9d84e 100644
+--- a/cmake/tools.cmake
++++ b/cmake/tools.cmake
+@@ -161,3 +161,16 @@ if (OS_DARWIN AND NOT CMAKE_TOOLCHAIN_FILE)
+         message (FATAL_ERROR "GNU grep not found. You can install it with 'brew install grep'.")
+     endif()
+ endif ()
++
++if (OS_SUNOS)
++    # utils/list-licenses/list-licenses.sh (which generates system table
++    # system.licenses) needs the GNU versions of find and grep.
++    find_program(GFIND_PATH NAMES "gfind")
++    if (NOT GFIND_PATH)
++        message (FATAL_ERROR "GNU find not found. Is pkg:/file/gnu-findutils installed?")
++    endif()
++    find_program(GGREP_PATH NAMES "ggrep")
++    if (NOT GGREP_PATH)
++        message (FATAL_ERROR "GNU grep not found. Is pkg:/text/gnu-grep installed?")
++    endif()
++endif ()
+diff --git a/utils/list-licenses/list-licenses.sh b/utils/list-licenses/list-licenses.sh
+index cee5cf87a0..8f36e0396e 100755
+--- a/utils/list-licenses/list-licenses.sh
++++ b/utils/list-licenses/list-licenses.sh
+@@ -1,6 +1,6 @@
+ #!/bin/bash
+ 
+-if [[ "$OSTYPE" == "darwin"* ]]; then
++if [[ "$OSTYPE" == "darwin"* || "$OSTYPE" == "solaris"* ]]; then
+     # use GNU versions, their presence is ensured in cmake/tools.cmake
+     GREP_CMD=ggrep
+     FIND_CMD=gfind
+-- 
+2.40.1
+

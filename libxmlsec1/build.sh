@@ -1,4 +1,7 @@
 #!/bin/bash
+#
+# Copyright 2024 Oxide Computer Company
+#
 
 set -o errexit
 set -o pipefail
@@ -36,7 +39,7 @@ EOF
 chmod 0755 "$WORKAROUND/git"
 
 NAM='libxmlsec1'
-VER='1.2.33'
+VER='1.2.35'
 URL="http://www.aleksey.com/xmlsec/download/xmlsec1-$VER.tar.gz"
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
@@ -76,6 +79,7 @@ export PATH="$WORKAROUND:$PATH"
 
 cd "$SRC32"
 
+PKG_CONFIG_PATH='/usr/lib/pkgconfig' \
 CFLAGS='-m32' \
     ./configure \
     --prefix=/usr \
@@ -115,7 +119,7 @@ ips)
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-1.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.0"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

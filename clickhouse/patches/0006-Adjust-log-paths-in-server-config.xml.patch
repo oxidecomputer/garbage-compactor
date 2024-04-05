@@ -1,0 +1,27 @@
+From 51fca60c4844bb6247ad5cbae8995a85922a48d6 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:45:38 +0000
+Subject: [PATCH 06/61] Adjust log paths in server config.xml
+
+---
+ programs/server/config.xml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/programs/server/config.xml b/programs/server/config.xml
+index 07052441a0..6f10c552e4 100644
+--- a/programs/server/config.xml
++++ b/programs/server/config.xml
+@@ -22,8 +22,8 @@
+             [1]: https://github.com/pocoproject/poco/blob/poco-1.9.4-release/Foundation/include/Poco/Logger.h#L105-L114
+         -->
+         <level>trace</level>
+-        <log>/var/log/clickhouse-server/clickhouse-server.log</log>
+-        <errorlog>/var/log/clickhouse-server/clickhouse-server.err.log</errorlog>
++        <log>/var/lib/clickhouse/server.log</log>
++        <errorlog>/var/lib/clickhouse/error.log</errorlog>
+         <!-- Rotation policy
+              See https://github.com/pocoproject/poco/blob/poco-1.9.4-release/Foundation/include/Poco/FileChannel.h#L54-L85
+           -->
+-- 
+2.40.1
+

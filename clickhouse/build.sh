@@ -1,4 +1,8 @@
 #!/bin/bash
+#
+# Copyright 2024 Oxide Computer Company
+# Copyright 2023 The University of Queensland
+#
 
 set -o errexit
 set -o pipefail
@@ -18,27 +22,39 @@ mkdir -p "$STAMPS"
 SRC="$ROOT/work/src"
 mkdir -p "$SRC"
 
+CLANGVER=17
+GCCVER=13
+
 #
 # Check build environment
 #
-for pkg in cmake ninja; do
-	if ! pkg info -q $pkg; then
-		fatal "need $pkg"
-	fi
+header 'checking build environment'
+PKGS=(
+	developer/ccache
+	developer/clang-$CLANGVER
+	developer/cmake
+	developer/gcc$GCCVER
+	developer/nasm
+	developer/ninja
+)
+for pkg in ${PKGS[@]}; do
+	info "checking for $pkg"
+	pkg info -q "$pkg" || fatal "need $pkg"
 done
 
 NAM='clickhouse'
-VER="21.10.4.26"
-URL="https://github.com/ClickHouse/ClickHouse/releases/download/v$VER-stable"
-URL+="/ClickHouse_sources_with_submodules.tar.gz"
-SHA256='2d34b5957d1ae3ad853f596aa0bbd21e2bf7d3d71b6b23a5f19868c2f7656e80'
+VER="23.8.7.24"
+FILE="clickhouse-src-bundle-v$VER-lts.tar.gz"
+S3="https://oxide-clickhouse-build.s3.us-west-2.amazonaws.com"
+URL="$S3/$FILE"
+SHA256='e90f3c9381d782c153f21726849710362d6fb0c5e2bbd4f45d32b140e9463cb4'
 
 #
 # Download ClickHouse sources
 #
 header 'downloading artefacts'
 
-file="$ARTEFACT/clickhouse-$VER-stable.tar.gz"
+file="$ARTEFACT/$FILE"
 download_to clickhouse "$URL" "$file" "$SHA256"
 
 #
@@ -49,19 +65,73 @@ header 'extracting artefacts'
 extract_to clickhouse "$file" "$SRC" --strip-components=1
 
 #
+# Maintaining the set of clickhouse patches is somewhat challenging.  To make
+# it easier we create a local git repository in the extracted source directory
+# and then apply the patches to the git history.  This allows for iterative
+# work on the patches and then the full set can be re-generated using something
+# similar to:
+#
+#     git rm patches/*
+#     git -C work/src format-patch base..
+#     mv work/src/0*.patch patches/
+#     git add patches/*
+#
+header 'setting up git repository for source tree'
+
+if [[ ! -d "$SRC/.git" ]]; then
+	git init "$SRC"
+	git -C "$SRC" add .
+	git -C "$SRC" commit -m 'base' -q
+	git -C "$SRC" tag base
+	git -C "$SRC" config user.name "Oxide Computer Company"
+	git -C "$SRC" config user.email "<eng@oxide.computer>"
+fi
+
+#
 # Patch ClickHouse:
 #
 header 'patching clickhouse source'
 
 stamp="$STAMPS/patched.stamp"
 if [[ ! -f "$stamp" ]]; then
-	for f in $ROOT/patches/*.patch; do
-		if [[ ! -f $f ]]; then
-			continue;
+	for f in "$ROOT/patches/"[0-9]*.patch; do
+		[[ -f "$f" ]] || continue
+
+		pstamp="$stamp.${f##*/}"
+		[[ -f "$pstamp" ]] && continue
+
+		header "apply patch $f"
+
+		#
+		# Attempt to apply the patch as a git mailbox:
+		#
+		if ! git -C "$SRC" am "$f"; then
+			#
+			# If that fails, apply as a normal patch
+			# "git am" may have modified the tree.
+			#
+			git -C "$SRC" am --abort || true
+			git -C "$SRC" reset --hard HEAD
+			gpatch --directory="$SRC" --batch --forward \
+			    --strip=1 < "$f"
+			#
+			# Determine the commit message to use:
+			#
+			if egrep -sq '^Subject:' "$f"; then
+				subject=$(grep '^Subject:' "$f" |
+				    tr -s '[[:space:]]' |
+				    cut -d\  -f2-)
+				#
+				# Strip any sequence number:
+				#
+				subject=${subject#*]}
+			else
+				subject="Patch ${f##*/}"
+			fi
+			git -C "$SRC" commit -m "$subject" .
 		fi
 
-		info "apply patch $f"
-		(cd "$SRC" && patch --verbose -p1 < "$f")
+		touch "$pstamp"
 	done
 
 	touch "$stamp"
@@ -94,7 +164,12 @@ if [[ ! -f "$stamp" ]]; then
 	info "running cmake..."
 
 	CFLAGS='-D_REENTRANT -D_POSIX_PTHREAD_SEMANTICS -D__EXTENSIONS__ -m64'
+	CFLAGS+=' -DHAVE_STRERROR_R -DSTRERROR_R_INT'
 	CFLAGS+=" -I$SRC/contrib/hyperscan-cmake/x86_64/ "
+	CFLAGS+=" -fno-use-cxa-atexit "
+
+	CXXFLAGS="$CXXINC $CFLAGS"
+	CXXFLAGS+=" -fcxx-exceptions -fexceptions -frtti "
 
 	#
 	# We must set PARALLEL_COMPILE_JOBS, or else the cmake files will make
@@ -105,34 +180,30 @@ if [[ ! -f "$stamp" ]]; then
 	# objects -- sometimes 15-30GB! -- so we constrain PARALLEL_LINK_JOBS
 	# to 1.
 	#
-	CFLAGS="$CFLAGS" CXXFLAGS="$CXXINC $CFLAGS" cmake \
-	    -DCMAKE_C_COMPILER="/opt/gcc-10/bin/gcc" \
-	    -DCMAKE_CXX_COMPILER="/opt/gcc-10/bin/g++" \
+	CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" cmake \
+	    -DCMAKE_BUILD_TYPE=Release \
+	    -DCMAKE_INSTALL_PREFIX="/opt/oxide/clickhouse" \
+	    -DCMAKE_C_COMPILER="/opt/ooce/llvm-$CLANGVER/bin/clang" \
+	    -DCMAKE_CXX_COMPILER="/opt/ooce/llvm-$CLANGVER/bin/clang++" \
 	    -DCMAKE_C_FLAGS="$CFLAGS" \
-	    -DCMAKE_CXX_FLAGS="$CXXINC $CFLAGS" \
-	    -DABSL_CXX_STANDARD="17" \
+	    -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
+	    -DABSL_CXX_STANDARD="20" \
 	    -DENABLE_LDAP=off \
-	    -DUSE_INTERNAL_LDAP_LIBRARY=off \
 	    -DENABLE_HDFS=off \
-	    -DUSE_INTERNAL_HDFS3_LIBRARY=off \
 	    -DENABLE_AMQPCPP=off \
 	    -DENABLE_AVRO=off \
-	    -DUSE_INTERNAL_AVRO_LIBRARY=off \
 	    -DENABLE_CAPNP=off \
-	    -DUSE_INTERNAL_CAPNP_LIBRARY=off \
 	    -DENABLE_MSGPACK=off \
-	    -DUSE_INTERNAL_MSGPACK_LIBRARY=off \
 	    -DENABLE_MYSQL=off \
-	    -DENABLE_S3=off \
-	    -DUSE_INTERNAL_AWS_S3_LIBRARY=off \
 	    -DENABLE_PARQUET=off \
-	    -DUSE_INTERNAL_PARQUET_LIBRARY=off \
+	    -DENABLE_S3=off \
 	    -DENABLE_ORC=off \
-	    -DUSE_INTERNAL_ORC_LIBRARY=off \
 	    -DUSE_SENTRY=off \
+	    -DENABLE_SENTRY=off \
 	    -DENABLE_CLICKHOUSE_ODBC_BRIDGE=off \
 	    -DENABLE_CLICKHOUSE_BENCHMARK=off \
 	    -DENABLE_TESTS=off \
+	    -DCMAKE_BUILD_WITH_INSTALL_RPATH=on \
 	    \
 	    -DPARALLEL_COMPILE_JOBS="$njobs" \
 	    -DPARALLEL_LINK_JOBS="1" \
@@ -147,11 +218,11 @@ fi
 
 stamp="$STAMPS/ninja.stamp"
 if [[ ! -f "$stamp" ]]; then
-	info "running build with ninja..."
+	info "running build with ninja (jobs $njobs)..."
 
 	#
 	# The build is massive.  Try to parallelize until we error out, usually
-	# due to space constraints while linking. At that point, continue
+	# due to space constraints while linking.  At that point, continue
 	# serially.
 	#
 	jobs=$njobs
@@ -174,12 +245,15 @@ else
 fi
 
 #
-# Strip the resulting binary. This part is crucial. ClickHouse's binary is
+# Strip the resulting binary.  This part is crucial.  ClickHouse's binary is
 # 3+GiB unstripped.
 #
 rm -f "$CACHE/clickhouse"
 cp "$SRC/build/programs/clickhouse" "$CACHE/clickhouse"
 /usr/bin/strip -x "$CACHE/clickhouse"
+
+cp -P $SRC/build/programs/clickhouse-* "$CACHE/"
+/usr/bin/strip -x "$CACHE/clickhouse-library-bridge"
 
 if [[ -z "$OUTPUT_TYPE" ]]; then
 	OUTPUT_TYPE=tar
@@ -195,8 +269,8 @@ ips)
 
 	rm -rf "$WORK/proto"
 	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/bin"
-	cp "$CACHE/clickhouse" \
-	    "$WORK/proto/opt/clickhouse/$SVER/bin/clickhouse"
+	cp -P $CACHE/* \
+	    "$WORK/proto/opt/clickhouse/$SVER/bin/"
 
 	mkdir -p "$WORK/proto/opt/clickhouse/$SVER/config"
 	for f in config.xml users.xml; do
@@ -228,7 +302,7 @@ ips)
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
 	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
-	    "database/$NAM-$SVER@$VER-1.0" \
+	    "database/$NAM-$SVER@$VER-2.0" \
 	    "database/$NAM-common@$CVER"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
@@ -244,8 +318,7 @@ tar)
 	    $WORK/clickhouse-v$VER.illumos.tar.gz \
 	    -C "$CACHE" clickhouse \
 	    -C "$SRC/programs/server" config.xml \
-	    -C "$SRC/programs/server" users.xml \
-	    -C "$ROOT" manifest.xml
+	    -C "$SRC/programs/server" users.xml
 	header 'build output:'
 	ls -lh $WORK/*.tar.gz
 	exit 0

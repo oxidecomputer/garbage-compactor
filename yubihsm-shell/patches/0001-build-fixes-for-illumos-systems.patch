@@ -1,0 +1,121 @@
+From 8e070da7ca3a3b8e15c9b515ac8ea3292fc734ac Mon Sep 17 00:00:00 2001
+From: "Joshua M. Clulow" <jmc@oxide.computer>
+Date: Sat, 6 May 2023 13:04:21 -0700
+Subject: [PATCH] build fixes for illumos systems
+
+---
+ CMakeLists.txt            | 6 ++++++
+ cmake/SecurityFlags.cmake | 9 ++++++++-
+ cmake/illumos.cmake       | 9 +++++++++
+ src/commands.c            | 1 +
+ src/main.c                | 1 +
+ ykhsmauth/internal.h      | 2 +-
+ 6 files changed, 26 insertions(+), 2 deletions(-)
+ create mode 100644 cmake/illumos.cmake
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ec14817..1cef37d 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -26,6 +26,10 @@ project (yubihsm-shell)
+ option(BUILD_ONLY_LIB "Library only build" OFF)
+ option(SUPRESS_MSVC_WARNINGS "Suppresses a lot of the warnings when compiling with MSVC" ON)
+ 
++# Get the ILLUMOS variable set iff we are on an illumos system, before we make
++# other decisions about compiler and linker flags:
++include(${CMAKE_SOURCE_DIR}/cmake/illumos.cmake)
++
+ include(${CMAKE_SOURCE_DIR}/cmake/SecurityFlags.cmake)
+ 
+ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/cmake/")
+@@ -198,6 +202,8 @@ if(NOT BUILD_ONLY_LIB)
+     set (LIBPCSC_LDFLAGS "winscard.lib")
+   elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+     set(LIBPCSC_LDFLAGS "-Wl,-framework -Wl,PCSC")
++  elseif(ILLUMOS)
++    set(LIBPCSC_LDFLAGS "-lpcsc")
+   endif()
+ 
+   if(ENABLE_YKHSM_AUTH)
+diff --git a/cmake/SecurityFlags.cmake b/cmake/SecurityFlags.cmake
+index 30d7fa7..98d505f 100644
+--- a/cmake/SecurityFlags.cmake
++++ b/cmake/SecurityFlags.cmake
+@@ -12,6 +12,10 @@ if (CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
+     add_compile_options (-Wbad-function-cast)
+     add_compile_options (-pedantic -pedantic-errors)
+     add_compile_options (-fpie -fpic)
++    if (ILLUMOS)
++        add_compile_options (-Wno-char-subscripts)
++        add_definitions (-D__STDC_WANT_LIB_EXT1__=1)
++    endif ()
+     if (NOT FUZZ)
+         add_compile_options(-O2)
+         add_definitions (-D_FORTIFY_SOURCE=2)
+@@ -36,7 +40,10 @@ if (CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
+         add_compile_options (-Wno-implicit-fallthrough)
+     endif ()
+ 
+-    if (NOT CMAKE_C_COMPILER_ID STREQUAL AppleClang)
++    if (ILLUMOS)
++        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,now")
++        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,now")
++    elseif (NOT CMAKE_C_COMPILER_ID STREQUAL AppleClang)
+         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pie")
+         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pie")
+         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-z,noexecstack -Wl,-z,relro,-z,now")
+diff --git a/cmake/illumos.cmake b/cmake/illumos.cmake
+new file mode 100644
+index 0000000..69ecf66
+--- /dev/null
++++ b/cmake/illumos.cmake
+@@ -0,0 +1,9 @@
++if (CMAKE_SYSTEM_NAME STREQUAL "SunOS")
++  # Determine if the host is running an illumos distribution:
++  execute_process(COMMAND /usr/bin/uname -o OUTPUT_VARIABLE UNAME_O
++    OUTPUT_STRIP_TRAILING_WHITESPACE)
++
++  if (UNAME_O STREQUAL "illumos")
++    set(ILLUMOS 1)
++  endif()
++endif()
+diff --git a/src/commands.c b/src/commands.c
+index c49f154..dce5f4b 100644
+--- a/src/commands.c
++++ b/src/commands.c
+@@ -37,6 +37,7 @@
+ #include <unistd.h>
+ #include <sys/ioctl.h>
+ #include <sys/time.h>
++#include <termios.h>
+ #endif
+ 
+ #include <openssl/rand.h>
+diff --git a/src/main.c b/src/main.c
+index 1c9e232..228a2f6 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -60,6 +60,7 @@
+ #include <unistd.h>
+ #include <sys/time.h>
+ #include <sys/ioctl.h>
++#include <termios.h>
+ #include <editline/readline.h>
+ #include <histedit.h>
+ 
+diff --git a/ykhsmauth/internal.h b/ykhsmauth/internal.h
+index 44b9616..983042f 100644
+--- a/ykhsmauth/internal.h
++++ b/ykhsmauth/internal.h
+@@ -19,7 +19,7 @@
+ 
+ #include <stdbool.h>
+ 
+-#if defined(_WIN32)
++#if defined(_WIN32) || defined(__illumos__)
+ #include <winscard.h>
+ #else
+ #include <PCSC/wintypes.h>
+-- 
+2.31.6
+

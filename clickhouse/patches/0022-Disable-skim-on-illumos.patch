@@ -1,0 +1,22 @@
+From d00bb6ce7d1bff70d8785cd455230843c95acb93 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:47:51 +0000
+Subject: [PATCH 22/61] Disable 'skim' on illumos
+
+---
+ rust/skim/CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/rust/skim/CMakeLists.txt b/rust/skim/CMakeLists.txt
+index 1e7a43aba7..f23677b65f 100644
+--- a/rust/skim/CMakeLists.txt
++++ b/rust/skim/CMakeLists.txt
+@@ -1,4 +1,4 @@
+-if (OS_FREEBSD)
++if (OS_FREEBSD OR OS_SUNOS)
+     # Right nix/libc requires fspacectl and it had been added only since FreeBSD14.
+     # And sicne sysroot has older libararies you will got undefined reference for clickhouse binary.
+     #
+-- 
+2.40.1
+

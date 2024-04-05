@@ -1,0 +1,28 @@
+From 462873f8cc4421bc78ade6980413d66930d56a1b Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:46:33 +0000
+Subject: [PATCH 50/61] contrib/llvm-project: Disable locale static assertion
+ that fails on illumos
+
+---
+ contrib/llvm-project/libcxx/include/__locale | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/contrib/llvm-project/libcxx/include/__locale b/contrib/llvm-project/libcxx/include/__locale
+index 40f9a3ff57..cdb5f1bd84 100644
+--- a/contrib/llvm-project/libcxx/include/__locale
++++ b/contrib/llvm-project/libcxx/include/__locale
+@@ -549,8 +549,10 @@ public:
+ 
+     _LIBCPP_INLINE_VISIBILITY ctype_base() {}
+ 
++#ifndef __sun
+     static_assert((__regex_word & ~(space | print | cntrl | upper | lower | alpha | digit | punct | xdigit | blank)) == __regex_word,
+                   "__regex_word can't overlap other bits");
++#endif
+ };
+ 
+ template <class _CharT> class _LIBCPP_TEMPLATE_VIS ctype;
+-- 
+2.40.1
+

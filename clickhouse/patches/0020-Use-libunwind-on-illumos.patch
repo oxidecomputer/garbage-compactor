@@ -1,0 +1,145 @@
+From ad78db352cdb8bf60b88324d1528573992d8a36e Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:47:21 +0000
+Subject: [PATCH 20/61] Use libunwind on illumos
+
+---
+ CMakeLists.txt                                 | 4 +++-
+ contrib/libunwind-cmake/CMakeLists.txt         | 6 +++++-
+ contrib/libunwind/src/AddressSpace.hpp         | 4 ++++
+ contrib/libunwind/src/UnwindRegistersRestore.S | 4 ----
+ contrib/libunwind/src/UnwindRegistersSave.S    | 4 ----
+ contrib/libunwind/src/libunwind.cpp            | 2 --
+ src/CMakeLists.txt                             | 2 ++
+ 7 files changed, 14 insertions(+), 12 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index eb99926dbc..33e4b308c4 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -260,7 +260,9 @@ include(cmake/cpu_features.cmake)
+ # Asynchronous unwind tables are needed for Query Profiler.
+ # They are already by default on some platforms but possibly not on all platforms.
+ # Enable it explicitly.
+-set (COMPILER_FLAGS "${COMPILER_FLAGS} -fasynchronous-unwind-tables")
++if (NOT OS_SUNOS)
++    set (COMPILER_FLAGS "${COMPILER_FLAGS} -fasynchronous-unwind-tables")
++endif ()
+ 
+ # Reproducible builds.
+ if (CMAKE_BUILD_TYPE_UC STREQUAL "DEBUG")
+diff --git a/contrib/libunwind-cmake/CMakeLists.txt b/contrib/libunwind-cmake/CMakeLists.txt
+index 733f99d07f..fd8b02efc3 100644
+--- a/contrib/libunwind-cmake/CMakeLists.txt
++++ b/contrib/libunwind-cmake/CMakeLists.txt
+@@ -42,12 +42,16 @@ add_library(unwind ${LIBUNWIND_SOURCES})
+ set_target_properties(unwind PROPERTIES FOLDER "contrib/libunwind-cmake")
+ 
+ target_include_directories(unwind SYSTEM BEFORE PUBLIC $<BUILD_INTERFACE:${LIBUNWIND_SOURCE_DIR}/include>)
+-target_compile_definitions(unwind PRIVATE -D_LIBUNWIND_NO_HEAP=1 -D_DEBUG -D_LIBUNWIND_IS_NATIVE_ONLY)
++target_compile_definitions(unwind PRIVATE -D_LIBUNWIND_NO_HEAP=1 -D_DEBUG -D_LIBUNWIND_IS_NATIVE_ONLY -D_REENTRANT -D__EXTENSIONS__)
+ 
+ # We should enable optimizations (otherwise it will be too slow in debug)
+ # and disable sanitizers (otherwise infinite loop may happen)
+ target_compile_options(unwind PRIVATE -O3 -fno-exceptions -funwind-tables -fno-sanitize=all $<$<COMPILE_LANGUAGE:CXX>:-nostdinc++ -fno-rtti>)
+ 
++if (OS_SUNOS)
++    target_compile_definitions(unwind PRIVATE -D_LIBUNWIND_USE_DL_ITERATE_PHDR)
++endif()
++
+ check_c_compiler_flag(-Wunused-but-set-variable HAVE_WARNING_UNUSED_BUT_SET_VARIABLE)
+ if (HAVE_WARNING_UNUSED_BUT_SET_VARIABLE)
+     target_compile_options(unwind PRIVATE -Wno-unused-but-set-variable)
+diff --git a/contrib/libunwind/src/AddressSpace.hpp b/contrib/libunwind/src/AddressSpace.hpp
+index b538ef7645..8d10e1b3e3 100644
+--- a/contrib/libunwind/src/AddressSpace.hpp
++++ b/contrib/libunwind/src/AddressSpace.hpp
+@@ -426,7 +426,11 @@ static bool checkAddrInSegment(const Elf_Phdr *phdr, size_t image_base,
+ static bool checkForUnwindInfoSegment(const Elf_Phdr *phdr, size_t image_base,
+                                       dl_iterate_cb_data *cbdata) {
+ #if defined(_LIBUNWIND_SUPPORT_DWARF_INDEX)
++#if defined(PT_SUNW_UNWIND)
++  if (phdr->p_type == PT_SUNW_EH_FRAME || phdr->p_type == PT_SUNW_UNWIND) {
++#else
+   if (phdr->p_type == PT_GNU_EH_FRAME) {
++#endif
+     EHHeaderParser<LocalAddressSpace>::EHHeaderInfo hdrInfo;
+     uintptr_t eh_frame_hdr_start = image_base + phdr->p_vaddr;
+     cbdata->sects->dwarf_index_section = eh_frame_hdr_start;
+diff --git a/contrib/libunwind/src/UnwindRegistersRestore.S b/contrib/libunwind/src/UnwindRegistersRestore.S
+index eeb6453496..1b689a7ba2 100644
+--- a/contrib/libunwind/src/UnwindRegistersRestore.S
++++ b/contrib/libunwind/src/UnwindRegistersRestore.S
+@@ -14,8 +14,6 @@
+   .text
+ #endif
+ 
+-#if !defined(__USING_SJLJ_EXCEPTIONS__)
+-
+ #if defined(__i386__)
+ DEFINE_LIBUNWIND_FUNCTION(__libunwind_Registers_x86_jumpto)
+ #
+@@ -1291,7 +1289,5 @@ DEFINE_LIBUNWIND_FUNCTION(_ZN9libunwind15Registers_s390x6jumptoEv)
+ 
+ #endif
+ 
+-#endif /* !defined(__USING_SJLJ_EXCEPTIONS__) */
+-
+ NO_EXEC_STACK_DIRECTIVE
+ 
+diff --git a/contrib/libunwind/src/UnwindRegistersSave.S b/contrib/libunwind/src/UnwindRegistersSave.S
+index f57dd637dd..85a7e7b157 100644
+--- a/contrib/libunwind/src/UnwindRegistersSave.S
++++ b/contrib/libunwind/src/UnwindRegistersSave.S
+@@ -14,8 +14,6 @@
+     .text
+ #endif
+ 
+-#if !defined(__USING_SJLJ_EXCEPTIONS__)
+-
+ #if defined(__i386__)
+ 
+ #
+@@ -1226,6 +1224,4 @@ DEFINE_LIBUNWIND_FUNCTION(__unw_getcontext)
+ 
+   WEAK_ALIAS(__unw_getcontext, unw_getcontext)
+ 
+-#endif /* !defined(__USING_SJLJ_EXCEPTIONS__) */
+-
+ NO_EXEC_STACK_DIRECTIVE
+diff --git a/contrib/libunwind/src/libunwind.cpp b/contrib/libunwind/src/libunwind.cpp
+index ca7d9a01e6..9a21a5b951 100644
+--- a/contrib/libunwind/src/libunwind.cpp
++++ b/contrib/libunwind/src/libunwind.cpp
+@@ -26,7 +26,6 @@
+ #include <sanitizer/asan_interface.h>
+ #endif
+ 
+-#if !defined(__USING_SJLJ_EXCEPTIONS__)
+ #include "AddressSpace.hpp"
+ #include "UnwindCursor.hpp"
+ 
+@@ -336,7 +335,6 @@ void __unw_remove_dynamic_eh_frame_section(unw_word_t eh_frame_start) {
+ }
+ 
+ #endif // defined(_LIBUNWIND_SUPPORT_DWARF_UNWIND)
+-#endif // !defined(__USING_SJLJ_EXCEPTIONS__)
+ 
+ int unw_backtrace(void **buffer, int size) {
+   unw_context_t context;
+diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
+index 81c7423447..ed33ea3800 100644
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -267,6 +267,8 @@ endmacro ()
+ dbms_target_include_directories (PUBLIC "${ClickHouse_SOURCE_DIR}/src" "${ClickHouse_BINARY_DIR}/src")
+ target_include_directories (clickhouse_common_io PUBLIC "${ClickHouse_SOURCE_DIR}/src" "${ClickHouse_BINARY_DIR}/src")
+ 
++target_include_directories (clickhouse_common_io PUBLIC "${ClickHouse_SOURCE_DIR}/contrib/libunwind/include")
++
+ if (TARGET ch_contrib::llvm)
+     dbms_target_link_libraries (PUBLIC ch_contrib::llvm)
+ endif ()
+-- 
+2.40.1
+

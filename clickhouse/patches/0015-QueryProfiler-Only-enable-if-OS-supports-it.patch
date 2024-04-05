@@ -1,0 +1,50 @@
+From 1763e04196e2615fdc274748a5b3e4bcfbe295ff Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Thu, 23 Nov 2023 09:22:29 +0000
+Subject: [PATCH 15/61] QueryProfiler: Only enable if OS supports it
+
+---
+ src/Common/QueryProfiler.cpp | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/Common/QueryProfiler.cpp b/src/Common/QueryProfiler.cpp
+index dc9f361051..b95e6dad54 100644
+--- a/src/Common/QueryProfiler.cpp
++++ b/src/Common/QueryProfiler.cpp
+@@ -98,6 +98,7 @@ Timer::Timer()
+ 
+ void Timer::createIfNecessary(UInt64 thread_id, int clock_type, int pause_signal)
+ {
++#ifndef OS_SUNOS
+     if (!timer_id)
+     {
+         struct sigevent sev {};
+@@ -134,6 +135,7 @@ void Timer::createIfNecessary(UInt64 thread_id, int clock_type, int pause_signal
+         timer_id.emplace(local_timer_id);
+         CurrentMetrics::add(CurrentMetrics::CreatedTimersInQueryProfiler);
+     }
++#endif /* OS_SUNOS */
+ }
+ 
+ void Timer::set(UInt32 period)
+@@ -216,7 +218,7 @@ QueryProfilerBase<ProfilerImpl>::QueryProfilerBase(UInt64 thread_id, int clock_t
+     UNUSED(pause_signal);
+ 
+     throw Exception(ErrorCodes::NOT_IMPLEMENTED, "QueryProfiler cannot work on OSX");
+-#else
++#elif defined(SIGEV_THREAD_ID)
+     /// Sanity check.
+     if (!hasPHDRCache())
+         throw Exception(ErrorCodes::NOT_IMPLEMENTED, "QueryProfiler cannot be used without PHDR cache, that is not available for TSan build");
+@@ -245,6 +247,8 @@ QueryProfilerBase<ProfilerImpl>::QueryProfilerBase(UInt64 thread_id, int clock_t
+         timer.cleanup();
+         throw;
+     }
++#else
++    throw Exception(ErrorCodes::CANNOT_CREATE_TIMER, "OS does not support QueryProfiler");
+ #endif
+ }
+ 
+-- 
+2.40.1
+

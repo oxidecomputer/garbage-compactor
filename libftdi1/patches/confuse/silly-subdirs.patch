@@ -1,0 +1,11 @@
+--- confuse/Makefile.in	Sun Oct 17 10:06:04 2004
++++ confuse/Makefile.in	Thu Mar 16 00:29:48 2023
+@@ -210,7 +210,7 @@
+ AUTOMAKE_OPTIONS = foreign
+ CLEANFILES = *~ '\#*\#'
+ EXTRA_DIST = libconfuse.spec.in libconfuse.spec
+-SUBDIRS = m4 po src examples tests doc
++SUBDIRS = m4 po src doc
+ @HAVE_PKGCONFIG_TRUE@pkgconfigdir = $(libdir)/pkgconfig
+ @HAVE_PKGCONFIG_TRUE@pkgconfig_DATA = libconfuse.pc
+ @HAVE_PKGCONFIG_FALSE@bin_SCRIPTS = confuse-config

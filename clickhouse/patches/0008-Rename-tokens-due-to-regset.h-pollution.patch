@@ -1,0 +1,73 @@
+From f1ed204807a6b34fa4ba3426f1ebf845efc3edd1 Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 22 Nov 2023 11:46:12 +0000
+Subject: [PATCH 08/61] Rename tokens due to regset.h pollution
+
+---
+ src/Client/ClientBase.cpp | 6 +++---
+ src/Client/ClientBase.h   | 2 +-
+ src/Common/StackTrace.h   | 4 ++++
+ 3 files changed, 8 insertions(+), 4 deletions(-)
+
+diff --git a/src/Client/ClientBase.cpp b/src/Client/ClientBase.cpp
+index 1924413461..775e9f3e72 100644
+--- a/src/Client/ClientBase.cpp
++++ b/src/Client/ClientBase.cpp
+@@ -133,7 +133,7 @@ ProgressOption toProgressOption(std::string progress)
+     if (progress == "TTY" || progress == "ON" || progress == "TRUE" || progress == "1" || progress == "YES")
+         return ProgressOption::TTY;
+     if (progress == "ERR")
+-        return ProgressOption::ERR;
++        return ProgressOption::XERR;
+     if (progress == "DEFAULT")
+         return ProgressOption::DEFAULT;
+ 
+@@ -731,7 +731,7 @@ void ClientBase::initTtyBuffer(ProgressOption progress)
+         }
+     }
+ 
+-    if (stderr_is_a_tty || progress == ProgressOption::ERR)
++    if (stderr_is_a_tty || progress == ProgressOption::XERR)
+     {
+         tty_buf = std::make_unique<WriteBufferFromFileDescriptor>(STDERR_FILENO, buf_size);
+     }
+@@ -2829,7 +2829,7 @@ void ClientBase::init(int argc, char ** argv)
+             case TTY:
+                 config().setString("progress", "tty");
+                 break;
+-            case ERR:
++            case XERR:
+                 config().setString("progress", "err");
+                 break;
+         }
+diff --git a/src/Client/ClientBase.h b/src/Client/ClientBase.h
+index d877905302..596654232a 100644
+--- a/src/Client/ClientBase.h
++++ b/src/Client/ClientBase.h
+@@ -53,7 +53,7 @@ enum ProgressOption
+     DEFAULT,
+     OFF,
+     TTY,
+-    ERR,
++    XERR,
+ };
+ ProgressOption toProgressOption(std::string progress);
+ std::istream& operator>> (std::istream & in, ProgressOption & progress);
+diff --git a/src/Common/StackTrace.h b/src/Common/StackTrace.h
+index 656f543d83..2d1389f4de 100644
+--- a/src/Common/StackTrace.h
++++ b/src/Common/StackTrace.h
+@@ -17,6 +17,10 @@
+ #   define _XOPEN_SOURCE 700
+ #endif
+ #include <ucontext.h>
++#ifdef OS_SUNOS
++#undef FS
++#undef SS
++#endif
+ 
+ struct NoCapture
+ {
+-- 
+2.40.1
+
