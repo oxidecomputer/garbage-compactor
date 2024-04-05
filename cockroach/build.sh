@@ -26,7 +26,7 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='22.2.0'
+VER='22.2.19'
 COCKROACHDB_CLONE_REF="v$VER"
 
 NODEVER="v16.20.0"
@@ -36,10 +36,13 @@ if [[ "$NODEVER" != "$SYSNODEVER" ]]; then
 	    "(see node-16 package)"
 fi
 
-GOVER='1.19.1'
-export GOROOT='/home/dap/go-build-for-cockroachdb/go'
+GOVER='1.19.9'
+SYSGOVER=$( (pkg info go-119 || true) | awk '/Version:/ { print $NF }')
+if [[ "$SYSGOVER" != "$GOVER" ]]; then
+	fatal 'install or update go-119 package'
+fi
+export GOROOT='/opt/ooce/go-1.19'
 info "using $GOROOT/bin/go: $($GOROOT/bin/go version)"
-export PATH="$GOROOT/bin:$PATH"
 
 YARNVER='1.22.5'
 YARNURL="https://github.com/yarnpkg/yarn/releases/download/v$YARNVER/yarn-v$YARNVER.tar.gz"
