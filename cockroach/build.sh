@@ -26,7 +26,7 @@ WORKAROUND="$ROOT/cache/workaround"
 rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
-VER='22.1.9'
+VER='22.2.19'
 COCKROACHDB_CLONE_REF="v$VER"
 
 NODEVER="v16.20.0"
@@ -36,12 +36,12 @@ if [[ "$NODEVER" != "$SYSNODEVER" ]]; then
 	    "(see node-16 package)"
 fi
 
-GOVER='1.17.13'
-SYSGOVER=$( (pkg info go-117 || true) | awk '/Version:/ { print $NF }')
+GOVER='1.19.9'
+SYSGOVER=$( (pkg info go-119 || true) | awk '/Version:/ { print $NF }')
 if [[ "$SYSGOVER" != "$GOVER" ]]; then
-	fatal 'install or update go-117 package'
+	fatal 'install or update go-119 package'
 fi
-export GOROOT='/opt/ooce/go-1.17'
+export GOROOT='/opt/ooce/go-1.19'
 info "using $GOROOT/bin/go: $($GOROOT/bin/go version)"
 
 YARNVER='1.22.5'
