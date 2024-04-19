@@ -15,6 +15,7 @@
 # Make sure directory permissions align with other packages:
 #
 <transform dir path=^lib/svc/manifest.* -> set group sys>
+<transform dir path=^etc$ -> set group sys>
 <transform dir path=^opt$ -> set group sys>
 <transform dir path=^usr$ -> set group sys>
 <transform dir path=^usr/share$ -> set group sys>
