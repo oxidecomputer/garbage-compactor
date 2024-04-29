@@ -74,7 +74,7 @@ cargo build --release --locked
 header "installing $NAM"
 rm -rf "$PROTO"
 mkdir -p "$PROTO/usr/bin"
-for cmd in dice-cert-check dice-cert-tmpl dice-mfg; do
+for cmd in dice-mfg verifier-cli; do
 	cp "target/release/$cmd" "$PROTO/usr/bin/$cmd"
 done
 
