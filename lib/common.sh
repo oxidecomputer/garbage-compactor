@@ -6,6 +6,8 @@
 unset HARDLINK_TARGETS
 unset BRANCH
 
+HELIOS_REPO='https://pkg.oxide.computer/helios/2/dev/'
+
 CTFCONVERT=${CTFCONVERT:-/opt/onbld/bin/i386/ctfconvert}
 if [[ ! -x $CTFCONVERT ]]; then
 	printf 'ERROR: install pkg:/developer/build/onbld\n' >&2

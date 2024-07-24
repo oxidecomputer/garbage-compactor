@@ -70,7 +70,7 @@ VER=$(cargo metadata --format-version 1 |
     ).$commit_count
 
 info "version is $VER"
-if pkg info -g https://pkg.oxide.computer/helios-dev "humility@$VER"; then
+if pkg info -g "$HELIOS_REPO" "humility@$VER"; then
 	fatal 'package already published'
 fi
 

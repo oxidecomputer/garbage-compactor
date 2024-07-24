@@ -52,7 +52,7 @@ cd "$SRC64"
 VER=1.0
 
 info "version is $VER"
-if pkg info -g https://pkg.oxide.computer/helios-dev "$NAM@$VER"; then
+if pkg info -g "$HELIOS_REPO" "$NAM@$VER"; then
 	fatal 'package already published'
 fi
 
