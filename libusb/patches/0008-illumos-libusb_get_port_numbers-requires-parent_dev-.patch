@@ -1,7 +1,7 @@
 From 325e4003ee101cb8261fdce7813619d51bb5548f Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Thu, 1 Dec 2022 15:27:24 -0800
-Subject: [PATCH 8/9] illumos: libusb_get_port_numbers() requires parent_dev
+Subject: [PATCH 08/11] illumos: libusb_get_port_numbers() requires parent_dev
  population
 
 ---
@@ -512,5 +512,5 @@ index 1ff0bf69..59abcca4 100644
  
  struct devlink_cbarg {
 -- 
-2.31.2
+2.40.3
 

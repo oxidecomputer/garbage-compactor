@@ -1,7 +1,7 @@
 From 69e605a5490919bba93196daf6ab5ba1cf692e40 Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Mon, 27 Dec 2021 16:08:36 -0800
-Subject: [PATCH 2/9] sunos: minor path handling improvements
+Subject: [PATCH 02/11] sunos: minor path handling improvements
 
 ---
  libusb/os/sunos_usb.c | 14 ++++++++++----
@@ -42,5 +42,5 @@ index 7c2f615e..f8670c91 100644
  	/*
  	 * In case configuration has been switched, the xfer endpoint needs
 -- 
-2.31.2
+2.40.3
 

@@ -1,7 +1,7 @@
 From 59c3f1b42b7ea69043994e95b81ecb7b4b3c3388 Mon Sep 17 00:00:00 2001
 From: "Joshua M. Clulow" <josh@sysmgr.org>
 Date: Tue, 16 Aug 2022 23:08:26 -0700
-Subject: [PATCH 7/9] illumos: control transfers should not call back during
+Subject: [PATCH 07/11] illumos: control transfers should not call back during
  submission
 
 ---
@@ -433,5 +433,5 @@ index 4f3082c8..1ff0bf69 100644
  
  struct node_args {
 -- 
-2.31.2
+2.40.3
 
