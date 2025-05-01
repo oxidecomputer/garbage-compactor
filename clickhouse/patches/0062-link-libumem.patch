@@ -1,0 +1,25 @@
+From 1163d7fff03c7748eddd84295ecb495dcfb9250a Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Thu, 1 May 2025 15:13:21 +0000
+Subject: [PATCH] link libumem
+
+---
+ cmake/sunos/default_libs.cmake | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/cmake/sunos/default_libs.cmake b/cmake/sunos/default_libs.cmake
+index e3cbb4d027..bba46c5f3b 100644
+--- a/cmake/sunos/default_libs.cmake
++++ b/cmake/sunos/default_libs.cmake
+@@ -6,7 +6,7 @@ endif ()
+
+ set (BUILTINS_LIBRARY "-lgcc_s")
+
+-set (DEFAULT_LIBS "${DEFAULT_LIBS} ${BUILTINS_LIBRARY} ${COVERAGE_OPTION} -lc -lm -lsocket -lnsl -lsendfile -lproc")
++set (DEFAULT_LIBS "${DEFAULT_LIBS} ${BUILTINS_LIBRARY} ${COVERAGE_OPTION} -lc -lm -lsocket -lnsl -lsendfile -lproc -lumem")
+ set (DEFAULT_LIBS "${DEFAULT_LIBS} -Lcontrib/libunwind-cmake/ -lunwind")
+
+ message(STATUS "Default libraries: ${DEFAULT_LIBS}")
+--
+2.40.4
+
