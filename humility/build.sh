@@ -66,7 +66,7 @@ cd "$SRC64"
 #
 commit_count=$(git rev-list --count HEAD)
 VER=$(cargo metadata --format-version 1 |
-    jq -r '.packages | map(select(.name == "humility")) | .[].version'
+    jq -r '.packages | map(select(.name == "humility-bin")) | .[].version'
     ).$commit_count
 
 info "version is $VER"
