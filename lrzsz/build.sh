@@ -61,6 +61,11 @@ export PATH="$WORKAROUND:$PATH"
 
 cd "$SRC64"
 
+# The configure script looks for a libbe and links it in if found (for syslog
+# support on some platforms) - we don't want to link our boot environment
+# library!
+export ac_cv_lib_be_syslog=no
+
 #
 # By default, the package builds programs with an "l" prefix; e.g., "lrx", etc.
 # This does not match the names that other software appears to expect, so drop
