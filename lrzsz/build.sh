@@ -92,14 +92,16 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
+	CREV=1
 	HARDLINK_TARGETS='usr/bin/rz usr/bin/sz' \
+	BRANCH="2.$CREV" \
 	make_package "terminal/$NAM" \
 	    'Minimal dumb-terminal emulation program' \
 	    "$WORK/proto" \
 	    "$ROOT/overrides.p5m"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;
