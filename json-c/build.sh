@@ -78,7 +78,10 @@ cd "$SRC32"
 info "configure 32bit..."
 mkdir build32
 cd build32
-cmake "${common_args[@]}" -DCMAKE_INSTALL_LIBDIR=/usr/lib ..
+cmake "${common_args[@]}" \
+    -DCMAKE_C_FLAGS='-m32' \
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib \
+    ..
 
 info "make 32bit..."
 gmake -j8
@@ -93,7 +96,10 @@ cd "$SRC64"
 info "configure 64bit..."
 mkdir build64
 cd build64
-cmake "${common_args[@]}" -DCMAKE_INSTALL_LIBDIR=/usr/lib/amd64 ..
+cmake "${common_args[@]}" \
+    -DCMAKE_C_FLAGS='-m64' \
+    -DCMAKE_INSTALL_LIBDIR=/usr/lib/amd64 \
+    ..
 
 info "make 64bit..."
 gmake -j8
@@ -114,12 +120,13 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	make_package "library/$NAM" \
+	CREV=1
+	BRANCH=2.$CREV make_package "library/$NAM" \
 	    'A JSON implementation in C' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;
