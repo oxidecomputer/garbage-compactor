@@ -104,7 +104,7 @@ function apply_patches {
 		fi
 
 		info "applying patch $f..."
-		(cd "$srcdir" && patch -p1 --verbose < "$f")
+		(cd "$srcdir" && patch -p${PLVL:-1} --verbose < "$f")
 	done
 }
 

@@ -1,0 +1,19 @@
+$NetBSD$
+
+Add Solaris (really illumos, but configure doesn't distinguish between them)
+as a recognized OS so it doesn't default to Linux and attempt to install a
+bunch of systemd related files.
+
+--- configure.orig	2024-03-18 01:05:33.761054488 +0000
++++ configure
+@@ -16842,6 +16842,10 @@ fi
+         HOSTOS='BSD'
+         LIBSOCKET_LDFLAGS=""
+         ;;
++    *solaris* | *illumos*)
++	HOSTOS='Solaris'
++	LIBSOCKET_LDFLAGS="-lsocket -lnsl"
++	;;
+     *)
+         #Assume linux
+         HOSTOS='Linux'

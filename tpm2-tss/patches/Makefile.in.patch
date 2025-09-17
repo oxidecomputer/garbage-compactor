@@ -1,0 +1,13 @@
+$NetBSD$
+
+--- Makefile.in.orig	2025-05-13 01:46:39.840860915 +0000
++++ Makefile.in
+@@ -11809,7 +11809,7 @@ TESTS_LIBADD = $(lib_LTLIBRARIES) $(libt
+ 
+ ### Distribution files ###
+ # Add udev rule
+-udevrules_DATA = dist/tpm-udev.rules
++@HOSTOS_LINUX_TRUE@udevrules_DATA = dist/tpm-udev.rules
+ 
+ # pkg-config setup. pc-file declarations happen in the corresponding modules
+ pkgconfig_DATA = lib/tss2-mu.pc lib/tss2-tctildr.pc $(am__append_49) \
