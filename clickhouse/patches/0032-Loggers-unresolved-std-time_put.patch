@@ -1,53 +1,32 @@
-From ef9bfbee646109e7d86adc0b69f5fc4ff4166d62 Mon Sep 17 00:00:00 2001
+From 23bbd0f7cf56f4b46703f2d4cbba93e36cfe174e Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
-Date: Sun, 26 Nov 2023 10:57:56 +0000
+Date: Fri, 24 Oct 2025 16:54:47 -0400
 Subject: [PATCH 32/61] Loggers: unresolved std::time_put
 
-For some reason, the std::put_time() here resolves to a variant of
-std::time_put() that is not satisfied by the libstdc++ headers, and
-results in a link error.
-
-Undefined                       first referenced
- symbol                             in file
-_ZNKSt8time_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE3putES3_RSt8ios_basecPKSt2tmPKcSB_
-src/Loggers/libloggers.a(Loggers.cpp.o)
-ld: fatal: symbol referencing errors. No output written to programs/clickhouse
-
-% demangle _ZNKSt8time_putIcSt19ostreambuf_iteratorIcSt11char_traitsIcEEE3putES3_RSt8ios_basecPKSt2tmPKcSB_
-std::time_put<char, std::ostreambuf_iterator<char, std::char_traits<char> > ::put(std::ostreambuf_iterator<char, std::char_traits<char> >, std::ios_base&, char, std::tm const*, char const*, char const*) const
 ---
- src/Loggers/Loggers.cpp | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ src/Loggers/Loggers.cpp | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
 diff --git a/src/Loggers/Loggers.cpp b/src/Loggers/Loggers.cpp
-index 90b3457b7d..8ab0f0028a 100644
+index 35b96bce..67dd35bb 100644
 --- a/src/Loggers/Loggers.cpp
 +++ b/src/Loggers/Loggers.cpp
-@@ -1,6 +1,9 @@
- #include "Loggers.h"
- 
-+#include <ctime>
-+#include <sstream>
- #include <iostream>
-+#include <iomanip>
- #include <Poco/SyslogChannel.h>
- #include <Poco/Util/AbstractConfiguration.h>
- #include "OwnFormattingChannel.h"
-@@ -46,7 +49,14 @@ static std::string renderFileNameTemplate(time_t now, const std::string & file_p
+@@ -49,7 +49,14 @@ static std::string renderFileNameTemplate(time_t now, const std::string & file_p
      std::tm buf;
      localtime_r(&now, &buf);
      std::ostringstream ss; // STYLE_CHECK_ALLOW_STD_STRING_STREAM
-+#ifdef __illumos__
-+    char timestr[MAXPATHLEN];
+-    ss << std::put_time(&buf, path.filename().c_str());
++    #ifdef __illumos__
++        char timestr[MAXPATHLEN];
 +
-+    strftime(timestr, sizeof (timestr), file_path.c_str(), &buf);
-+    ss << timestr;
-+#else
-     ss << std::put_time(&buf, file_path.c_str());
-+#endif
++        strftime(timestr, sizeof (timestr), path.filename().c_str(), &buf);
++        ss << timestr;
++    #else
++        ss << std::put_time(&buf, path.filename().c_str());
++    #endif
      return path.replace_filename(ss.str());
  }
  
 -- 
-2.40.1
+2.50.1 (Apple Git-155)
 

@@ -1,6 +1,6 @@
-From 62cfa4a360e89dee2c0241c102237cd3086440d7 Mon Sep 17 00:00:00 2001
+From c7238714af576d0e4bd812a26190984563919b17 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
-Date: Wed, 22 Nov 2023 11:47:57 +0000
+Date: Fri, 24 Oct 2025 15:31:59 -0400
 Subject: [PATCH 09/61] std:: namespace fixes
 
 ---
@@ -9,14 +9,13 @@ Subject: [PATCH 09/61] std:: namespace fixes
  src/Core/ColumnNumbers.h                                   | 1 +
  src/Functions/FunctionBase58Conversion.h                   | 1 +
  src/Functions/makeDate.cpp                                 | 2 ++
- src/IO/ISchedulerNode.h                                    | 2 +-
  src/IO/ReadBuffer.cpp                                      | 1 +
  src/IO/SeekableReadBuffer.cpp                              | 1 +
  src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp    | 2 ++
- 9 files changed, 13 insertions(+), 1 deletion(-)
+ 8 files changed, 12 insertions(+)
 
 diff --git a/base/base/preciseExp10.cpp b/base/base/preciseExp10.cpp
-index 1cd660dc56..a6f1d40699 100644
+index 1cd660dc..a6f1d406 100644
 --- a/base/base/preciseExp10.cpp
 +++ b/base/base/preciseExp10.cpp
 @@ -33,6 +33,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
@@ -29,7 +28,7 @@ index 1cd660dc56..a6f1d40699 100644
  {
      if (isnan(x)) return NAN;
 diff --git a/src/AggregateFunctions/AggregateFunctionStatisticsSimple.h b/src/AggregateFunctions/AggregateFunctionStatisticsSimple.h
-index f9a60c0c0b..b1fcfdb8e5 100644
+index efa4d6cd..d75f1ae6 100644
 --- a/src/AggregateFunctions/AggregateFunctionStatisticsSimple.h
 +++ b/src/AggregateFunctions/AggregateFunctionStatisticsSimple.h
 @@ -17,6 +17,8 @@
@@ -42,7 +41,7 @@ index f9a60c0c0b..b1fcfdb8e5 100644
  /** This is simple, not numerically stable
    *  implementations of variance/covariance/correlation functions.
 diff --git a/src/Core/ColumnNumbers.h b/src/Core/ColumnNumbers.h
-index 51054435e1..7d09d00640 100644
+index 51054435..7d09d006 100644
 --- a/src/Core/ColumnNumbers.h
 +++ b/src/Core/ColumnNumbers.h
 @@ -3,6 +3,7 @@
@@ -54,7 +53,7 @@ index 51054435e1..7d09d00640 100644
  namespace DB
  {
 diff --git a/src/Functions/FunctionBase58Conversion.h b/src/Functions/FunctionBase58Conversion.h
-index ae8cd30959..321e2ffd5b 100644
+index a34a36d8..62289947 100644
 --- a/src/Functions/FunctionBase58Conversion.h
 +++ b/src/Functions/FunctionBase58Conversion.h
 @@ -9,6 +9,7 @@
@@ -66,55 +65,44 @@ index ae8cd30959..321e2ffd5b 100644
  namespace DB
  {
 diff --git a/src/Functions/makeDate.cpp b/src/Functions/makeDate.cpp
-index 1e4f3604c9..694cbab974 100644
+index 21d466d7..6a4c1691 100644
 --- a/src/Functions/makeDate.cpp
 +++ b/src/Functions/makeDate.cpp
-@@ -17,6 +17,8 @@
- 
+@@ -19,6 +19,8 @@
  #include <array>
+ #include <cmath>
  
 +using std::pow;
 +
  namespace DB
  {
  namespace ErrorCodes
-diff --git a/src/IO/ISchedulerNode.h b/src/IO/ISchedulerNode.h
-index 1c33c03374..e3cf55431a 100644
---- a/src/IO/ISchedulerNode.h
-+++ b/src/IO/ISchedulerNode.h
-@@ -56,7 +56,7 @@ struct SchedulerNodeInfo
- 
-     void setWeight(double value)
-     {
--        if (value <= 0 || !isfinite(value))
-+        if (value <= 0 || !std::isfinite(value))
-             throw Exception(
-                 ErrorCodes::INVALID_SCHEDULER_NODE,
-                 "Negative and non-finite node weights are not allowed: {}",
 diff --git a/src/IO/ReadBuffer.cpp b/src/IO/ReadBuffer.cpp
-index bf054d0842..ce312dfc95 100644
+index 0d1cd322..9fcdeb55 100644
 --- a/src/IO/ReadBuffer.cpp
 +++ b/src/IO/ReadBuffer.cpp
-@@ -1,5 +1,6 @@
+@@ -1,6 +1,7 @@
  #include <IO/ReadBuffer.h>
+ #include <IO/ReadBufferWrapperBase.h>
  
 +using std::nullptr_t;
  
  namespace DB
  {
 diff --git a/src/IO/SeekableReadBuffer.cpp b/src/IO/SeekableReadBuffer.cpp
-index b83e382db0..0d40bc107f 100644
+index f2a114a5..d3e6acb4 100644
 --- a/src/IO/SeekableReadBuffer.cpp
 +++ b/src/IO/SeekableReadBuffer.cpp
-@@ -1,5 +1,6 @@
+@@ -1,6 +1,7 @@
  #include <IO/SeekableReadBuffer.h>
  
+ #include <istream>
 +using std::nullptr_t;
  
  namespace DB
  {
 diff --git a/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp b/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp
-index cfaefbe663..0b999df1f1 100644
+index 4852af9f..cc760174 100644
 --- a/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp
 +++ b/src/Processors/Formats/Impl/VerticalRowOutputFormat.cpp
 @@ -6,6 +6,8 @@
@@ -127,5 +115,5 @@ index cfaefbe663..0b999df1f1 100644
  namespace DB
  {
 -- 
-2.40.1
+2.50.1 (Apple Git-155)
 

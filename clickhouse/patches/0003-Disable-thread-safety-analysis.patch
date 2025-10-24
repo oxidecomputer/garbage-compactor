@@ -1,6 +1,6 @@
-From c392a44481112a450e7deb42715bee9c62b52155 Mon Sep 17 00:00:00 2001
+From cf79e61bd947baa46672c78adc799dd676d47c49 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
-Date: Wed, 22 Nov 2023 11:47:39 +0000
+Date: Fri, 24 Oct 2025 15:23:44 -0400
 Subject: [PATCH 03/61] Disable thread safety analysis
 
 ---
@@ -8,18 +8,18 @@ Subject: [PATCH 03/61] Disable thread safety analysis
  1 file changed, 2 insertions(+)
 
 diff --git a/cmake/warnings.cmake b/cmake/warnings.cmake
-index 00fa32a6b7..49f07f8ba9 100644
+index 807d92d9..bf9900ad 100644
 --- a/cmake/warnings.cmake
 +++ b/cmake/warnings.cmake
-@@ -44,6 +44,8 @@ if (COMPILER_CLANG)
-     no_warning(weak-template-vtables)
-     no_warning(weak-vtables)
-     no_warning(thread-safety-negative) # experimental flag, too many false positives
-+    no_warning(thread-safety-analysis) # experimental flag, too many false positives
-+    no_warning(thread-safety-attributes) # experimental flag, too many false positives
-     no_warning(enum-constexpr-conversion) # breaks magic-enum library in clang-16
-     no_warning(unsafe-buffer-usage) # too aggressive
-     # TODO Enable conversion, sign-conversion, double-promotion warnings.
+@@ -43,6 +43,8 @@ no_warning(vla)
+ no_warning(weak-template-vtables)
+ no_warning(weak-vtables)
+ no_warning(thread-safety-negative) # experimental flag, too many false positives
++no_warning(thread-safety-analysis) # experimental flag, too many false positives
++no_warning(thread-safety-attributes) # experimental flag, too many false positives
+ no_warning(enum-constexpr-conversion) # breaks magic-enum library in clang-16
+ no_warning(unsafe-buffer-usage) # too aggressive
+ no_warning(switch-default) # conflicts with "defaults in a switch covering all enum values"
 -- 
-2.40.1
+2.50.1 (Apple Git-155)
 

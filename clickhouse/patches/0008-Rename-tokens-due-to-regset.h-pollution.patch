@@ -1,19 +1,33 @@
-From f1ed204807a6b34fa4ba3426f1ebf845efc3edd1 Mon Sep 17 00:00:00 2001
+From e546b6aee1342b738f8033636772e0fefe122c9f Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
-Date: Wed, 22 Nov 2023 11:46:12 +0000
+Date: Fri, 24 Oct 2025 15:29:40 -0400
 Subject: [PATCH 08/61] Rename tokens due to regset.h pollution
 
 ---
- src/Client/ClientBase.cpp | 6 +++---
- src/Client/ClientBase.h   | 2 +-
- src/Common/StackTrace.h   | 4 ++++
- 3 files changed, 8 insertions(+), 4 deletions(-)
+ src/Client/ClientApplicationBase.cpp | 2 +-
+ src/Client/ClientBase.cpp            | 4 ++--
+ src/Client/ClientBase.h              | 2 +-
+ src/Common/StackTrace.h              | 4 ++++
+ 4 files changed, 8 insertions(+), 4 deletions(-)
 
+diff --git a/src/Client/ClientApplicationBase.cpp b/src/Client/ClientApplicationBase.cpp
+index 71d13ad4..c0db8117 100644
+--- a/src/Client/ClientApplicationBase.cpp
++++ b/src/Client/ClientApplicationBase.cpp
+@@ -310,7 +310,7 @@ void ClientApplicationBase::init(int argc, char ** argv)
+             case TTY:
+                 getClientConfiguration().setString("progress", "tty");
+                 break;
+-            case ERR:
++            case XERR:
+                 getClientConfiguration().setString("progress", "err");
+                 break;
+         }
 diff --git a/src/Client/ClientBase.cpp b/src/Client/ClientBase.cpp
-index 1924413461..775e9f3e72 100644
+index 8f69eaf5..65b1f3ca 100644
 --- a/src/Client/ClientBase.cpp
 +++ b/src/Client/ClientBase.cpp
-@@ -133,7 +133,7 @@ ProgressOption toProgressOption(std::string progress)
+@@ -135,7 +135,7 @@ ProgressOption toProgressOption(std::string progress)
      if (progress == "TTY" || progress == "ON" || progress == "TRUE" || progress == "1" || progress == "YES")
          return ProgressOption::TTY;
      if (progress == "ERR")
@@ -22,7 +36,7 @@ index 1924413461..775e9f3e72 100644
      if (progress == "DEFAULT")
          return ProgressOption::DEFAULT;
  
-@@ -731,7 +731,7 @@ void ClientBase::initTtyBuffer(ProgressOption progress)
+@@ -825,7 +825,7 @@ void ClientBase::initTTYBuffer(ProgressOption progress)
          }
      }
  
@@ -31,20 +45,11 @@ index 1924413461..775e9f3e72 100644
      {
          tty_buf = std::make_unique<WriteBufferFromFileDescriptor>(STDERR_FILENO, buf_size);
      }
-@@ -2829,7 +2829,7 @@ void ClientBase::init(int argc, char ** argv)
-             case TTY:
-                 config().setString("progress", "tty");
-                 break;
--            case ERR:
-+            case XERR:
-                 config().setString("progress", "err");
-                 break;
-         }
 diff --git a/src/Client/ClientBase.h b/src/Client/ClientBase.h
-index d877905302..596654232a 100644
+index 45251aea..4778a125 100644
 --- a/src/Client/ClientBase.h
 +++ b/src/Client/ClientBase.h
-@@ -53,7 +53,7 @@ enum ProgressOption
+@@ -62,7 +62,7 @@ enum ProgressOption
      DEFAULT,
      OFF,
      TTY,
@@ -54,10 +59,10 @@ index d877905302..596654232a 100644
  ProgressOption toProgressOption(std::string progress);
  std::istream& operator>> (std::istream & in, ProgressOption & progress);
 diff --git a/src/Common/StackTrace.h b/src/Common/StackTrace.h
-index 656f543d83..2d1389f4de 100644
+index 2078828f..9f750a13 100644
 --- a/src/Common/StackTrace.h
 +++ b/src/Common/StackTrace.h
-@@ -17,6 +17,10 @@
+@@ -16,6 +16,10 @@
  #   define _XOPEN_SOURCE 700
  #endif
  #include <ucontext.h>
@@ -69,5 +74,5 @@ index 656f543d83..2d1389f4de 100644
  struct NoCapture
  {
 -- 
-2.40.1
+2.50.1 (Apple Git-155)
 

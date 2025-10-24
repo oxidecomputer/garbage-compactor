@@ -1,25 +1,18 @@
-From b19afd02b0519543c0148d8eabe538bf7d133665 Mon Sep 17 00:00:00 2001
+From 0e813132c5dcc9f43e669ec258b18c4dd3f00696 Mon Sep 17 00:00:00 2001
 From: Oxide Computer Company <eng@oxide.computer>
-Date: Wed, 22 Nov 2023 11:48:22 +0000
+Date: Fri, 24 Oct 2025 16:50:08 -0400
 Subject: [PATCH 29/61] IPAddressDictionary: use boost::variant2
 
-For unknown reasons, using std::variant here fails during compilation.
-Attempting to store a std::string in the variant results in
-the compiler resolving the best variant option as wide::integer
-(which is obviously wrong) and attempting to cast a std::string into a
-wide::integer triggers an assertion.
-
-Using boost's variant2 works.
 ---
  src/Dictionaries/IPAddressDictionary.cpp | 32 +++++++++++++-----------
  src/Dictionaries/IPAddressDictionary.h   |  9 ++++---
  2 files changed, 22 insertions(+), 19 deletions(-)
 
 diff --git a/src/Dictionaries/IPAddressDictionary.cpp b/src/Dictionaries/IPAddressDictionary.cpp
-index 6bb06de750..1b05f8768c 100644
+index 4f9e9917..ad11aac6 100644
 --- a/src/Dictionaries/IPAddressDictionary.cpp
 +++ b/src/Dictionaries/IPAddressDictionary.cpp
-@@ -23,6 +23,8 @@
+@@ -29,6 +29,8 @@
  
  namespace DB
  {
@@ -28,16 +21,16 @@ index 6bb06de750..1b05f8768c 100644
  namespace ErrorCodes
  {
      extern const int BAD_ARGUMENTS;
-@@ -240,7 +242,7 @@ ColumnPtr IPAddressDictionary::getColumn(
+@@ -247,7 +249,7 @@ ColumnPtr IPAddressDictionary::getColumn(
          using ValueType = DictionaryValueType<AttributeType>;
          using ColumnProvider = DictionaryAttributeColumnProvider<AttributeType>;
  
--        const auto & null_value = std::get<AttributeType>(attribute.null_values);
+-        auto column = ColumnProvider::getColumn(dictionary_attribute, size);
 +        const auto & null_value = get<AttributeType>(attribute.null_values);
-         DictionaryDefaultValueExtractor<AttributeType> default_value_extractor(null_value, default_values_column);
  
-         auto column = ColumnProvider::getColumn(dictionary_attribute, size);
-@@ -532,7 +534,7 @@ void IPAddressDictionary::loadData()
+         if (is_short_circuit)
+         {
+@@ -569,7 +571,7 @@ void IPAddressDictionary::loadData()
  template <typename T>
  void IPAddressDictionary::addAttributeSize(const Attribute & attribute)
  {
@@ -46,7 +39,7 @@ index 6bb06de750..1b05f8768c 100644
      bytes_allocated += sizeof(ContainerType<T>) + (vec.capacity() * sizeof(T));
      bucket_count = vec.size();
  }
-@@ -546,11 +548,11 @@ void IPAddressDictionary::addAttributeSize<String>(const Attribute & attribute)
+@@ -583,11 +585,11 @@ void IPAddressDictionary::addAttributeSize<String>(const Attribute & attribute)
  
  void IPAddressDictionary::calculateBytesAllocated()
  {
@@ -60,7 +53,7 @@ index 6bb06de750..1b05f8768c 100644
      {
          bytes_allocated += ipv6_col->size() * sizeof((*ipv6_col)[0]);
      }
-@@ -619,9 +621,9 @@ void IPAddressDictionary::getItemsByTwoKeyColumnsImpl(
+@@ -656,9 +658,9 @@ void IPAddressDictionary::getItemsByTwoKeyColumnsImpl(
  {
      const auto & first_column = key_columns.front();
      const size_t rows = first_column->size();
@@ -72,7 +65,7 @@ index 6bb06de750..1b05f8768c 100644
      {
          const auto * key_ip_column_ptr = typeid_cast<const ColumnVector<UInt32> *>(&*key_columns.front());
          if (key_ip_column_ptr == nullptr)
-@@ -663,7 +665,7 @@ void IPAddressDictionary::getItemsByTwoKeyColumnsImpl(
+@@ -700,7 +702,7 @@ void IPAddressDictionary::getItemsByTwoKeyColumnsImpl(
  
      const auto & key_mask_column = assert_cast<const ColumnVector<UInt8> &>(*key_columns.back());
  
@@ -81,7 +74,7 @@ index 6bb06de750..1b05f8768c 100644
      auto comp_v6 = [&](size_t i, const IPv6Subnet & target)
      {
          auto cmpres = memcmp16(getIPv6FromOffset(*ipv6_col, i), target.addr);
-@@ -709,7 +711,7 @@ void IPAddressDictionary::getItemsImpl(
+@@ -842,7 +844,7 @@ void IPAddressDictionary::getItemsImpl(
          return;
      }
  
@@ -90,7 +83,7 @@ index 6bb06de750..1b05f8768c 100644
  
      size_t keys_found = 0;
  
-@@ -759,7 +761,7 @@ void IPAddressDictionary::getItemsImpl(
+@@ -963,7 +965,7 @@ void IPAddressDictionary::getItemsShortCircuitImpl(
  template <typename T>
  void IPAddressDictionary::setAttributeValueImpl(Attribute & attribute, const T value)
  {
@@ -99,7 +92,7 @@ index 6bb06de750..1b05f8768c 100644
      vec.push_back(value);
  }
  
-@@ -796,7 +798,7 @@ const IPAddressDictionary::Attribute & IPAddressDictionary::getAttribute(const s
+@@ -1000,7 +1002,7 @@ const IPAddressDictionary::Attribute & IPAddressDictionary::getAttribute(const s
  
  Columns IPAddressDictionary::getKeyColumns() const
  {
@@ -108,7 +101,7 @@ index 6bb06de750..1b05f8768c 100644
      if (ipv4_col)
      {
          auto key_ip_column = ColumnVector<UInt32>::create();
-@@ -809,7 +811,7 @@ Columns IPAddressDictionary::getKeyColumns() const
+@@ -1013,7 +1015,7 @@ Columns IPAddressDictionary::getKeyColumns() const
          return {std::move(key_ip_column), std::move(key_mask_column)};
      }
  
@@ -117,7 +110,7 @@ index 6bb06de750..1b05f8768c 100644
  
      auto key_ip_column = ColumnFixedString::create(IPV6_BINARY_LENGTH);
      auto key_mask_column = ColumnVector<UInt8>::create();
-@@ -850,7 +852,7 @@ static auto keyViewGetter()
+@@ -1054,7 +1056,7 @@ static auto keyViewGetter()
  
  Pipe IPAddressDictionary::read(const Names & column_names, size_t max_block_size, size_t num_streams) const
  {
@@ -126,7 +119,7 @@ index 6bb06de750..1b05f8768c 100644
  
      auto key_columns = getKeyColumns();
  
-@@ -892,7 +894,7 @@ IPAddressDictionary::RowIdxConstIter IPAddressDictionary::ipNotFound() const
+@@ -1096,7 +1098,7 @@ IPAddressDictionary::RowIdxConstIter IPAddressDictionary::ipNotFound() const
  
  IPAddressDictionary::RowIdxConstIter IPAddressDictionary::tryLookupIPv4(UInt32 addr, uint8_t * buf) const
  {
@@ -135,7 +128,7 @@ index 6bb06de750..1b05f8768c 100644
      {
          mapIPv4ToIPv6(addr, buf);
          return lookupIP<IPv6Container>(buf);
-@@ -902,7 +904,7 @@ IPAddressDictionary::RowIdxConstIter IPAddressDictionary::tryLookupIPv4(UInt32 a
+@@ -1106,7 +1108,7 @@ IPAddressDictionary::RowIdxConstIter IPAddressDictionary::tryLookupIPv4(UInt32 a
  
  IPAddressDictionary::RowIdxConstIter IPAddressDictionary::tryLookupIPv6(const uint8_t * addr) const
  {
@@ -144,7 +137,7 @@ index 6bb06de750..1b05f8768c 100644
      {
          bool is_mapped = false;
          UInt32 addrv4 = mappedIPv4ToBinary(addr, is_mapped);
-@@ -919,7 +921,7 @@ IPAddressDictionary::RowIdxConstIter IPAddressDictionary::lookupIP(IPValueType t
+@@ -1123,7 +1125,7 @@ IPAddressDictionary::RowIdxConstIter IPAddressDictionary::lookupIP(IPValueType t
      if (row_idx.empty())
          return ipNotFound();
  
@@ -154,7 +147,7 @@ index 6bb06de750..1b05f8768c 100644
          return ipNotFound();
  
 diff --git a/src/Dictionaries/IPAddressDictionary.h b/src/Dictionaries/IPAddressDictionary.h
-index 40dc5dd678..b8b16e969e 100644
+index b6a160d5..29595f01 100644
 --- a/src/Dictionaries/IPAddressDictionary.h
 +++ b/src/Dictionaries/IPAddressDictionary.h
 @@ -2,7 +2,7 @@
@@ -174,7 +167,7 @@ index 40dc5dd678..b8b16e969e 100644
  class Arena;
  
  class IPAddressDictionary final : public IDictionary
-@@ -97,7 +98,7 @@ private:
+@@ -103,7 +104,7 @@ private:
      struct Attribute final
      {
          AttributeUnderlyingType type;
@@ -183,7 +176,7 @@ index 40dc5dd678..b8b16e969e 100644
              UInt8,
              UInt16,
              UInt32,
-@@ -123,7 +124,7 @@ private:
+@@ -129,7 +130,7 @@ private:
              String,
              Array>
              null_values;
@@ -192,7 +185,7 @@ index 40dc5dd678..b8b16e969e 100644
              ContainerType<UInt8>,
              ContainerType<UInt16>,
              ContainerType<UInt32>,
-@@ -205,7 +206,7 @@ private:
+@@ -221,7 +222,7 @@ private:
      const std::string key_description{dict_struct.getKeyDescription()};
  
      /// Contains sorted IP subnetworks. If some addresses equals, subnet with lower mask is placed first.
@@ -202,5 +195,5 @@ index 40dc5dd678..b8b16e969e 100644
      /// Prefix lengths corresponding to ip_column.
      IPMaskContainer mask_column;
 -- 
-2.40.1
+2.50.1 (Apple Git-155)
 
