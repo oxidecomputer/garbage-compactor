@@ -33,6 +33,9 @@ fi
 info "using $GCC_DIR/gcc: $($GCC_DIR/gcc --version | head -1)"
 info "using $GCC_DIR/g++: $($GCC_DIR/g++ --version | head -1)"
 
+build_deps \
+    '/library/libusb'
+
 #
 # Download artefacts to use during build:
 #
@@ -69,7 +72,7 @@ if pkg info -g "$HELIOS_REPO" "$NAM@$VER"; then
 fi
 
 info "build $NAM..."
-cargo build --release --locked
+cargo build --release --locked --bin dice-mfg --bin verifier-cli
 
 header "installing $NAM"
 rm -rf "$PROTO"
