@@ -23,16 +23,6 @@ mkdir -p "$TOOLS"
 NAM='rats-corim'
 REPO="https://github.com/oxidecomputer/$NAM.git"
 
-if [[ -x /usr/gcc/10/bin/gcc ]]; then
-	GCC_DIR=/usr/gcc/10/bin
-elif [[ -x /opt/gcc-10/bin/gcc ]]; then
-	GCC_DIR=/opt/gcc-10/bin
-else
-	fatal "Could not find GCC in any expected location"
-fi
-info "using $GCC_DIR/gcc: $($GCC_DIR/gcc --version | head -1)"
-info "using $GCC_DIR/g++: $($GCC_DIR/g++ --version | head -1)"
-
 #
 # Download artefacts to use during build:
 #
