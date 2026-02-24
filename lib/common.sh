@@ -1,12 +1,13 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 unset HARDLINK_TARGETS
 unset BRANCH
 
-HELIOS_REPO='https://pkg.oxide.computer/helios/2/dev/'
+HELIOS_RELEASE=3
+HELIOS_REPO="https://pkg.oxide.computer/helios/$HELIOS_RELEASE/dev/"
 
 CTFCONVERT=${CTFCONVERT:-/opt/onbld/bin/i386/ctfconvert}
 if [[ ! -x $CTFCONVERT ]]; then
@@ -108,14 +109,25 @@ function apply_patches {
 	done
 }
 
+function create_repo {
+	local publisher="helios"
+	local repo="$WORK/repo"
+
+	[ -f "$repo/pkg5.repository" ] && return
+	printf '%% creating repository...\n'
+	rm -rf "$repo"
+	pkgrepo create "$repo"
+	pkgrepo add-publisher -s "$repo" "$publisher"
+}
+
 function make_package {
 	local name="$1"
 	local summary="$2"
 	local proto="$3"
 	local inputmf="$4"
 	local mf="$WORK/input.mf"
-	local publisher="helios-dev"
-	local branch="${BRANCH:-2.0}"
+	local publisher="helios"
+	local branch="${BRANCH:-$HELIOS_RELEASE.0}"
 	local repo="$WORK/repo"
 	local sendargs=()
 	local licdir="$ROOT/licenses"
@@ -179,11 +191,6 @@ function make_package {
 	cat "$WORK/step2.mf.res"
 	printf -- '==================================\n'
 
-	printf '%% creating repository...\n'
-	rm -rf "$repo"
-	pkgrepo create "$repo"
-	pkgrepo add-publisher -s "$repo" "$publisher"
-
 	rm -f "$WORK/final.mf"
 	cat "$WORK/step1.mf" "$WORK/step2.mf.res" > "$WORK/final.mf"
 
@@ -193,6 +200,7 @@ function make_package {
 	fi
 
 	printf '%% publishing...\n'
+	create_repo
 	pkgsend publish -d "$proto" "${pubargs[@]}" -s "$repo" "$WORK/final.mf"
 
 	printf '%% ok\n'
@@ -214,7 +222,7 @@ function make_package_simple {
 	local inputmf="$4"
 	local version="$5"
 	local mf="$WORK/input.mf"
-	local publisher="helios-dev"
+	local publisher="helios"
 	local repo="$WORK/repo"
 
 	#
@@ -241,8 +249,19 @@ function make_package_simple {
 	cat "$WORK/step1.mf" > "$WORK/final.mf"
 
 	printf '%% publishing...\n'
+	create_repo
 	pkgsend publish -d "$proto" -s "$repo" "$WORK/final.mf"
 
+	printf '%% ok\n'
+}
+
+function publish_manifest {
+	local file="$1"
+	local repo="$WORK/repo"
+
+	printf '%% publishing...\n'
+	create_repo
+	pkgsend publish -s "$repo" "$file"
 	printf '%% ok\n'
 }
 
