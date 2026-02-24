@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -50,9 +50,9 @@ info "using $GCC_DIR/g++: $($GCC_DIR/g++ --version | head -1)"
 PATH=$GCC_DIR:$PATH
 
 build_deps \
+    '/ooce/library/libusb-1' \
     '/library/hidapi' \
-    '/library/libftdi1' \
-    '/library/libusb'
+    '/library/libftdi1'
 
 #
 # Download artefacts to use during build:
@@ -116,7 +116,7 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	BRANCH=2.0.0
+	BRANCH=$HELIOS_RELEASE.0.0
 	make_package "developer/$NAM" \
 	    'the open on-chip debugger' \
 	    "$WORK/proto"

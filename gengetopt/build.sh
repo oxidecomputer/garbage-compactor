@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -43,7 +43,7 @@ info "using $GCC_DIR/gcc: $($GCC_DIR/gcc --version | head -1)"
 info "using $GCC_DIR/g++: $($GCC_DIR/g++ --version | head -1)"
 
 build_deps \
-    '/text/texinfo'
+    'ooce/text/texinfo'
 
 #
 # Download artefacts to use during build:
@@ -97,12 +97,13 @@ fi
 case "$OUTPUT_TYPE" in
 ips)
 	CREV=0
-	BRANCH="2.$CREV" make_package "developer/$NAM" \
+	BRANCH="$HELIOS_RELEASE.$CREV" make_package "developer/$NAM" \
 	    'a tool to write command line option parsing code for C programs' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
+	    "$NAM@$VER-$HELIOS_RELEASE.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;
