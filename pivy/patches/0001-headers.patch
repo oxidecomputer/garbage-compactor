@@ -1,0 +1,12 @@
+diff --git a/pivy-agent.c b/pivy-agent.c
+index b28babd..642e7dc 100644
+--- a/pivy-agent.c
++++ b/pivy-agent.c
+@@ -87,6 +87,7 @@
+ #include <string.h>
+ #include <unistd.h>
+ #include <libgen.h>
++#include <zone.h>
+ 
+ #include "utils.h"
+ #include "debug.h"

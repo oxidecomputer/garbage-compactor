@@ -16,45 +16,38 @@
 set -o errexit
 set -o pipefail
 
-ROOT=$(cd "$(dirname "$0")" && pwd)
-. "$ROOT/../lib/common.sh"
-
 NAM='mfg'
 CREV=1
 VER="0.1.$CREV"
 
+ROOT=$(cd "$(dirname "$0")" && pwd)
+. "$ROOT/../lib/common.sh"
+
 WORK="$ROOT/work"
 mkdir -p "$WORK"
-PROTO="$WORK/proto"
-rm -rf "$PROTO"
-mkdir -p "$PROTO"
 
-if [[ -z "$OUTPUT_TYPE" ]]; then
-	OUTPUT_TYPE=ips
-fi
+cat <<-EOM > manifest.p5m
+set name=pkg.fmri value=pkg://helios/oxide/$NAM@$VER-$HELIOS_RELEASE.0
+set name=pkg.summary value="Manufacturing software package"
+EOM
 
-case "$OUTPUT_TYPE" in
-ips)
-	pkgrepo create "$WORK/repo"
-	pkgrepo add-publisher -s "$WORK/repo" helios-dev
-	make_package_simple "oxide/$NAM" \
-	    'Manufacturing software package' \
-	    "$WORK/proto" \
-	    "$ROOT/mfg.p5m" \
-	    "$VER"
-	header 'build output:'
-	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "oxide/$NAM@$VER"
-	ls -lh "$WORK/$NAM-$VER.p5p"
-	exit 0
-	;;
-none)
-	#
-	# Just leave the build tree as-is without doing any more work.
-	#
-	exit 0
-	;;
-*)
-	fatal "unknown output type: $OUTPUT_TYPE"
-	;;
-esac
+grep -v '^#' pkglist | while read pkg ver; do
+	[ -n "$ver" ] || ver=`pkg list -aHo version $pkg@latest`
+	[ -n "$ver" ] || { echo "No version for $pkg" >&2; exit 1; }
+	[[ $ver = *-$HELIOS_RELEASE.* ]] || ver+="-$HELIOS_RELEASE.0"
+
+	echo "[$pkg] -> [$ver]" >&2
+	bpkg=${pkg#pkg:/}
+	facet="version-lock.$bpkg=true"
+
+	echo "depend type=require fmri=$pkg"
+	echo "depend facet=$facet type=incorporate fmri=$pkg@$ver"
+done >> manifest.p5m
+
+publish_manifest manifest.p5m
+cat manifest.p5m
+rm -f manifest.p5m
+
+pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" -m latest \*
+ls -lh "$WORK/$NAM-$VER.p5p"
+
