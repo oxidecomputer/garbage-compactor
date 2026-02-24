@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -35,17 +35,19 @@ NAM="yubihsm-connector"
 VER='3.0.4'
 URL="https://developers.yubico.com/$NAM/Releases/$NAM-$VER.tar.gz"
 
-GOVER='1.19.9'
-SYSGOVER=$( (pkg info go-119 || true) | awk '/Version:/ { print $NF }')
+GOVER='1.22.12'
+MGOVER=${GOVER%.*}
+GOPKG=go-${MGOVER//./}
+SYSGOVER=$( (pkg info $GOPKG || true) | awk '/Version:/ { print $NF }')
 if [[ "$SYSGOVER" != "$GOVER" ]]; then
-	fatal 'install or update go-119 package'
+	fatal "install or update $GOPKG package"
 fi
-export GOROOT='/opt/ooce/go-1.19'
+export GOROOT="/opt/ooce/go-${GOVER%.*}"
 GO="$GOROOT/bin/go"
 info "using $GOROOT/bin/go: $("$GO" version)"
 
 build_deps \
-    '/library/libusb'
+    '/ooce/library/libusb-1'
 
 #
 # Download artefacts to use during build:
@@ -109,12 +111,13 @@ fi
 case "$OUTPUT_TYPE" in
 ips)
 	CREV=0
-	BRANCH="2.$CREV" make_package "security/$NAM" \
+	BRANCH="$HELIOS_RELEASE.$CREV" make_package "security/$NAM" \
 	    'YubiHSM Connector daemon' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
+	    "$NAM@$VER-$HELIOS_RELEASE.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

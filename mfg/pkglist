@@ -1,0 +1,20 @@
+# The format of this file is lines with two columns:
+#  <pkg> [version]
+# If the optional version is not provided, the latest published package version
+# is used.
+pkg:/developer/debug/dice-util
+pkg:/developer/debug/embootleby
+pkg:/network/faux-mgs
+pkg:/developer/debug/humility
+pkg:/developer/iceprog
+pkg:/diagnostic/lmar
+pkg:/developer/debug/permission-slip-client
+pkg:/network/pilot
+pkg:/network/thundermuffin
+pkg:/developer/debug/lpc55_support
+pkg:/oxide/platform-identity-cacerts
+pkg:/terminal/picocom
+pkg:/library/libftdi1
+pkg:/library/libusb
+pkg:/security/oxtpm
+pkg:/network/ovpnms

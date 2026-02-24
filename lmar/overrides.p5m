@@ -1,1 +1,1 @@
-depend fmri=pkg:/runtime/python-311 type=require
+depend fmri=pkg:/runtime/python-313 type=require

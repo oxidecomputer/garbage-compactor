@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 # Copyright 2023 The University of Queensland
 #
 
@@ -302,7 +302,7 @@ ips)
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
 	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
-	    "database/$NAM-$SVER@$VER-2.0" \
+	    "database/$NAM-$SVER@$VER-$HELIOS_RELEASE.0" \
 	    "database/$NAM-common@$CVER"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
