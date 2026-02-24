@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -104,7 +104,7 @@ gmake -j8
 info "make install 64bit..."
 gmake install DESTDIR="$PROTO"
 
-for f in 'libp11.so.3.5.0'; do
+for f in 'libp11.so.2.6.0'; do
 	"$CTFCONVERT" "$PROTO/usr/lib/amd64/$f"
 	"$CTFCONVERT" "$PROTO/usr/lib/$f"
 done
@@ -123,12 +123,13 @@ fi
 case "$OUTPUT_TYPE" in
 ips)
 	CREV=0
-	BRANCH="2.$CREV" make_package "library/$NAM" \
+	BRANCH="$HELIOS_RELEASE.$CREV" make_package "library/$NAM" \
 	    'PKCS#11 wrapper library and OpenSSL engine' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
+	    "$NAM@$VER-$HELIOS_RELEASE.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

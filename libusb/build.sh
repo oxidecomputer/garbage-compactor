@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -28,10 +28,10 @@ rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
 NAM='libusb'
-VER='1.0.25'
+VER='1.0.29'
 URL="https://github.com/libusb/libusb/releases/download"
 URL+="/v$VER/libusb-$VER.tar.bz2"
-SHA256='8a28ef197a797ebac2702f095e81975e2b02b2eeff2774fa909c78a74ef50849'
+SHA256='5977fc950f8d1395ccea9bd48c06b3f808fd3c2c961b44b0c2e6e29fc3a70a85'
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
 	GCC_DIR=/usr/gcc/10/bin
@@ -81,6 +81,7 @@ export PATH="$WORKAROUND:$PATH"
 cd "$SRC32"
 
 apply_patches "$ROOT/patches"
+autoreconf -fi
 
 info "configure 32bit..."
 CFLAGS='-m32 -gdwarf-2 ' \
@@ -97,6 +98,7 @@ gmake install DESTDIR="$PROTO"
 cd "$SRC64"
 
 apply_patches "$ROOT/patches"
+autoreconf -fi
 
 info "configure 64bit..."
 CFLAGS='-m64 -gdwarf-2 -msave-args ' \
@@ -110,7 +112,7 @@ gmake -j8
 info "make install 64bit..."
 gmake install DESTDIR="$PROTO"
 
-for f in 'libusb-1.0.so.0.3.0'; do
+for f in 'libusb-1.0.so.0.5.0'; do
 	"$CTFCONVERT" "$PROTO/usr/lib/amd64/$f"
 	"$CTFCONVERT" "$PROTO/usr/lib/$f"
 done
@@ -123,13 +125,14 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
-	CREV=1
-	BRANCH="2.$CREV" make_package "library/$NAM" \
+	CREV=0
+	BRANCH="$HELIOS_RELEASE.$CREV" make_package "library/$NAM" \
 	    'A cross-platform library to access USB devices' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
+	    "$NAM@$VER-$HELIOS_RELEASE.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

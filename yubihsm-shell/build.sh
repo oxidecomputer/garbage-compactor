@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -103,6 +103,7 @@ CFLAGS='-m64 -gdwarf-2 -msave-args -D_REENTRANT ' \
     '-DYUBIHSM_INSTALL_PKGCONFIG_DIR=/usr/lib/amd64/pkgconfig' \
     '-DYUBIHSM_INSTALL_LIB_DIR=/usr/lib/amd64' \
     '-DYUBIHSM_INSTALL_INC_DIR=/usr/include/yubihsm' \
+    '-DCMAKE_POLICY_VERSION_MINIMUM=3.5' \
     ..
 
 info "make 64bit..."
@@ -122,12 +123,13 @@ fi
 case "$OUTPUT_TYPE" in
 ips)
 	CREV=0
-	BRANCH="2.$CREV" make_package "security/$NAM" \
+	BRANCH="$HELIOS_RELEASE.$CREV" make_package "security/$NAM" \
 	    'tools and PKCS#11 modules for YubiHSM devices' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
+	    "$NAM@$VER-$HELIOS_RELEASE.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

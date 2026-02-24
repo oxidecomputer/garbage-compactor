@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -108,13 +108,13 @@ case "$OUTPUT_TYPE" in
 ips)
 	CREV=0
 	PNAM="$NAM-${LUAVER/.}"
-	BRANCH="2.$CREV" make_package "developer/$PNAM" \
+	BRANCH="$HELIOS_RELEASE.$CREV" make_package "developer/$PNAM" \
 	    'the Lua package manager' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
 	pkgrecv -a -d "$WORK/$PNAM-$VER.p5p" -s "$WORK/repo" \
-	    "$PNAM@$VER-2.$CREV"
+	    "$PNAM@$VER-$HELIOS_RELEASE.$CREV"
 	ls -lh "$WORK/$PNAM-$VER.p5p"
 	exit 0
 	;;

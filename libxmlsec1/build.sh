@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -40,7 +40,7 @@ chmod 0755 "$WORKAROUND/git"
 
 NAM='libxmlsec1'
 VER='1.2.35'
-URL="http://www.aleksey.com/xmlsec/download/xmlsec1-$VER.tar.gz"
+URL="https://github.com/lsh123/xmlsec/releases/download/xmlsec-${VER//./_}/xmlsec1-$VER.tar.gz"
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
 	GCC_DIR=/usr/gcc/10/bin
@@ -79,6 +79,7 @@ export PATH="$WORKAROUND:$PATH"
 
 cd "$SRC32"
 
+apply_patches "$ROOT/patches"
 PKG_CONFIG_PATH='/usr/lib/pkgconfig' \
 CFLAGS='-m32' \
     ./configure \
@@ -94,6 +95,7 @@ gmake install DESTDIR="$PROTO"
 
 cd "$SRC64"
 
+apply_patches "$ROOT/patches"
 PKG_CONFIG_PATH='/usr/lib/amd64/pkgconfig' \
 CFLAGS='-m64' \
 LDFLAGS='-R/usr/lib/amd64' \
@@ -119,7 +121,8 @@ ips)
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
+	    "$NAM@$VER-$HELIOS_RELEASE.0"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

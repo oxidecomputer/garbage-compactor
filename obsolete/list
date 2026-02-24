@@ -1,0 +1,11 @@
+#
+# This is a list of packages which should be published as "renamed".
+# The first column is the original package, complete with the version at which
+# it was made obsolete but without any dash/release-branch component, and the
+# second column is the new package name.
+#
+ooce/helios-build-tools@2	ooce/omnios-build-tools
+library/json-c@0.16		ooce/library/json-c
+terminal/lrzsz@0.12.20		ooce/util/lrzsz
+terminal/picocom@3.1.999	ooce/terminal/picocom
+text/texinfo@7.0		ooce/text/texinfo

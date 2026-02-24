@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -159,6 +159,7 @@ cd build
 CFLAGS='-m32 -gdwarf-2' \
     cmake \
     -Wno-dev \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     -DCONFUSE_LIBRARY="$CONFUSE32/sproto/lib/libconfuse.a" \
     -DCONFUSE_INCLUDE_DIR="$CONFUSE32/sproto/include" \
     -DCMAKE_INSTALL_PREFIX=/usr \
@@ -193,6 +194,7 @@ CFLAGS='-m64 -gdwarf-2 -msave-args' \
 LDFLAGS='-R/usr/lib/amd64' \
     cmake \
     -Wno-dev \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     -DCONFUSE_LIBRARY="$CONFUSE64/sproto/lib/libconfuse.a" \
     -DCONFUSE_INCLUDE_DIR="$CONFUSE64/sproto/include" \
     -DCMAKE_INSTALL_PREFIX=/usr \
@@ -219,12 +221,13 @@ fi
 case "$OUTPUT_TYPE" in
 ips)
 	CREV=0
-	BRANCH=2.$CREV make_package "library/$NAM" \
+	BRANCH=$HELIOS_RELEASE.$CREV make_package "library/$NAM" \
 	    'a library for communicating with USB and Bluetooth HID devices' \
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.$CREV"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
+	    "$NAM@$VER-$HELIOS_RELEASE.$CREV"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;
