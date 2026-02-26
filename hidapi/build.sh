@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -28,7 +28,7 @@ rm -rf "$WORKAROUND"
 mkdir -p "$WORKAROUND"
 
 NAM='hidapi'
-VER='0.13.1'
+VER='0.15.0'
 URL="https://github.com/libusb/$NAM/archive/refs/tags/$NAM-$VER.tar.gz"
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
@@ -70,6 +70,7 @@ PKG_CONFIG_PATH=/usr/lib/pkgconfig \
     cmake \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib \
+    -DHIDAPI_NO_ICONV=ON \
     ..
 
 info "make..."
@@ -87,6 +88,7 @@ PKG_CONFIG_PATH=/usr/lib/pkgconfig \
     cmake \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_INSTALL_LIBDIR=lib/amd64 \
+    -DHIDAPI_NO_ICONV=ON \
     ..
 
 info "make..."
@@ -106,7 +108,8 @@ ips)
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
+	    "$NAM@$VER-$HELIOS_RELEASE.0"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

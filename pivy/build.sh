@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -37,7 +37,7 @@ info "using $GCC_DIR/g++: $($GCC_DIR/g++ --version | head -1)"
 
 build_deps \
     '/system/library/libpcsc' \
-    '/library/json-c'
+    'ooce/library/json-c'
 
 #
 # Download artefacts to use during build:
@@ -58,6 +58,7 @@ fi
 header "building $NAM"
 
 cd "$SRC64"
+apply_patches "$ROOT/patches"
 
 info "build $NAM..."
 MAKE=gmake \
@@ -102,7 +103,8 @@ ips)
 	    "$WORK/proto"
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
-	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" "$NAM@$VER-2.0"
+	pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" \
+	    "$NAM@$VER-$HELIOS_RELEASE.0"
 	ls -lh "$WORK/$NAM-$VER.p5p"
 	exit 0
 	;;

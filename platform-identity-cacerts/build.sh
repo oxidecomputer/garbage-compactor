@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright 2024 Oxide Computer Company
+# Copyright 2026 Oxide Computer Company
 #
 
 set -o errexit
@@ -93,7 +93,8 @@ ips)
 	header 'build output:'
 	pkgrepo -s "$WORK/repo" list
 	archive="$WORK/$NAM-$VER.p5p"
-	pkgrecv -a -d "$archive" -s "$WORK/repo" "$NAM@$VER-2.0"
+	pkgrecv -a -d "$archive" -s "$WORK/repo" \
+	    "$NAM@$VER-$HELIOS_RELEASE.0"
 	ls -lh "$archive"
 	exit 0
 	;;

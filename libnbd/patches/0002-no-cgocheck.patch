@@ -1,0 +1,13 @@
+diff --git a/run.in b/run.in
+index dda4922..c6731f9 100755
+--- a/run.in
++++ b/run.in
+@@ -94,8 +94,6 @@ else
+     CGO_LDFLAGS="$CGO_LDFLAGS -L$b/lib/.libs"
+ fi
+ export CGO_LDFLAGS
+-# This implements complete pointer checking in cgo.
+-export GODEBUG=cgocheck=2
+ 
+ # Allow dependent packages to be compiled against local libnbd.
+ prepend PKG_CONFIG_PATH "$b/lib/local"
