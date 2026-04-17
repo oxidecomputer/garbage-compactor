@@ -25,6 +25,8 @@ fi
 
 case "$OUTPUT_TYPE" in
 ips)
+	pkgrepo create "$WORK/repo"
+	pkgrepo add-publisher -s "$WORK/repo" helios-dev
 	make_package_simple "oxide/$NAM" \
 	    'Manufacturing software meta-package' \
 	    "$WORK/proto" \
