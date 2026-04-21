@@ -33,3 +33,9 @@ depend type=incorporate fmri=pkg:/oxide/platform-identity-cacerts@1.0-2.0
 
 depend type=require     fmri=pkg:/terminal/picocom
 depend type=incorporate fmri=pkg:/terminal/picocom@3.1.999-2.0
+
+depend type=require     fmri=pkg:/library/libftdi1
+depend type=incorporate fmri=pkg:/library/libftdi1@1.5-2.0
+
+depend type=require     fmri=pkg:/library/libusb
+depend type=incorporate fmri=pkg:/library/libusb@1.0.25-2.1
