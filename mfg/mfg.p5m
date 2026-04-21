@@ -39,3 +39,9 @@ depend type=incorporate fmri=pkg:/library/libftdi1@1.5-2.0
 
 depend type=require     fmri=pkg:/library/libusb
 depend type=incorporate fmri=pkg:/library/libusb@1.0.25-2.1
+
+depend type=require     fmri=pkg:/security/oxtpm
+depend type=incorporate fmri=pkg:/security/oxtpm@1.0.9
+
+depend type=require     fmri=pkg:/network/ovpnms
+depend type=incorporate fmri=pkg:/network/ovpnms@1.0.12
