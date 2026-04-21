@@ -23,7 +23,7 @@ depend type=require     fmri=pkg:/network/pilot
 depend type=incorporate fmri=pkg:/network/pilot@0.1.232
 
 depend type=require     fmri=pkg:/network/thundermuffin
-depend type=incorporate fmri=pkg:/network/thundermuffin@0.1.0.12
+depend type=incorporate fmri=pkg:/network/thundermuffin@0.1.0.9
 
 depend type=require     fmri=pkg:/developer/debug/lpc55_support
 depend type=incorporate fmri=pkg:/developer/debug/lpc55_support@0.3.4.151-2.0
