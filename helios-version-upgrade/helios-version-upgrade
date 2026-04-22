@@ -1,0 +1,373 @@
+#!/usr/bin/ksh
+
+# A utility to update a system running Heliosv2 to Heliosv3.
+# This works on systems running Helios main (helios-dev) AND those running
+# the serdev (helios-serdev) branch.
+#
+# The approach taken is to create a completely new boot environment - a
+# clone of the running system - and then modify that new boot environment
+# to set the appropriate package publishers. This leaves the current
+# running system untouched -- with one exception; prior to performing the
+# update the running system's `pkg` command is updated to the latest
+# published version if necessary.
+
+# This utility only supports updates from Helios v2 to v3
+typeset -ri srcver=2
+typeset -ri tgtver=3
+
+PATH=/usr/bin:/usr/sbin:/opt/ooce/bin
+unset PKG_IMAGE
+
+USAGE="[+NAME?helios-version-upgrade --- Helios system major version upgrade]"
+USAGE+="[a:activate?activate new BE after update]"
+USAGE+="[c:confirm?confirm update]"
+USAGE+="[k:keepbe?do not destroy new BE if update fails]"
+USAGE+="[n:dryrun?dry run - do not perform the update step]"
+USAGE+="[v:verbose?increase verbosity]"
+
+typeset -i activate=0
+typeset -i confirm=0
+typeset -i keepbe=0
+typeset -i dryrun=0
+typeset -i verbose=0
+
+while getopts "$USAGE" opt; do
+	case $opt in
+		a) activate=1 ;;
+		c) confirm=1 ;;
+		k) keepbe=1 ;;
+		n) dryrun=1 ;;
+		v) ((verbose++)) ;;
+	esac
+done
+shift $((OPTIND - 1))
+
+typeset -r c_highlight=`tput setaf 2`
+typeset -r c_error=`tput setaf 1`
+typeset -r c_note=`tput setaf 6`
+typeset -r c_reset=`tput sgr0`
+
+function fatal {
+	print -u2 "${c_error}FATAL: $*${c_reset}"
+	exit 1
+}
+
+function warning {
+	print -u2 "${c_error}"
+	print -u2 "******************************************************"
+	print -u2 "WARNING: $*"
+	print -u2 "******************************************************"
+	print -u2 "${c_reset}"
+}
+
+function note {
+	print "${c_note}"
+	print "******************************************************"
+	print "$*"
+	print "******************************************************"
+	print "${c_reset}"
+}
+
+((activate + dryrun > 1)) && fatal "--activate and --dryrun are incompatible"
+
+if ((!confirm)); then
+	note "Helios v2 to v3 updater"
+	cat <<- EOM
+	This utility updates a Heliosv2 system to Heliosv3.
+
+	It creates a new Boot Environment (BE) and updates it to Heliosv3,
+	leaving the current boot environment untouched* and suitable for
+	rollback.
+
+	Run with --confirm to start the upgrade.
+
+	Additional options are available as shown below. The new boot
+	environment will only be activated if the --activate switch is
+	given.
+
+	EOM
+
+	getopts "$USAGE" opt --man
+
+	exit 0
+fi
+
+function find_cmd {
+	typeset cmd="$1"; shift
+	typeset -M toupper var="$cmd"
+	typeset -n path="$var"
+	path=`whence -fp "$cmd"`
+	if (($? != 0)) || [ ! -x "$path" ]; then
+		fatal "Cannot find executable '$cmd' in PATH; $*"
+	fi
+}
+
+function lc_pkg {
+	((verbose)) && print -u 2 "PKG: $@"
+	LC_ALL=C $PFEXEC $PKG "$@"
+}
+
+function be_pkg {
+	lc_pkg -R $altroot "$@"
+}
+
+versions=(
+	[2]=(
+		pub=helios-dev
+		repo=https://pkg.oxide.computer/helios/2/dev
+		serdevrepo=https://pkg.oxide.computer/helios/2/serdev
+		serdevpub=helios-serdev
+	)
+	[3]=(
+		pub=helios
+		repo=https://pkg.oxide.computer/helios/3/dev
+		serdevrepo=https://pkg.oxide.computer/helios/3/serdev
+		serdevpub=helios-serdev
+	)
+)
+
+###########################################################################
+# Pre-flight checks
+
+note "Pre-flight"
+
+typeset -r osid=`awk -F= '$1 == "ID" { print $2 }' /etc/os-release`
+typeset -r osver=`awk -F= '$1 == "VERSION_ID" { print $2 }' /etc/os-release`
+typeset -r osbranch=`uname -v`
+
+[ "$osid" = helios ] || fatal "This system is running $osid, not helios"
+print "System is running helios"
+
+((osver == srcver)) ||
+    fatal "This system is not running helios v$srcver, but rather $osver"
+print "System is running helios version $osver"
+
+[ `zonename` = global ] ||
+    fatal "This utility cannot be run within a non-global zone"
+print "System is a global zone"
+
+typeset -i serdev=0
+case "$osbranch" in
+	helios-2*) print "System is running the 'stlouis' branch" ;;
+	serdev-2*) print "System is running the 'serdev' branch"; serdev=1 ;;
+	*) fatal "System is running an unknown branch '$osbranch'" ;;
+esac
+
+# Systems with lipkg-branded zones must be running a new enough helios 2.0, and
+# cannot be running the serdev branch.
+zoneadm list -np | cut -d: -f6 | sort | uniq | while read brand; do
+	[ "$brand" = lipkg ] || continue
+	typeset -r lipkgver=23824	# includes stlouis#939
+	typeset -r subrel=${osbranch##*.}
+	# We are not going to attempt to update a serdev system with lipkg
+	# zones; there should not be any of these.
+	((serdev)) && fatal "This system has lipkg zone(s) and is running"\
+	    "serdev. It cannot be upgraded using this utility."
+	(( subrel >= lipkgver )) && break
+	fatal "This system has lipkg zone(s) and must be updated to at least"\
+	    "version 2.0.$lipkgver before it can be upgraded to helios $tgtver"
+done
+
+find_cmd pfexec
+find_cmd beadm
+find_cmd pkg
+find_cmd jq "Please install the util/jq package (pfexec pkg install util/jq)"
+
+profiles | egrep -s '^(All|Primary Administrator)' ||
+    fatal "You do not appear to have Primary Administrator on this machine"
+print "Primary Administrator profile found"
+
+typeset -i pfexecid=`$PFEXEC id -u`
+((pfexecid == 0)) || fatal "pfexec does not seem to get you uid 0"
+print "pfexec works to raise privileges"
+
+###########################################################################
+# Update `pkg` if necessary and can be done in a way that does not
+# require anything more than a simple package update.
+
+note "Check pkg(7) version"
+
+typeset ptf=`mktemp`
+[ -f "$ptf" ] || fatal "mktemp failed"
+lc_pkg update -n --parsable=0 pkg | head -1 > $ptf
+typeset -i rc=$?
+typeset -i tochange=0
+if ((rc == 0)); then
+	tochange=`$JQ '.["change-packages"] | length' $ptf`
+elif ((rc == 4)); then
+	: # RC 4 means there is nothing to do
+else
+	rm -f $ptf
+	fatal "pkg update check failed"
+fi
+rm -f $ptf
+if ((tochange == 0)); then
+	print "pkg(7) is up to date."
+elif ((tochange = 1)); then
+	print "pkg(7) is out of date but can be updated safely. Updating..."
+	lc_pkg update -v pkg || fatal "Failed to update pkg(7)"
+else
+	fatal "pkg(7) is out of date; please update the package/pkg package"\
+	    "(pfexec pkg update pkg)"
+fi
+
+note "Plan"
+
+typeset -i minpkgchange=300
+typeset -i minpkgadd=10
+typeset -i minpkgrm=10
+typeset -n src=versions[$srcver]
+typeset -n tgt=versions[$tgtver]
+typeset tf=`mktemp`
+[ -f "$tf" ] || fatal "mktemp failed"
+typeset altroot=`mktemp -d /tmp/update.XXXXXX`
+typeset branch=`PFEXEC= lc_pkg list -g ${tgt.repo} -Ho branch -n kernel`
+[ -n "$branch" ] || fatal "Could not determine new release branch"
+typeset bename="helios-$branch"
+
+if ((serdev)); then
+       branch=`lc_pkg list -g ${tgt.serdevrepo} -Ho branch -n kernel`
+       branch=${branch/.999999/}
+       bename="serdev-$branch"
+fi
+
+function unwind {
+	print
+	note "Clean up"
+	print "Cleaning up, please wait..."
+	$PFEXEC $BEADM umount $bename >/dev/null 2>&1
+	((keepbe)) || $PFEXEC $BEADM destroy -fFs $bename >/dev/null 2>&1
+	rm -rf $altroot $tf
+}
+
+trap unwind EXIT
+
+[ -d "$altroot" ] || fatal "Failed to create directory for mount point"
+
+print "Target Helios version $tgtver (branch $branch)"
+
+if $BEADM list -H $bename >/dev/null 2>&1; then
+	warning "Boot environment $bename already exists, finding unique name."
+	typeset -i i=0
+	while $BEADM list -H "$bename-$i" >/dev/null 2>&1; do
+		((i++))
+	done
+	bename+="-$i"
+fi
+
+print "New boot environment: $bename"
+print "BE mount point:       $altroot"
+
+note "Create BE"
+
+print "Creating BE $bename"
+$PFEXEC $BEADM create $bename || fatal "Failed to create BE $bename"
+print "Mounting BE $bename on $altroot"
+$PFEXEC $BEADM mount $bename $altroot || fatal "Failed to mount BE"
+
+note "Configure publishers"
+
+be_pkg unset-publisher on-nightly >/dev/null 2>&1
+be_pkg set-publisher -r --non-sticky -O ${src.repo} ${src.pub} ||
+    fatal "Failed to set new BE publisher ${src.repo} ${src.pub}"
+be_pkg set-publisher -r --search-first -O ${tgt.repo} ${tgt.pub} ||
+    fatal "Failed to set new BE publisher ${tgt.repo} ${tgt.pub}"
+
+if ((serdev)); then
+	be_pkg set-publisher -r --search-before=${tgt.pub} \
+	    -O ${tgt.serdevrepo} ${tgt.serdevpub} ||
+	    fatal "Failed to set new BE publisher"\
+	    "${tgt.serdevrepo} ${tgt.serdevpub}"
+fi
+
+be_pkg publisher
+
+# First inspect the plan to make sure it looks sensible
+note "Verify update plan"
+
+typeset -i pkgadd=0
+typeset -i pkgrm=0
+typeset -i pkgchange=0
+
+be_pkg update -rn --parsable=0 | head -1 > $tf || fatal "Update planning failed"
+typeset -i pkgadd=`$JQ '.["add-packages"] | length' $tf`
+typeset -i pkgrm=`$JQ '.["remove-packages"] | length' $tf`
+typeset -i pkgchange=`$JQ '.["change-packages"] | length' $tf`
+
+cat << EOM
+Update Plan:
+	 Packages to remove:  $pkgrm
+	Packages to install:  $pkgadd
+	 Packages to update:  $pkgchange
+EOM
+
+# Sanity checks
+if ((pkgchange < minpkgchange || pkgadd < minpkgadd || pkgrm < minpkgrm)); then
+	cat <<EOM
+
+Not enough packages are going to be updated in this plan, something
+is not right. We expect that an update from Helios ${srcver} -> ${tgtver}
+will update at least $minpkgchange packages, add at least $minpkgadd and
+remove at least $minpkgrm.
+
+Please contact the host OS team.
+EOM
+	fatal "Update plan is suspect"
+fi
+
+print "Update plan looks ok"
+
+((dryrun)) && exit 0
+
+note "Update BE"
+be_pkg update -r || fatal "Package update failed"
+keepbe=1
+
+# There should be no packages which did not update, but let's check and
+# issue a warning if we find any.
+typeset -i updates=`be_pkg list -uHo name | wc -l`
+if ((updates > 0)); then
+	print
+	warning "The following packages failed to update"
+	be_pkg list -u
+	print
+fi
+
+note "Finalise BE"
+
+be_pkg unset-publisher ${src.pub} || fatal "Failed to unset source publisher"
+$PFEXEC $BEADM umount $bename || fatal "Failed to unmount BE"
+if ((activate)); then
+	$PFEXEC $BEADM activate $bename || fatal "Failed to activate new BE"
+fi
+
+print "$c_highlight"
+cat <<EOM
+****************************************************************
+A new boot environment called $bename has been created and
+has been successfully updated to Helios $branch
+
+EOM
+if ((activate)); then
+	cat <<EOM
+This boot environment has been activated and will be used on the
+next system boot.
+EOM
+else
+	cat <<EOM
+This boot environment has ${c_error}NOT been activated${c_reset}.
+When you are ready to switch to it, utter:
+
+	pfexec beadm activate $bename
+
+and reboot into it:
+
+	pfexec init 6
+EOM
+fi
+
+cat <<EOM
+****************************************************************
+EOM
+print "$c_reset"
+
