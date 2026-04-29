@@ -1,5 +1,5 @@
 depend type=require     fmri=pkg:/developer/debug/dice-util
-depend type=incorporate fmri=pkg:/developer/debug/dice-util@0.3.0.475-2.0
+depend type=incorporate fmri=pkg:/developer/debug/dice-util@0.3.0.481-2.0
 
 depend type=require     fmri=pkg:/developer/debug/embootleby
 depend type=incorporate fmri=pkg:/developer/debug/embootleby@1.0.2.38-2.0
@@ -17,7 +17,7 @@ depend type=require     fmri=pkg:/diagnostic/lmar
 depend type=incorporate fmri=pkg:/diagnostic/lmar@0.3.4.59-2.1
 
 depend type=require     fmri=pkg:/developer/debug/permission-slip-client
-depend type=incorporate fmri=pkg:/developer/debug/permission-slip-client@1.1.0.610-2.0
+depend type=incorporate fmri=pkg:/developer/debug/permission-slip-client@1.1.0.632-2.0
 
 depend type=require     fmri=pkg:/network/pilot
 depend type=incorporate fmri=pkg:/network/pilot@0.1.232
