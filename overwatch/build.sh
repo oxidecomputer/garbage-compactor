@@ -22,7 +22,6 @@ mkdir -p "$TOOLS"
 
 NAM='overwatch'
 REPO="https://github.com/oxidecomputer/$NAM.git"
-HELIOS_RELEASE=2
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
 	GCC_DIR=/usr/gcc/10/bin
