@@ -20,7 +20,7 @@ ROOT=$(cd "$(dirname "$0")" && pwd)
 . "$ROOT/../lib/common.sh"
 
 NAM='mfg'
-CREV=1
+CREV=2
 VER="0.1.$CREV"
 
 WORK="$ROOT/work"
