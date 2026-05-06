@@ -1,0 +1,36 @@
+From eb932c6200228bad6186e4326b07aa11e4352fcd Mon Sep 17 00:00:00 2001
+From: Oxide Computer Company <eng@oxide.computer>
+Date: Wed, 6 May 2026 15:09:59 +0000
+Subject: [PATCH] setThreadName: bail out early
+
+We observed that ClickHouse spends >=80% of its cpu time in
+pthread_setname_np on some racks. This reflects ClickHouse renaming its
+threads as a debugging tool, and it's slow on illumos because it uses
+three syscalls that go through procfs. Linux, macos, etc. offer a faster
+path for renames, so don't experience the issue. Since we don't
+currently rely on ClickHouse thread names for debugging, we work around
+the issue by bailing out of setThreadName early. A longer-term fix would
+see illumos adding support for fast thread renames.
+
+See https://github.com/oxidecomputer/customer-support/issues/1101 for
+details.
+---
+ src/Common/setThreadName.cpp | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/Common/setThreadName.cpp b/src/Common/setThreadName.cpp
+index f90398825a..11c5627580 100644
+--- a/src/Common/setThreadName.cpp
++++ b/src/Common/setThreadName.cpp
+@@ -30,6 +30,8 @@ static thread_local char thread_name[THREAD_NAME_SIZE]{};
+ 
+ void setThreadName(const char * name)
+ {
++    (void)name;
++    return;
+     if (strlen(name) > THREAD_NAME_SIZE - 1)
+         throw DB::Exception(DB::ErrorCodes::PTHREAD_ERROR, "Thread name cannot be longer than 15 bytes");
+ 
+-- 
+2.51.2
+
