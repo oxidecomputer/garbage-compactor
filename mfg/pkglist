@@ -2,19 +2,19 @@
 #  <pkg> [version]
 # If the optional version is not provided, the latest published package version
 # is used.
-pkg:/developer/debug/dice-util
-pkg:/developer/debug/embootleby
-pkg:/network/faux-mgs
-pkg:/developer/debug/humility
-pkg:/developer/iceprog
-pkg:/diagnostic/lmar
-pkg:/developer/debug/permission-slip-client
-pkg:/network/pilot
-pkg:/network/thundermuffin
-pkg:/developer/debug/lpc55_support
-pkg:/oxide/platform-identity-cacerts
-pkg:/terminal/picocom
-pkg:/library/libftdi1
-pkg:/library/libusb
-pkg:/security/oxtpm
-pkg:/network/ovpnms
+pkg:/developer/debug/dice-util 0.3.0.481-2.0
+pkg:/developer/debug/embootleby 1.0.2.38-2.0
+pkg:/network/faux-mgs 0.1.1.474-2.0
+pkg:/developer/debug/humility 0.12.16.619-2.0
+pkg:/developer/iceprog 0.0.809-2.0
+pkg:/diagnostic/lmar 0.3.4.59-2.1
+pkg:/developer/debug/permission-slip-client 1.1.0.632-2.0
+pkg:/network/pilot 0.1.232
+pkg:/network/thundermuffin 0.1.0.10
+pkg:/developer/debug/lpc55_support 0.3.4.151-2.0
+pkg:/oxide/platform-identity-cacerts 1.0-2.0
+pkg:/terminal/picocom 3.1.999-2.0
+pkg:/library/libftdi1 1.5-2.0
+pkg:/library/libusb 1.0.25-2.1
+pkg:/security/oxtpm 1.0.9
+pkg:/network/ovpnms 1.0.12
