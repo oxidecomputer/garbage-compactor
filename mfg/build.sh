@@ -22,7 +22,7 @@ NAM='mfg'
 ROOT=$(cd "$(dirname "$0")" && pwd)
 . "$ROOT/../lib/common.sh"
 
-CREV=`pkg list -g "$HELIOS_REPO" -Ho release "$NAM"`
+CREV=`pkg list -g "$HELIOS_REPO" -afHo release "$NAM" | head -1`
 CREV=${CREV##*.}
 [ -z "$CREV" ] && fatal "Could not retrieve current package version"
 ((CREV++))
@@ -39,10 +39,13 @@ set name=pkg.summary value="Manufacturing software package"
 EOM
 
 grep -v '^#' pkglist | while read pkg ver; do
-	[ -n "$ver" ] || \
-	    ver=`pkg list -g "$HELIOS_REPO" -aHo version $pkg@latest`
-	[ -n "$ver" ] || { echo "No version for $pkg" >&2; exit 1; }
-	[[ $ver = *-$HELIOS_RELEASE.* ]] || ver+="-$HELIOS_RELEASE.0"
+	if [ -z "$ver" ]; then
+		fatal "$pkg: no version pinned in pkglist"
+	fi
+	ver=`pkg list -g "$HELIOS_REPO" -afHo version "$pkg@$ver" | head -1`
+	if [ -z "$ver" ]; then
+		fatal "$pkg: no matching version published in $HELIOS_REPO"
+	fi
 
 	echo "[$pkg] -> [$ver]" >&2
 	bpkg=${pkg#pkg:/}
