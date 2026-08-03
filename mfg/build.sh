@@ -22,7 +22,7 @@ NAM='mfg'
 ROOT=$(cd "$(dirname "$0")" && pwd)
 . "$ROOT/../lib/common.sh"
 
-CREV=`pkg list -g "$HELIOS_REPO" -afHo release "$NAM" | head -1`
+CREV=`pkg list -g "$HELIOS_REPO" -Ho release "$NAM@latest"`
 CREV=${CREV##*.}
 [ -z "$CREV" ] && fatal "Could not retrieve current package version"
 ((CREV++))
@@ -42,7 +42,7 @@ grep -v '^#' pkglist | while read pkg ver; do
 	if [ -z "$ver" ]; then
 		fatal "$pkg: no version pinned in pkglist"
 	fi
-	ver=`pkg list -g "$HELIOS_REPO" -afHo version "$pkg@$ver" | head -1`
+	ver=`pkg list -g "$HELIOS_REPO" -nHo version "$pkg@$ver"`
 	if [ -z "$ver" ]; then
 		fatal "$pkg: no matching version published in $HELIOS_REPO"
 	fi
@@ -59,6 +59,7 @@ publish_manifest manifest.p5m
 cat manifest.p5m
 rm -f manifest.p5m
 
+rm -f "$WORK/$NAM-$VER.p5p"
 pkgrecv -a -d "$WORK/$NAM-$VER.p5p" -s "$WORK/repo" -m latest \*
 ls -lh "$WORK/$NAM-$VER.p5p"
 
