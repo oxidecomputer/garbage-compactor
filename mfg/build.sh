@@ -22,7 +22,7 @@ NAM='mfg'
 ROOT=$(cd "$(dirname "$0")" && pwd)
 . "$ROOT/../lib/common.sh"
 
-CREV=`pkg list -g "$HELIOS_REPO" -Ho release "$NAM@latest"`
+CREV=`pkg list -g "$HELIOS_REPO" -nHo release "$NAM"`
 CREV=${CREV##*.}
 [ -z "$CREV" ] && fatal "Could not retrieve current package version"
 ((CREV++))
