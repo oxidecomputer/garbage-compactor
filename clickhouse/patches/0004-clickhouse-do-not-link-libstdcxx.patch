@@ -1,0 +1,12 @@
+diff --git a/cmake/sunos/default_libs.cmake b/cmake/sunos/default_libs.cmake
+--- a/cmake/sunos/default_libs.cmake
++++ b/cmake/sunos/default_libs.cmake
+@@ -7,7 +7,7 @@
+ # - __EXTENSIONS__: expose non-standard but necessary APIs
+ add_compile_definitions(_REENTRANT _POSIX_PTHREAD_SEMANTICS __EXTENSIONS__)
+ 
+-set (DEFAULT_LIBS "-nodefaultlibs")
++set (DEFAULT_LIBS "-nodefaultlibs -nostdlib++")
+ 
+ # On SunOS/illumos, building compiler-rt from source is not yet supported
+ # (no toolchain file in contrib/compiler-rt-cmake/), so we use -lgcc_s.

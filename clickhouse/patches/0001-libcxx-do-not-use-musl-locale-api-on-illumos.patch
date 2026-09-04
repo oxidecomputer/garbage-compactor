@@ -1,0 +1,13 @@
+diff --git a/contrib/llvm-project/libcxx/include/__locale_dir/locale_base_api.h b/contrib/llvm-project/libcxx/include/__locale_dir/locale_base_api.h
+index 2e7338e86498..4ea616809bcb 100644
+--- a/contrib/llvm-project/libcxx/include/__locale_dir/locale_base_api.h
++++ b/contrib/llvm-project/libcxx/include/__locale_dir/locale_base_api.h
+@@ -132,7 +132,7 @@
+ #      include <__locale_dir/locale_base_api/ibm.h>
+ #    elif defined(__OpenBSD__)
+ #      include <__locale_dir/locale_base_api/openbsd.h>
+-#    elif defined(__wasi__) || _LIBCPP_HAS_MUSL_LIBC || defined(__sun)
++#    elif defined(__wasi__) || _LIBCPP_HAS_MUSL_LIBC
+ #      include <__locale_dir/locale_base_api/musl.h>
+ #    endif
+ 

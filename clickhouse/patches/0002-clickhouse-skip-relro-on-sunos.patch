@@ -1,0 +1,13 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -653,7 +653,8 @@ endif ()
+ # Resolving everything at startup costs nothing here because we link dynamically only against libc
+ # and we forbid dlopen (see programs/main.cpp).
+ # Not on Darwin: ld64 does not accept '-z' options.
+-if (NOT OS_DARWIN)
++# Not on SunOS: the illumos linker does not support '-z relro'.
++if (NOT OS_DARWIN AND NOT OS_SUNOS)
+     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,relro,-z,now")
+ endif ()
+ 

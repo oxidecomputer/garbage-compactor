@@ -1,0 +1,13 @@
+diff --git a/contrib/s2geometry/src/s2/util/math/mathutil.cc b/contrib/s2geometry/src/s2/util/math/mathutil.cc
+index 7373f7ec..86ec594b 100644
+--- a/contrib/s2geometry/src/s2/util/math/mathutil.cc
++++ b/contrib/s2geometry/src/s2/util/math/mathutil.cc
+@@ -52,7 +52,7 @@ bool MathUtil::RealRootsForCubic(long double const a,
+   }
+ 
+   long double const A =
+-    -sgn(R) * pow(std::abs(R) + sqrt(R_squared - Q_cubed), 1.0 / 3.0L);
++    -sgn(R) * ::powl(std::abs(R) + sqrt(R_squared - Q_cubed), 1.0 / 3.0L);
+ 
+   if (A != 0.0) {  // in which case, B from NR is zero
+     *r1 = A + Q / A - a_third;
