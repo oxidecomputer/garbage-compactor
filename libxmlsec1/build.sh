@@ -82,6 +82,7 @@ cd "$SRC32"
 apply_patches "$ROOT/patches"
 PKG_CONFIG_PATH='/usr/lib/pkgconfig' \
 CFLAGS='-m32' \
+CPPFLAGS='-D_REENTRANT' \
     ./configure \
     --prefix=/usr \
     --libdir=/usr/lib \
@@ -98,6 +99,7 @@ cd "$SRC64"
 apply_patches "$ROOT/patches"
 PKG_CONFIG_PATH='/usr/lib/amd64/pkgconfig' \
 CFLAGS='-m64' \
+CPPFLAGS='-D_REENTRANT' \
 LDFLAGS='-R/usr/lib/amd64' \
     ./configure \
     --prefix=/usr \
