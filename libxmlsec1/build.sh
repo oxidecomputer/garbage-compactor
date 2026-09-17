@@ -39,7 +39,7 @@ EOF
 chmod 0755 "$WORKAROUND/git"
 
 NAM='libxmlsec1'
-VER='1.2.35'
+VER='1.2.42'
 URL="https://github.com/lsh123/xmlsec/releases/download/xmlsec-${VER//./_}/xmlsec1-$VER.tar.gz"
 
 if [[ -x /usr/gcc/10/bin/gcc ]]; then
