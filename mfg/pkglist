@@ -18,3 +18,4 @@ pkg:/library/libftdi1                       1.5
 pkg:/ooce/library/libusb-1                  1.0.29
 pkg:/security/oxtpm                         1.0.11
 pkg:/network/ovpnms                         1.0.14
+pkg:/ooce/util/jq                           1.8.1
